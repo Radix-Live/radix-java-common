@@ -1,0 +1,130 @@
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+group = 'live.radix'
+version = '0.1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.10.RELEASE'
+    }
+}
+
+allprojects {
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+
+    tasks.withType(Test) {
+        systemProperty "file.encoding", "UTF-8"
+    }
+
+    tasks.withType(Javadoc) {
+        failOnError false
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
+subprojects {
+
+    apply plugin: "maven-publish"
+
+    project.afterEvaluate {
+        java {
+            withSourcesJar()
+            withJavadocJar()
+        }
+
+        jar {
+            manifest {
+                attributes 'artifactId': project.name,
+                        'groupId': project.group,
+                        'version': project.version
+            }
+            baseName project.name
+        }
+
+        publishing {
+            repositories {
+                mavenLocal()
+            }
+            publications {
+                myLibrary(MavenPublication) {
+                    from components.java
+                }
+            }
+        }
+    }
+
+
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencyManagement {
+        overriddenByDependencies = false
+
+        dependencies {
+            dependency('com.google.inject:guice:5.0.1') {
+                exclude 'com.google.guava:guava'
+            }
+
+            dependency 'org.apache.logging.log4j:log4j-api:2.17.2'
+            dependency 'org.apache.logging.log4j:log4j-core:2.17.2'
+            dependency 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.2'
+
+            dependency('org.reflections:reflections:0.9.12') {
+                exclude 'com.google.guava:guava'
+            }
+
+            dependency 'org.bouncycastle:bcprov-jdk15on:1.70'
+            dependency 'org.bouncycastle:bcpkix-jdk15on:1.70'
+
+            dependency 'org.json:json:20180813'
+
+            dependency 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
+            dependency 'com.fasterxml.jackson.core:jackson-core:2.12.4'
+            dependency 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4'
+            dependency 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.4'
+            dependency('com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.12.4') {
+                exclude 'org.json:json'
+            }
+            dependency('com.fasterxml.jackson.datatype:jackson-datatype-guava:2.12.4') {
+                exclude 'com.google.guava:guava'
+            }
+
+            dependency 'com.google.guava:guava:30.1.1-jre'
+
+            // need at least this commit (or later): https://github.com/bitcoinj/bitcoinj/commit/7629677103dbdd80f14c63b066ed27e1fad47014
+            // in order to work with BouncyCastle 1.64 or later
+            // see issue: https://github.com/bitcoinj/bitcoinj/issues/1951
+            dependency('org.bitcoinj:bitcoinj-core:0.15.10') {
+                exclude 'com.google.guava:guava'
+                exclude 'org.bouncycastle:bcprov-jdk15to18'
+            }
+
+            dependency 'org.mockito:mockito-core:3.12.4'
+            dependency 'nl.jqno.equalsverifier:equalsverifier:3.6.1'
+            dependency 'org.assertj:assertj-core:3.20.2'
+            dependency 'junit:junit:4.13.2'
+        }
+    }
+}

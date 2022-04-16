@@ -1,0 +1,5 @@
+rootProject.name='radix-java-common'
+
+include ':radixdlt-java-common'
+
+project(':radixdlt-java-common').projectDir = new File('radixdlt-java-common')

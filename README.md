@@ -1,2 +1,3 @@
-# radixdlt-java-common
-Java library with common utilities (Serialization, Hashing, Crypto) for Radix Network.
+# radix-java-common
+
+Java libraries and utilities to help you get started working with Radix APIs.
