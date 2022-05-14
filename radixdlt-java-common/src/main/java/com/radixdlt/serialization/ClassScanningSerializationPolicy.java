@@ -78,6 +78,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class that maintains a map of {@link DsonOutput.Output} types to a set of pairs of classes and
@@ -237,7 +238,7 @@ public abstract class ClassScanningSerializationPolicy implements SerializationP
             .map(Map.Entry::getKey)
             .map(Class::getName)
             .sorted()
-            .toList();
+            .collect(Collectors.toList());
     if (!classesWithMissingSerializer.isEmpty()) {
       throw new IllegalStateException(
           String.format(

@@ -175,8 +175,13 @@ public final class ECDSASignature {
       return true;
     }
 
-    return (o instanceof ECDSASignature signature)
-        && Objects.equals(r, signature.r)
+    if (!(o instanceof ECDSASignature)) {
+      return false;
+    }
+    ECDSASignature signature = (ECDSASignature) o;
+
+    return
+           Objects.equals(r, signature.r)
         && Objects.equals(s, signature.s)
         && Objects.equals(v, signature.v);
   }
