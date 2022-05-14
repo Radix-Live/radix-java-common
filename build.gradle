@@ -77,7 +77,7 @@ subprojects {
             }
 
             publications {
-                jarMain(MavenPublication) {
+                main(MavenPublication) {
                     from components.java
 
                     pom {
@@ -112,7 +112,7 @@ subprojects {
 
         signing {
             required { gradle.taskGraph.hasTask("publish") && hasProperty("signing.keyId") }
-            sign publishing.publications.jarMain
+            sign publishing.publications.main
         }
     }
 

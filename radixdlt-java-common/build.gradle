@@ -80,7 +80,7 @@ dependencies {
     api 'com.fasterxml.jackson.datatype:jackson-datatype-json-org'
     api 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
     api 'com.google.guava:guava'
-    api 'com.google.inject:guice'
+    api 'com.google.inject:guice:5.0.1' // "publish" fails without at least one dependency with a version :/
     api 'org.bitcoinj:bitcoinj-core'
     testImplementation 'junit:junit'
     testImplementation 'org.mockito:mockito-core'
