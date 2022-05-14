@@ -2,12 +2,13 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
 group = 'live.radix'
-version = '0.1.0-SNAPSHOT'
+version = '0.1.2-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -52,7 +53,6 @@ ext {
 }
 
 subprojects {
-
     apply plugin: "maven-publish"
 
     project.afterEvaluate {
@@ -61,27 +61,60 @@ subprojects {
             withJavadocJar()
         }
 
-        jar {
-            manifest {
-                attributes 'artifactId': project.name,
-                        'groupId': project.group,
-                        'version': project.version
-            }
-            baseName project.name
-        }
-
         publishing {
             repositories {
                 mavenLocal()
+                maven {
+                    name = 'OSSRH'
+                    def releasesRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+                    def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                    credentials {
+                        username = ossrhUsername
+                        password = ossrhPassword
+                    }
+                }
             }
+
             publications {
-                myLibrary(MavenPublication) {
+                jarMain(MavenPublication) {
                     from components.java
+
+                    pom {
+                        name = project.name
+                        packaging = 'jar'
+                        url = 'https://github.com/Radix-Live/radix-java-common'
+
+                        scm {
+                            connection = 'scm:git:https://github.com/Radix-Live/radix-java-common.git'
+                            developerConnection = 'scm:git:https://github.com/Radix-Live/radix-java-common.git'
+                            url = 'https://github.com/Radix-Live/radix-java-common'
+                        }
+
+                        licenses {
+                            license {
+                                name = 'MIT License'
+                                url = 'https://opensource.org/licenses/mit-license.php'
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id = 'Mleekko'
+                                name = 'Oleh Koval'
+                                email = 'oleh@koval.tech'
+                            }
+                        }
+                    }
                 }
             }
         }
-    }
 
+        signing {
+            required { gradle.taskGraph.hasTask("publish") && hasProperty("signing.keyId") }
+            sign publishing.publications.jarMain
+        }
+    }
 
     apply plugin: 'io.spring.dependency-management'
 
@@ -133,4 +166,5 @@ subprojects {
             dependency 'junit:junit:4.13.2'
         }
     }
+
 }
