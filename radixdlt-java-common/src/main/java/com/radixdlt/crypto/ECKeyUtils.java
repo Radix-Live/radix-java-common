@@ -329,7 +329,7 @@ public class ECKeyUtils {
    *     and does not have sufficient leading zeros to allow truncation to the specified length.
    * @throws NullPointerException if the specified array is {@code null}
    */
-  static byte[] adjustArray(byte[] array, int length) {
+  public static byte[] adjustArray(byte[] array, int length) {
     if (length == array.length) {
       // Length is fine
       return array;

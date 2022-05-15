@@ -81,11 +81,8 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyStore;
+import java.security.*;
 import java.security.KeyStore.Entry;
-import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.time.LocalDateTime;
@@ -149,9 +146,13 @@ public final class RadixKeyStore implements Closeable {
   // This looks like an implementation issue with Bouncy Castle (static data initialisation in
   // constructor), but we work around it here by creating a dummy provider and then discarding it.
   // This is as at BC 1.64.
+  // Mleekko (2022-05-15): Updated to fix an issue when BC provider was not inserted (a conflict with ECKeyUtils ?)
   static {
     @SuppressWarnings("unused")
-    Object unused = new BouncyCastleProvider();
+    Provider provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME);
+    if (provider == null) {
+      Security.insertProviderAt(new BouncyCastleProvider(), 1);
+    }
   }
 
   /**
