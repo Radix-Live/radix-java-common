@@ -65,7 +65,7 @@
 apply plugin: 'java-library'
 
 group rootProject.group
-version rootProject.version
+version '1.2.1'
 
 dependencies {
     api 'org.apache.logging.log4j:log4j-api'
