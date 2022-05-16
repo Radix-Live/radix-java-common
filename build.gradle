@@ -55,6 +55,14 @@ ext {
 subprojects {
     apply plugin: "maven-publish"
 
+
+    ext {
+        license = {
+            name = 'MIT License'
+            url = 'https://opensource.org/licenses/mit-license.php'
+        }
+    }
+
     project.afterEvaluate {
         java {
             withSourcesJar()
@@ -82,6 +90,7 @@ subprojects {
 
                     pom {
                         name = project.name
+                        description = project.description
                         packaging = 'jar'
                         url = 'https://github.com/Radix-Live/radix-java-common'
 
@@ -92,10 +101,7 @@ subprojects {
                         }
 
                         licenses {
-                            license {
-                                name = 'MIT License'
-                                url = 'https://opensource.org/licenses/mit-license.php'
-                            }
+                            license license
                         }
 
                         developers {

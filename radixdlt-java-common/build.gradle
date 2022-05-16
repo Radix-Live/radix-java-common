@@ -66,6 +66,12 @@ apply plugin: 'java-library'
 
 group rootProject.group
 version '1.2.1'
+description 'Java library with common utilities (Serialization, Hashing, Crypto) for Radix Network.'
+
+ext.set('license', {
+    name = 'Radix License'
+    url = 'https://radixfoundation.org/licenses/license-v1'
+})
 
 dependencies {
     api 'org.apache.logging.log4j:log4j-api'
