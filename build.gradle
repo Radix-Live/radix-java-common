@@ -4,11 +4,9 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
 
 group = 'live.radix'
-version = '0.1.2-SNAPSHOT'
+version = '0.2.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -26,6 +24,8 @@ buildscript {
 }
 
 allprojects {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 
     repositories {
         mavenLocal()
@@ -47,14 +47,13 @@ allprojects {
 }
 
 ext {
-    jackson_version = "2.12.6"
-    jackson_databind_version = '2.12.6.1'
-    jackson_databind_nullable_version = "0.2.1"
+    jackson_version = '2.13.3'
+    jackson_databind_version = '2.13.3'
+    junit_version = '4.13.2'
 }
 
 subprojects {
     apply plugin: "maven-publish"
-
 
     ext {
         license = {
@@ -63,7 +62,7 @@ subprojects {
         }
     }
 
-    project.afterEvaluate {
+    afterEvaluate {
         java {
             withSourcesJar()
             withJavadocJar()
@@ -83,9 +82,9 @@ subprojects {
                     }
                 }
             }
-
+            String publicationName = project.name
             publications {
-                main(MavenPublication) {
+                "$publicationName"(MavenPublication) {
                     from components.java
 
                     pom {
@@ -114,12 +113,13 @@ subprojects {
                     }
                 }
             }
+
+            signing {
+                required { gradle.taskGraph.hasTask("publish") && hasProperty("signing.keyId") }
+                sign publishing.publications."$publicationName"
+            }
         }
 
-        signing {
-            required { gradle.taskGraph.hasTask("publish") && hasProperty("signing.keyId") }
-            sign publishing.publications.main
-        }
     }
 
     apply plugin: 'io.spring.dependency-management'
@@ -128,7 +128,7 @@ subprojects {
         overriddenByDependencies = false
 
         dependencies {
-            dependency('com.google.inject:guice:5.0.1') {
+            dependency('com.google.inject:guice:5.1.0') {
                 exclude 'com.google.guava:guava'
             }
 
@@ -143,7 +143,7 @@ subprojects {
             dependency 'org.bouncycastle:bcprov-jdk18on:1.71'
             dependency 'org.bouncycastle:bcpkix-jdk18on:1.71'
 
-            dependency 'org.json:json:20180813'
+            dependency 'org.json:json:20220320'
 
             dependency "com.fasterxml.jackson.core:jackson-databind:$jackson_databind_version"
             dependency "com.fasterxml.jackson.core:jackson-core:$jackson_version"
@@ -169,7 +169,7 @@ subprojects {
             dependency 'org.mockito:mockito-core:3.12.4'
             dependency 'nl.jqno.equalsverifier:equalsverifier:3.6.1'
             dependency 'org.assertj:assertj-core:3.20.2'
-            dependency 'junit:junit:4.13.2'
+            dependency "junit:junit:$junit_version"
         }
     }
 

@@ -1,0 +1,2905 @@
+openapi: 3.0.0
+info:
+  description: |
+    This API is designed to enable clients to efficiently query information on the RadixDLT ledger, and allow clients to simply build and submit transactions to the network.
+
+    The API is designed for use by the Radix Foundation's [Desktop Wallet](https://wallet.radixdlt.com/) and [Explorer](https://explorer.radixdlt.com/), and replaces the original Olympia "Archive Node API".
+
+    # Gateway API Overview
+
+    The Gateway API is separated into distinct groupings:
+
+    * `/gateway` - Information about the Gateway API status
+    * `/account/*` - To query account-related information
+    * `/token/*` - To query token-related information
+    * `/validator/*` and `/validators` - To query validator-related information
+    * `/transaction/*` - To build, finalize and submit transactions, and to read the status and content of submitted and on-ledger transactions.
+    * `/custom/*` - Additional endpoints that are an unofficial extensions to the Gateway API and available only at some API providers (e.g. `https://radix.live`),
+              or as a custom build from a [forked repository](https://github.com/Radix-Live/radixdlt-network-gateway)
+
+    The Gateway API is implemented by the [Network Gateway](https://github.com/radixdlt/radixdlt-network-gateway), which is configured to read from full node/s to extract and index data from the network.
+
+    # Gateway API Format
+
+    The API is designed in a JSON-RPC style, using HTTP as a transport layer, which means that:
+
+    * All requests are POST requests.
+    * Any error is returned with an HTTP status code of 500, with a returned error object.
+      * The error object contains an HTTP-like `code`
+      * The error object also contains a structured/typed `details` sub-object, with a `type` discriminator, allowing for structured error interpretation in clients.
+
+    # Comparison to other Radix APIs
+
+    * [Core API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/radixdlt/radixdlt/main/radixdlt-core/radixdlt/src/main/java/com/radixdlt/api/core/api.yaml) - The Core API is a low level API exposed by full nodes, and designed for use on internal networks. It is primarily designed for network integrations such as exchanges, ledger analytics providers, or hosted ledger data dashboards. The Core API provides endpoints for reading the mempool, constructing transactions and also exposes a stream of committed transactions.
+
+    * [System API](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/radixdlt/radixdlt/main/radixdlt-core/radixdlt/src/main/java/com/radixdlt/api/system/api.yaml) - The System API is a private API exposed by full nodes to read system status.
+
+    The Gateway API offers a much wider range of query options and is more performant than the Core API. It is built on top of the Core API, ingesting data via the Core API transaction stream into a relational database.
+
+    The Gateway API transaction/construction endpoints operate with the concept of "actions" - these are higher-levels of intent compared with the Core API, which makes it easier for clients to use. The Core API should be used if you require more power/flexiblity for managing UTXOs, or submitting transactions which can't be mapped to a Gateway API action.
+  license:
+    name: The Radix License, Version 1.0
+    url: https://www.radixfoundation.org/licenses/LICENSE-v1
+  title: Radix Gateway API
+  version: 1.1.2-L
+servers:
+- url: http://localhost:5208
+- url: https://stokenet-gateway.radixdlt.com
+- url: https://mainnet-gateway.radixdlt.com
+tags:
+- description: To query information about the Gateway API status.
+  name: Status
+  x-displayName: Status Endpoints
+- description: To query account-related information.
+  name: Account
+  x-displayName: Account Endpoints
+- description: To query token-related information.
+  name: Token
+  x-displayName: Token Endpoints
+- description: To query validator-related information.
+  name: Validator
+  x-displayName: Validator Endpoints
+- description: To build, finalize and submit transactions, and to query transaction
+    status and contents.
+  name: Transaction
+  x-displayName: Transaction Endpoints
+- description: Additional endpoints that are an unofficial extensions to the Gateway
+    API and available only at some API providers.
+  name: Custom Endpoints
+  x-displayName: Custom (Additional) Endpoints
+paths:
+  /gateway:
+    post:
+      description: Returns the Gateway API version, network and current ledger state.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GatewayRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GatewayResponse'
+          description: The Network
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Gateway Info
+      tags:
+      - Status
+      x-contentType: application/json
+      x-accepts: application/json
+  /token/native:
+    post:
+      description: Returns information about XRD, including its Radix Resource Identifier.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenNativeRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenNativeResponse'
+          description: Token info
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Native Token Info
+      tags:
+      - Token
+      x-contentType: application/json
+      x-accepts: application/json
+  /token:
+    post:
+      description: Returns information about any token, given its Radix Resource Identifier.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          description: Token info
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Token Info
+      tags:
+      - Token
+      x-contentType: application/json
+      x-accepts: application/json
+  /token/derive:
+    post:
+      description: Returns the Radix Resource Identifier of a token with the given
+        symbol, created by an account with the given public key.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenDeriveRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenDeriveResponse'
+          description: Token info
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Derive Token Identifier
+      tags:
+      - Token
+      x-contentType: application/json
+      x-accepts: application/json
+  /account/derive:
+    post:
+      description: Returns the account address associated with the given public key.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountDeriveRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDeriveResponse'
+          description: Token info
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Derive Account Identifier
+      tags:
+      - Account
+      x-contentType: application/json
+      x-accepts: application/json
+  /account/balances:
+    post:
+      description: |
+        Returns an account's available and staked token balances, given an account address.
+        If an account address is valid, but doesn't have any ledger transactions against it, this endpoint still returns a successful response.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountBalancesRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountBalancesResponse'
+          description: Balances of Account
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Account Balances
+      tags:
+      - Account
+      x-contentType: application/json
+      x-accepts: application/json
+  /account/stakes:
+    post:
+      description: |
+        Returns the xrd which the account has in pending and active delegated stake positions with validators, given an account address.
+        If an account address is valid, but doesn't have any ledger transactions against it, this endpoint still returns a successful response.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountStakesRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountStakesResponse'
+          description: List of Stake Positions
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Stake Positions
+      tags:
+      - Account
+      x-contentType: application/json
+      x-accepts: application/json
+  /account/unstakes:
+    post:
+      description: |
+        Returns the xrd which the account has in pending and temporarily-locked delegated unstake positions with validators, given an account address.
+        If an account address is valid, but doesn't have any ledger transactions against it, this endpoint still returns a successful response.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUnstakesRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountUnstakesResponse'
+          description: List of Unstake Positions
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Unstake Positions
+      tags:
+      - Account
+      x-contentType: application/json
+      x-accepts: application/json
+  /account/transactions:
+    post:
+      description: |
+        Returns user-initiated transactions involving the given account address which have been succesfully committed to the ledger.
+        The transactions are returned in a paginated format, ordered by most recent.
+        If an account address is valid, but doesn't have any ledger transactions against it, this endpoint still returns a successful response.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountTransactionsRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountTransactionsResponse'
+          description: List of Transactions
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Account Transactions
+      tags:
+      - Account
+      x-contentType: application/json
+      x-accepts: application/json
+  /validator:
+    post:
+      description: |
+        Returns information about a validator, given a validator address.
+        If a validator address is valid, but has not appeared on ledger as a validator, this endpoint still returns a successful response.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidatorRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidatorResponse'
+          description: Validator Info
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Validator
+      tags:
+      - Validator
+      x-contentType: application/json
+      x-accepts: application/json
+  /validator/derive:
+    post:
+      description: Returns the validator address associated with the given public
+        key.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidatorDeriveRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidatorDeriveResponse'
+          description: Validator Info
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Validator Identifier
+      tags:
+      - Validator
+      x-contentType: application/json
+      x-accepts: application/json
+  /validators:
+    post:
+      description: Returns information about all validators.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidatorsRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidatorsResponse'
+          description: Ordered list of validators
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Validators
+      tags:
+      - Validator
+      x-contentType: application/json
+      x-accepts: application/json
+  /validator/stakes:
+    post:
+      description: |
+        Returns paginated results about the delegated stakes from accounts to a validator.
+        The results are totalled by account, and ordered by account age (oldest to newest).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidatorStakesRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidatorStakesResponse'
+          description: Page of account-validator stakes.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Validator Stakes
+      tags:
+      - Validator
+      x-contentType: application/json
+      x-accepts: application/json
+  /transaction/rules:
+    post:
+      description: Returns the current rules used to build and validate transactions
+        in the Radix Engine.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRulesRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionRulesResponse'
+          description: Rules for transaction construction
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Transaction Rules
+      tags:
+      - Transaction
+      x-contentType: application/json
+      x-accepts: application/json
+  /transaction/build:
+    post:
+      description: Returns a built unsigned transaction payload, from a set of intended
+        actions.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionBuildRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionBuildResponse'
+          description: An unsigned transaction
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Build Transaction
+      tags:
+      - Transaction
+      x-contentType: application/json
+      x-accepts: application/json
+  /transaction/finalize:
+    post:
+      description: Returns a signed transaction payload and transaction identifier,
+        from an unsigned transaction payload and signature.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionFinalizeRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionFinalizeResponse'
+          description: Final Signed Transaction
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Finalize Transaction
+      tags:
+      - Transaction
+      x-contentType: application/json
+      x-accepts: application/json
+  /transaction/submit:
+    post:
+      description: |
+        Submits a signed transaction payload to the network.
+        The transaction identifier from finalize or submit can then be used to track the transaction status.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionSubmitRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionSubmitResponse'
+          description: Successful Submission
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Submit Transaction
+      tags:
+      - Transaction
+      x-contentType: application/json
+      x-accepts: application/json
+  /transaction/status:
+    post:
+      description: |
+        Returns the status and contents of the transaction with the given transaction identifier. Transaction identifiers which aren't recognised as either belonging to a committed transaction or a transaction submitted through this Network Gateway may return a `TransactionNotFoundError`. Transaction identifiers relating to failed transactions will, after a delay, also be reported as a `TransactionNotFoundError`.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionStatusRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionStatusResponse'
+          description: Transaction Status
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Transaction Status
+      tags:
+      - Transaction
+      x-contentType: application/json
+      x-accepts: application/json
+  /custom/transactions-batch/since-account-transactions:
+    post:
+      description: |
+        Returns a list of transactions for each of the requested accounts, that were committed after the requested transaction hash.<br>
+        The transactions are grouped by accounts and ordered by date (oldest first).<br>
+        The pagination is not supported; the clients are expected to perform a new request with updated last seen transaction hashes.<br>
+        If there are no new transactions for one of the specified accounts - it will be omitted from the response.<br>
+        If there are no new transactions for all of the specified accounts - the endpoint will return a successful response with an empty list of AccountTransactions.<br>
+        If there is a transaction that is related to two or more requested accounts - it will be included in the response multiple times - once per each related account.<br>
+        A typical use usage scenario:
+        1. Execute the request for a list of accounts, without specifying the TX hashes in the request
+        2. Process the received transactions, store the last seen transaction for each monitored account
+        3. Execute a new request, this time supply the last seen transaction hashes in the request
+        4. Process the received transactions, store the last seen transaction for each monitored account
+        5. Repeat #3-#4 while received TX count == limit
+        6. After some interval (1-5 minutes) - goto #3.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionsSinceHashBatchRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsSinceHashBatchResponse'
+          description: The oldest transactions that match the criteria
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Batch Polling of new Transactions
+      tags:
+      - Batch Transactions
+      x-contentType: application/json
+      x-accepts: application/json
+  /custom/transactions-batch/since-ledger-state:
+    post:
+      description: |
+        Returns a list of transactions for each of the requested accounts, that were committed after the requested historical ledger state.<br>
+        The transactions are returned in a paginated format, grouped by accounts and ordered by date (oldest first).<br>
+        To get the next page - execute a new request with the "cursor" object received in the response.<br>
+        If there are no transactions for one of the specified accounts - it will be omitted from the response.<br>
+        If there are no transactions for all of the specified accounts - the endpoint will still return a successful response with an empty list of AccountTransactions.<br>
+        If there is a transaction that is related to two or more requested accounts - it will be included in the response multiple times - once per each related account.<br>
+
+        `since_state_identifier` - Transactions from this or any earlier state versions will not be included into the response.<br>
+        `at_state_identifier` - The most recent state version to include (inclusive). Optional, by default the most recent observed state will be used.<br>
+        `cursor` - The value from the previous page request. If set, overrides `since_state_identifier` param.<br>
+        One of [`since_state_identifier`, `cursor`] is required.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionsSinceStateBatchRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsSinceStateBatchResponse'
+          description: The oldest transactions that match the criteria
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Batch request transactions for multiple accounts.
+      tags:
+      - Batch Transactions
+      x-contentType: application/json
+      x-accepts: application/json
+components:
+  schemas:
+    AccountBalancesRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        account_identifier:
+          address: rdx1qspacch6qjqy7awspx304sev3n4em302en25jd87yrh4hp47grr692cm0kv88
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        account_identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+      required:
+      - account_identifier
+      - network_identifier
+      type: object
+    AccountBalancesResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        account_balances:
+          staked_and_unstaking_balance:
+            token_identifier:
+              rri: rri
+            value: value
+          liquid_balances:
+          - token_identifier:
+              rri: rri
+            value: value
+          - token_identifier:
+              rri: rri
+            value: value
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        account_balances:
+          $ref: '#/components/schemas/AccountBalances'
+      required:
+      - account_balances
+      - ledger_state
+      type: object
+    AccountBalances:
+      example:
+        staked_and_unstaking_balance:
+          token_identifier:
+            rri: rri
+          value: value
+        liquid_balances:
+        - token_identifier:
+            rri: rri
+          value: value
+        - token_identifier:
+            rri: rri
+          value: value
+      properties:
+        staked_and_unstaking_balance:
+          $ref: '#/components/schemas/TokenAmount'
+        liquid_balances:
+          description: A list of all the token balances owned by the account.
+          items:
+            $ref: '#/components/schemas/TokenAmount'
+          type: array
+      required:
+      - liquid_balances
+      - staked_and_unstaking_balance
+      type: object
+    AccountStakesRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        account_identifier:
+          address: rdx1qspacch6qjqy7awspx304sev3n4em302en25jd87yrh4hp47grr692cm0kv88
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        account_identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+      required:
+      - account_identifier
+      - network_identifier
+      type: object
+    AccountStakesResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        pending_stakes:
+        - delegated_stake:
+            token_identifier:
+              rri: rri
+            value: value
+          validator_identifier:
+            address: address
+        - delegated_stake:
+            token_identifier:
+              rri: rri
+            value: value
+          validator_identifier:
+            address: address
+        stakes:
+        - delegated_stake:
+            token_identifier:
+              rri: rri
+            value: value
+          validator_identifier:
+            address: address
+        - delegated_stake:
+            token_identifier:
+              rri: rri
+            value: value
+          validator_identifier:
+            address: address
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        pending_stakes:
+          description: The stake positions which will become staked at the next epoch
+            change.
+          items:
+            $ref: '#/components/schemas/AccountStakeEntry'
+          type: array
+        stakes:
+          description: The stake positions which are currently staked.
+          items:
+            $ref: '#/components/schemas/AccountStakeEntry'
+          type: array
+      required:
+      - ledger_state
+      - pending_stakes
+      - stakes
+      type: object
+    AccountStakeEntry:
+      example:
+        delegated_stake:
+          token_identifier:
+            rri: rri
+          value: value
+        validator_identifier:
+          address: address
+      properties:
+        validator_identifier:
+          $ref: '#/components/schemas/ValidatorIdentifier'
+        delegated_stake:
+          $ref: '#/components/schemas/TokenAmount'
+      required:
+      - delegated_stake
+      - validator_identifier
+      type: object
+    AccountUnstakesRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        account_identifier:
+          address: rdx1qspacch6qjqy7awspx304sev3n4em302en25jd87yrh4hp47grr692cm0kv88
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        account_identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+      required:
+      - account_identifier
+      - network_identifier
+      type: object
+    AccountUnstakesResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        unstakes:
+        - epochs_until_unlocked: 0
+          validator_identifier:
+            address: address
+          unstaking_amount:
+            token_identifier:
+              rri: rri
+            value: value
+        - epochs_until_unlocked: 0
+          validator_identifier:
+            address: address
+          unstaking_amount:
+            token_identifier:
+              rri: rri
+            value: value
+        pending_unstakes:
+        - epochs_until_unlocked: 0
+          validator_identifier:
+            address: address
+          unstaking_amount:
+            token_identifier:
+              rri: rri
+            value: value
+        - epochs_until_unlocked: 0
+          validator_identifier:
+            address: address
+          unstaking_amount:
+            token_identifier:
+              rri: rri
+            value: value
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        pending_unstakes:
+          items:
+            $ref: '#/components/schemas/AccountUnstakeEntry'
+          type: array
+        unstakes:
+          items:
+            $ref: '#/components/schemas/AccountUnstakeEntry'
+          type: array
+      required:
+      - ledger_state
+      - pending_unstakes
+      - unstakes
+      type: object
+    AccountUnstakeEntry:
+      example:
+        epochs_until_unlocked: 0
+        validator_identifier:
+          address: address
+        unstaking_amount:
+          token_identifier:
+            rri: rri
+          value: value
+      properties:
+        validator_identifier:
+          $ref: '#/components/schemas/ValidatorIdentifier'
+        unstaking_amount:
+          $ref: '#/components/schemas/TokenAmount'
+        epochs_until_unlocked:
+          description: |
+            The number of epochs until the XRD in this unstake will be released back to the account. This delay is to enable stake to be slashed, if the validator misbehaves.
+          format: int64
+          type: integer
+      required:
+      - epochs_until_unlocked
+      - unstaking_amount
+      - validator_identifier
+      type: object
+    AccountTransactionInfo:
+      example:
+        account_identifier:
+          address: address
+        transaction:
+          fee_paid:
+            token_identifier:
+              rri: rri
+            value: value
+          transaction_status:
+            status: CONFIRMED
+            confirmed_time: 2021-07-27T17:35:10.726Z
+          metadata:
+            hex: hex
+            message: message
+          transaction_identifier:
+            hash: hash
+          actions:
+          - type: type
+          - type: type
+      properties:
+        account_identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        transaction:
+          $ref: '#/components/schemas/TransactionInfo'
+      required:
+      - account_identifier
+      - transaction
+      type: object
+    AccountTransactionPair:
+      example:
+        account_identifier:
+          address: rdx1qsprl50r77hg759ccamph85n7fxfvdjwmvmywy867cgr4nermmtcw7q32velj
+        transaction_identifier:
+          hash: 346e1ec8100dcfd916efb6426c7393388173863c804973d8409956cfd6a0079d
+      properties:
+        account_identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        transaction_identifier:
+          $ref: '#/components/schemas/TransactionIdentifier'
+      required:
+      - account_identifier
+      type: object
+    AccountTransactionsRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        account_identifier:
+          address: rdx1qspacch6qjqy7awspx304sev3n4em302en25jd87yrh4hp47grr692cm0kv88
+        cursor: "0"
+        limit: 10
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        account_identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+        cursor:
+          description: This cursor allows forward pagination, by providing the cursor
+            from the previous request.
+          type: string
+        limit:
+          description: The page size requested. The maximum value is 30 at present.
+          type: integer
+      required:
+      - account_identifier
+      - network_identifier
+      type: object
+    AccountTransactionsResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        next_cursor: next_cursor
+        total_count: 0
+        transactions:
+        - fee_paid:
+            token_identifier:
+              rri: rri
+            value: value
+          transaction_status:
+            status: CONFIRMED
+            confirmed_time: 2021-07-27T17:35:10.726Z
+          metadata:
+            hex: hex
+            message: message
+          transaction_identifier:
+            hash: hash
+          actions:
+          - type: type
+          - type: type
+        - fee_paid:
+            token_identifier:
+              rri: rri
+            value: value
+          transaction_status:
+            status: CONFIRMED
+            confirmed_time: 2021-07-27T17:35:10.726Z
+          metadata:
+            hex: hex
+            message: message
+          transaction_identifier:
+            hash: hash
+          actions:
+          - type: type
+          - type: type
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        total_count:
+          description: The total number of transactions under the account.
+          format: int64
+          type: integer
+        next_cursor:
+          description: The cursor to be provided for the next page of results. If
+            missing, this is the last page of results.
+          type: string
+        transactions:
+          description: The page of transactions.
+          items:
+            $ref: '#/components/schemas/TransactionInfo'
+          type: array
+      required:
+      - ledger_state
+      - transactions
+      type: object
+    TransferTokens:
+      allOf:
+      - $ref: '#/components/schemas/Action'
+      - $ref: '#/components/schemas/TransferTokens_allOf'
+    StakeTokens:
+      allOf:
+      - $ref: '#/components/schemas/Action'
+      - $ref: '#/components/schemas/StakeTokens_allOf'
+    UnstakeTokens:
+      allOf:
+      - $ref: '#/components/schemas/Action'
+      - $ref: '#/components/schemas/UnstakeTokens_allOf'
+      description: An action to unstake tokens. Exactly one of amount or unstake_percentage
+        is required.
+    CreateTokenDefinition:
+      allOf:
+      - $ref: '#/components/schemas/Action'
+      - $ref: '#/components/schemas/CreateTokenDefinition_allOf'
+    MintTokens:
+      allOf:
+      - $ref: '#/components/schemas/Action'
+      - $ref: '#/components/schemas/MintTokens_allOf'
+    BurnTokens:
+      allOf:
+      - $ref: '#/components/schemas/Action'
+      - $ref: '#/components/schemas/BurnTokens_allOf'
+    RegisterValidator:
+      allOf:
+      - $ref: '#/components/schemas/Action'
+      - $ref: '#/components/schemas/RegisterValidator_allOf'
+    UnregisterValidator:
+      allOf:
+      - $ref: '#/components/schemas/Action'
+      - $ref: '#/components/schemas/RegisterValidator_allOf'
+    Action:
+      discriminator:
+        mapping:
+          CreateTokenDefinition: '#/components/schemas/CreateTokenDefinition'
+          TransferTokens: '#/components/schemas/TransferTokens'
+          StakeTokens: '#/components/schemas/StakeTokens'
+          UnstakeTokens: '#/components/schemas/UnstakeTokens'
+          MintTokens: '#/components/schemas/MintTokens'
+          BurnTokens: '#/components/schemas/BurnTokens'
+          RegisterValidator: '#/components/schemas/RegisterValidator'
+          UnregisterValidator: '#/components/schemas/UnregisterValidator'
+        propertyName: type
+      example:
+        type: type
+      properties:
+        type:
+          type: string
+      required:
+      - type
+      type: object
+    TransactionRulesRequest:
+      example:
+        network_identifier:
+          network: mainnet
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+      required:
+      - network_identifier
+      type: object
+    TransactionRulesResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        transaction_rules:
+          maximum_message_length: 0
+          minimum_stake:
+            token_identifier:
+              rri: rri
+            value: value
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        transaction_rules:
+          $ref: '#/components/schemas/TransactionRules'
+      required:
+      - ledger_state
+      - transaction_rules
+      type: object
+    TransactionRules:
+      example:
+        maximum_message_length: 0
+        minimum_stake:
+          token_identifier:
+            rri: rri
+          value: value
+      properties:
+        maximum_message_length:
+          type: integer
+        minimum_stake:
+          $ref: '#/components/schemas/TokenAmount'
+      type: object
+    TransactionBuildRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        actions:
+        - type: TransferTokens
+          from_account:
+            address: rdx1qspacch6qjqy7awspx304sev3n4em302en25jd87yrh4hp47grr692cm0kv88
+          to_account:
+            address: rdx1qspcvwwuf8s549zyspz683v4n93g9kzpn6u6a9yalwzt00zghg75lmsftwv29
+          amount:
+            token_identifier:
+              rri: xrd_rr1qy5wfsfh
+            value: "123000000000000000"
+        fee_payer:
+          address: rdx1qspacch6qjqy7awspx304sev3n4em302en25jd87yrh4hp47grr692cm0kv88
+        disable_token_mint_and_burn: true
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+        actions:
+          items:
+            $ref: '#/components/schemas/Action'
+          type: array
+        fee_payer:
+          $ref: '#/components/schemas/AccountIdentifier'
+        message:
+          description: The hex-encoded message bytes.
+          type: string
+        disable_token_mint_and_burn:
+          description: If true, mints and burns (aside from fee payments) are not
+            permitted during transaction execution.
+          type: boolean
+      required:
+      - actions
+      - fee_payer
+      - network_identifier
+      type: object
+    TransactionBuildResponse:
+      example:
+        transaction_build:
+          unsigned_transaction: unsigned_transaction
+          fee:
+            token_identifier:
+              rri: rri
+            value: value
+          payload_to_sign: payload_to_sign
+      properties:
+        transaction_build:
+          $ref: '#/components/schemas/TransactionBuild'
+      required:
+      - transaction_build
+      type: object
+    TransactionBuild:
+      example:
+        unsigned_transaction: unsigned_transaction
+        fee:
+          token_identifier:
+            rri: rri
+          value: value
+        payload_to_sign: payload_to_sign
+      properties:
+        fee:
+          $ref: '#/components/schemas/TokenAmount'
+        unsigned_transaction:
+          description: The unsigned transaction payload, hex encoded.
+          type: string
+        payload_to_sign:
+          description: The payload which needs signing, hex encoded. This is `SHA256(SHA256(unsigned_transaction_bytes))`.
+          type: string
+      required:
+      - fee
+      - payload_to_sign
+      - unsigned_transaction
+      type: object
+    TransactionFinalizeRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        unsigned_transaction: 0d00010776bf65acf2d25e9dcf4c716f5f39f201dccbfa173ad9c7f1c1dbcb8a86776b4d0000000101002100000000000000000000000000000000000000000000000000012901c1cf3900000200450600040279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798010000000000000000000000000000000000000000000000017afba303493b7ff8000800000200450600040279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798010000000000000000000000000000000000000000000000017afba303493b7f9402004506000402c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5010000000000000000000000000000000000000000000000000000000000000064000c003430303030366336663631363432303734363537333734363936653637323037343732363136653733363136333734363936663665
+        signature:
+          bytes: 3046022100cda0fcd31bf976aa65c31c180b4f595a61c866252c52898b952b8fe1d8fdcc33022100999e83036f9529c6250c07423d8b57f252dfba1b843385970bfa69f2c367658e
+          public_key:
+            hex: 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
+        submit: false
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        unsigned_transaction:
+          description: The unsigned transaction payload, hex encoded.
+          type: string
+        signature:
+          $ref: '#/components/schemas/Signature'
+        submit:
+          description: |
+            If true, the transaction is immediately submitted after finalization. However, we recommend that a transaction is submitted in a step after finalization. This ensures that you have a transaction identifier on hand to monitor the transaction status, even if the submission request failed with an uncertain error.
+          type: boolean
+      required:
+      - network_identifier
+      - signature
+      - unsigned_transaction
+      type: object
+    PublicKey:
+      properties:
+        hex:
+          description: The compressed public key (33 bytes), hex-encoded.
+          type: string
+      required:
+      - hex
+      type: object
+    Signature:
+      properties:
+        public_key:
+          $ref: '#/components/schemas/PublicKey'
+        bytes:
+          description: An ECDSA signature of the payload to sign with the given `public_key`.
+            The ECDSA signature should be created using the secp256k1 curve and should
+            be encoded in DER format, and then encoded as a hex string.
+          type: string
+      required:
+      - bytes
+      - public_key
+      type: object
+    TransactionFinalizeResponse:
+      example:
+        signed_transaction: signed_transaction
+        transaction_identifier:
+          hash: hash
+      properties:
+        signed_transaction:
+          description: The signed transaction payload which can be submitted, hex
+            encoded.
+          type: string
+        transaction_identifier:
+          $ref: '#/components/schemas/TransactionIdentifier'
+      required:
+      - signed_transaction
+      - transaction_identifier
+      type: object
+    TransactionSubmitRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        signed_transaction: 0d00010776bf65acf2d25e9dcf4c716f5f39f201dccbfa173ad9c7f1c1dbcb8a86776b4d0000000101002100000000000000000000000000000000000000000000000000012901c1cf3900000200450600040279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798010000000000000000000000000000000000000000000000017afba303493b7ff8000800000200450600040279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798010000000000000000000000000000000000000000000000017afba303493b7f9402004506000402c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5010000000000000000000000000000000000000000000000000000000000000064000c0034303030303663366636313634323037343635373337343639366536373230373437323631366537333631363337343639366636650b00cda0fcd31bf976aa65c31c180b4f595a61c866252c52898b952b8fe1d8fdcc33999e83036f9529c6250c07423d8b57f252dfba1b843385970bfa69f2c367658e
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        signed_transaction:
+          description: The signed transaction payload which can be submitted, hex
+            encoded.
+          type: string
+      required:
+      - network_identifier
+      - signed_transaction
+      type: object
+    TransactionSubmitResponse:
+      example:
+        transaction_identifier:
+          hash: hash
+      properties:
+        transaction_identifier:
+          $ref: '#/components/schemas/TransactionIdentifier'
+      required:
+      - transaction_identifier
+      type: object
+    GatewayRequest:
+      example: {}
+      type: object
+    GatewayResponse:
+      example:
+        network_identifier:
+          network: mainnet
+        ledger_state: null
+        target_ledger_state: null
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        gateway_api:
+          $ref: '#/components/schemas/GatewayApiVersions'
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        target_ledger_state:
+          $ref: '#/components/schemas/TargetLedgerState'
+      required:
+      - gateway_api
+      - ledger_state
+      - network_identifier
+      type: object
+    TokenRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        token_identifier:
+          rri: hpyron_rr1qdukq6q534plnen70k95f80q45cktg0mhmzrzpfyz8jqmgqqqe
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        token_identifier:
+          $ref: '#/components/schemas/TokenIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+      required:
+      - network_identifier
+      - token_identifier
+      type: object
+    LedgerState:
+      description: |
+        The ledger state against which the response was generated. Can be used to detect if the Network Gateway is returning up-to-date information.
+      example:
+        round: 1
+        epoch: 6
+        version: 0
+        timestamp: timestamp
+      properties:
+        version:
+          description: The state version of the ledger. Each transaction increments
+            the state version by 1.
+          format: int64
+          type: integer
+        timestamp:
+          description: |
+            The round timestamp of the consensus round when this transaction was committed to ledger. This is not guaranteed to be strictly increasing, as it is computed as an average across the validator set. If this is significantly behind the current timestamp, the Network Gateway is likely reporting out-dated information, or the network has stalled.
+          type: string
+        epoch:
+          description: The epoch number of the ledger at this state version.
+          format: int64
+          type: integer
+        round:
+          description: The consensus round in the epoch that this state version was
+            committed in.
+          format: int64
+          type: integer
+      required:
+      - epoch
+      - round
+      - timestamp
+      - version
+      type: object
+    TargetLedgerState:
+      properties:
+        version:
+          description: |
+            The latest-seen state version of the tip of the network's ledger. If this is singificantly ahead of the current LedgerState version, the Network Gateway is possibly behind and may be reporting outdated information.
+          format: int64
+          type: integer
+      required:
+      - version
+      type: object
+    PartialLedgerStateIdentifier:
+      description: Optional. Allows a client to request a response referencing an
+        earlier ledger state.
+      properties:
+        version:
+          description: If the version is provided, the latest ledger state <= the
+            given version is returned.
+          format: int64
+          type: integer
+        timestamp:
+          description: If a timestamp is provided, the latest ledger state <= the
+            given timestamp is returned.
+          type: string
+        epoch:
+          description: If an epoch is provided, the ledger state at the given epoch
+            <= the given round (else round 0) is returned.
+          format: int64
+          type: integer
+        round:
+          format: int64
+          type: integer
+      type: object
+    TokenResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        token:
+          token_identifier:
+            rri: xrd_rr1qy5wfsfh
+          token_supply:
+            token_identifier:
+              rri: xrd_rr1qy5wfsfh
+            value: "12014560679861300000000000000"
+          info:
+            total_burned:
+              token_identifier:
+                rri: xrd_rr1qy5wfsfh
+              value: "11437173800000000000000"
+            total_minted:
+              token_identifier:
+                rri: xrd_rr1qy5wfsfh
+              value: "12014572117035100000000000000"
+          token_properties:
+            icon_url: https://assets.radixdlt.com/icons/icon-xrd-32x32.png
+            is_supply_mutable: true
+            symbol: xrd
+            granularity: "1"
+            name: Radix
+            description: The Radix Public Network's native token, used to pay the
+              network's required transaction fees and to secure the network through
+              staking to its validator nodes.
+            url: https://tokens.radixdlt.com
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        token:
+          $ref: '#/components/schemas/Token'
+      required:
+      - ledger_state
+      - token
+      type: object
+    TokenNativeRequest:
+      example:
+        network_identifier:
+          network: mainnet
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+      required:
+      - network_identifier
+      type: object
+    TokenNativeResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        token:
+          token_identifier:
+            rri: xrd_rr1qy5wfsfh
+          token_supply:
+            token_identifier:
+              rri: xrd_rr1qy5wfsfh
+            value: "12014560679861300000000000000"
+          info:
+            total_burned:
+              token_identifier:
+                rri: xrd_rr1qy5wfsfh
+              value: "11437173800000000000000"
+            total_minted:
+              token_identifier:
+                rri: xrd_rr1qy5wfsfh
+              value: "12014572117035100000000000000"
+          token_properties:
+            icon_url: https://assets.radixdlt.com/icons/icon-xrd-32x32.png
+            is_supply_mutable: true
+            symbol: xrd
+            granularity: "1"
+            name: Radix
+            description: The Radix Public Network's native token, used to pay the
+              network's required transaction fees and to secure the network through
+              staking to its validator nodes.
+            url: https://tokens.radixdlt.com
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        token:
+          $ref: '#/components/schemas/Token'
+      required:
+      - ledger_state
+      - token
+      type: object
+    TokenDeriveRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        public_key:
+          hex: 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
+        symbol: yourtoken
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        public_key:
+          $ref: '#/components/schemas/PublicKey'
+        symbol:
+          type: string
+      required:
+      - network_identifier
+      - public_key
+      - symbol
+      type: object
+    TokenDeriveResponse:
+      example:
+        token_identifier:
+          rri: rri
+      properties:
+        token_identifier:
+          $ref: '#/components/schemas/TokenIdentifier'
+      required:
+      - token_identifier
+      type: object
+    AccountDeriveRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        public_key:
+          hex: 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        public_key:
+          $ref: '#/components/schemas/PublicKey'
+      required:
+      - network_identifier
+      - public_key
+      type: object
+    AccountDeriveResponse:
+      example:
+        account_identifier:
+          address: address
+      properties:
+        account_identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+      required:
+      - account_identifier
+      type: object
+    ValidatorDeriveRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        public_key:
+          hex: 0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        public_key:
+          $ref: '#/components/schemas/PublicKey'
+      required:
+      - network_identifier
+      - public_key
+      type: object
+    ValidatorDeriveResponse:
+      example:
+        account_identifier:
+          address: address
+      properties:
+        account_identifier:
+          $ref: '#/components/schemas/ValidatorIdentifier'
+      required:
+      - account_identifier
+      type: object
+    TransactionStatusRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        transaction_identifier:
+          hash: ef71a9d6c63444fce6abd2df8fab2755cfb51f6794e578f60d99337193811842
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        transaction_identifier:
+          $ref: '#/components/schemas/TransactionIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+      required:
+      - network_identifier
+      - transaction_identifier
+      type: object
+    TransactionStatusResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        transaction:
+          fee_paid:
+            token_identifier:
+              rri: rri
+            value: value
+          transaction_status:
+            status: CONFIRMED
+            confirmed_time: 2021-07-27T17:35:10.726Z
+          metadata:
+            hex: hex
+            message: message
+          transaction_identifier:
+            hash: hash
+          actions:
+          - type: type
+          - type: type
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        transaction:
+          $ref: '#/components/schemas/TransactionInfo'
+      required:
+      - ledger_state
+      - transaction
+      type: object
+    ValidatorRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        validator_identifier:
+          address: rv1qf2x63qx4jdaxj83kkw2yytehvvmu6r2xll5gcp6c9rancmrfsgfwttnczx
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        validator_identifier:
+          $ref: '#/components/schemas/ValidatorIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+      required:
+      - network_identifier
+      - validator_identifier
+      type: object
+    ValidatorResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        validator:
+          validator_identifier:
+            address: rv1qf2x63qx4jdaxj83kkw2yytehvvmu6r2xll5gcp6c9rancmrfsgfwttnczx
+          stake:
+            token_identifier:
+              rri: xrd_rr1qy5wfsfh
+            value: "100000000000000000000"
+          properties:
+            url: https://learn.radixdlt.com/article/will-the-radix-foundation-operate-validator-nodes
+            validator_fee_percentage: 100
+            name: Radix Foundation eu-west-1 node0 mainnet
+            registered: true
+            owner_account_identifier:
+              address: rdx1qspldshtx0s2l2rcnaqtqpqz8vwps2y6d9se0wq25xrg92l66cmp6mcnc6pyu
+            external_stake_accepted: false
+          info:
+            owner_stake:
+              token_identifier:
+                rri: xrd_rr1qy5wfsfh
+              value: "0"
+            uptime:
+              epoch_range:
+                from: 1
+                to: 1
+              uptime_percentage: 100
+              proposals_missed: 0
+              proposals_completed: 108320
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        validator:
+          $ref: '#/components/schemas/Validator'
+      required:
+      - ledger_state
+      - validator
+      type: object
+    ValidatorsRequest:
+      example:
+        network_identifier:
+          network: mainnet
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+      required:
+      - network_identifier
+      type: object
+    ValidatorsResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        validators:
+        - validator_identifier:
+            address: rv1qf2x63qx4jdaxj83kkw2yytehvvmu6r2xll5gcp6c9rancmrfsgfwttnczx
+          stake:
+            token_identifier:
+              rri: xrd_rr1qy5wfsfh
+            value: "100000000000000000000"
+          properties:
+            url: https://learn.radixdlt.com/article/will-the-radix-foundation-operate-validator-nodes
+            validator_fee_percentage: 100
+            name: Radix Foundation eu-west-1 node0 mainnet
+            registered: true
+            owner_account_identifier:
+              address: rdx1qspldshtx0s2l2rcnaqtqpqz8vwps2y6d9se0wq25xrg92l66cmp6mcnc6pyu
+            external_stake_accepted: false
+          info:
+            owner_stake:
+              token_identifier:
+                rri: xrd_rr1qy5wfsfh
+              value: "0"
+            uptime:
+              epoch_range:
+                from: 1
+                to: 1
+              uptime_percentage: 100
+              proposals_missed: 0
+              proposals_completed: 108320
+        - validator_identifier:
+            address: rv1qf2x63qx4jdaxj83kkw2yytehvvmu6r2xll5gcp6c9rancmrfsgfwttnczx
+          stake:
+            token_identifier:
+              rri: xrd_rr1qy5wfsfh
+            value: "100000000000000000000"
+          properties:
+            url: https://learn.radixdlt.com/article/will-the-radix-foundation-operate-validator-nodes
+            validator_fee_percentage: 100
+            name: Radix Foundation eu-west-1 node0 mainnet
+            registered: true
+            owner_account_identifier:
+              address: rdx1qspldshtx0s2l2rcnaqtqpqz8vwps2y6d9se0wq25xrg92l66cmp6mcnc6pyu
+            external_stake_accepted: false
+          info:
+            owner_stake:
+              token_identifier:
+                rri: xrd_rr1qy5wfsfh
+              value: "0"
+            uptime:
+              epoch_range:
+                from: 1
+                to: 1
+              uptime_percentage: 100
+              proposals_missed: 0
+              proposals_completed: 108320
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        validators:
+          items:
+            $ref: '#/components/schemas/Validator'
+          type: array
+      required:
+      - ledger_state
+      - validators
+      type: object
+    ValidatorStakesRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        validator_identifier:
+          address: rv1qf2x63qx4jdaxj83kkw2yytehvvmu6r2xll5gcp6c9rancmrfsgfwttnczx
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+        validator_identifier:
+          $ref: '#/components/schemas/ValidatorIdentifier'
+        cursor:
+          description: This cursor allows forward pagination, by providing the cursor
+            from the previous request.
+          type: string
+        limit:
+          description: The page size requested. The maximum value is 30 at present.
+          type: integer
+      required:
+      - network_identifier
+      - validator_identifier
+      type: object
+    ValidatorStakesResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        next_cursor: next_cursor
+        account_stake_delegations:
+        - total_pending_unstake:
+            token_identifier:
+              rri: rri
+            value: value
+          total_unstaking:
+            token_identifier:
+              rri: rri
+            value: value
+          validator:
+            address: address
+          total_stake:
+            token_identifier:
+              rri: rri
+            value: value
+          total_pending_stake:
+            token_identifier:
+              rri: rri
+            value: value
+          account:
+            address: address
+        - total_pending_unstake:
+            token_identifier:
+              rri: rri
+            value: value
+          total_unstaking:
+            token_identifier:
+              rri: rri
+            value: value
+          validator:
+            address: address
+          total_stake:
+            token_identifier:
+              rri: rri
+            value: value
+          total_pending_stake:
+            token_identifier:
+              rri: rri
+            value: value
+          account:
+            address: address
+        total_count: 0
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        total_count:
+          description: The total number of accounts delegating stake to the validator
+            in some state.
+          format: int64
+          type: integer
+        next_cursor:
+          description: The cursor to be provided for the next page of results. If
+            missing, this is the last page of results.
+          type: string
+        account_stake_delegations:
+          description: The page of account stake delegations.
+          items:
+            $ref: '#/components/schemas/ValidatorAccountStake'
+          type: array
+      required:
+      - account_stake_delegations
+      - ledger_state
+      - total_count
+      type: object
+    ValidatorAccountStake:
+      example:
+        total_pending_unstake:
+          token_identifier:
+            rri: rri
+          value: value
+        total_unstaking:
+          token_identifier:
+            rri: rri
+          value: value
+        validator:
+          address: address
+        total_stake:
+          token_identifier:
+            rri: rri
+          value: value
+        total_pending_stake:
+          token_identifier:
+            rri: rri
+          value: value
+        account:
+          address: address
+      properties:
+        account:
+          $ref: '#/components/schemas/AccountIdentifier'
+        validator:
+          $ref: '#/components/schemas/ValidatorIdentifier'
+        total_pending_stake:
+          $ref: '#/components/schemas/TokenAmount'
+        total_stake:
+          $ref: '#/components/schemas/TokenAmount'
+        total_pending_unstake:
+          $ref: '#/components/schemas/TokenAmount'
+        total_unstaking:
+          $ref: '#/components/schemas/TokenAmount'
+      required:
+      - account
+      - validator
+      type: object
+    Validator:
+      example:
+        validator_identifier:
+          address: rv1qf2x63qx4jdaxj83kkw2yytehvvmu6r2xll5gcp6c9rancmrfsgfwttnczx
+        stake:
+          token_identifier:
+            rri: xrd_rr1qy5wfsfh
+          value: "100000000000000000000"
+        properties:
+          url: https://learn.radixdlt.com/article/will-the-radix-foundation-operate-validator-nodes
+          validator_fee_percentage: 100
+          name: Radix Foundation eu-west-1 node0 mainnet
+          registered: true
+          owner_account_identifier:
+            address: rdx1qspldshtx0s2l2rcnaqtqpqz8vwps2y6d9se0wq25xrg92l66cmp6mcnc6pyu
+          external_stake_accepted: false
+        info:
+          owner_stake:
+            token_identifier:
+              rri: xrd_rr1qy5wfsfh
+            value: "0"
+          uptime:
+            epoch_range:
+              from: 1
+              to: 1
+            uptime_percentage: 100
+            proposals_missed: 0
+            proposals_completed: 108320
+      properties:
+        validator_identifier:
+          $ref: '#/components/schemas/ValidatorIdentifier'
+        stake:
+          $ref: '#/components/schemas/TokenAmount'
+        info:
+          $ref: '#/components/schemas/ValidatorInfo'
+        properties:
+          $ref: '#/components/schemas/ValidatorProperties'
+      required:
+      - info
+      - properties
+      - stake
+      - validator_identifier
+      type: object
+    ValidatorProperties:
+      properties:
+        url:
+          type: string
+        validator_fee_percentage:
+          maximum: 100
+          minimum: 0
+          type: number
+        name:
+          type: string
+        registered:
+          type: boolean
+        owner_account_identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        external_stake_accepted:
+          type: boolean
+      required:
+      - external_stake_accepted
+      - name
+      - owner_account_identifier
+      - registered
+      - url
+      - validator_fee_percentage
+      type: object
+    ValidatorInfo:
+      properties:
+        owner_stake:
+          $ref: '#/components/schemas/TokenAmount'
+        uptime:
+          $ref: '#/components/schemas/ValidatorUptime'
+      required:
+      - owner_stake
+      - uptime
+      type: object
+    ValidatorUptime:
+      properties:
+        epoch_range:
+          $ref: '#/components/schemas/EpochRange'
+        uptime_percentage:
+          description: The percentage of proposals completed, compared with the total
+            of proposals completed/missed, in the given epoch range.
+          maximum: 100
+          minimum: 0
+          type: number
+        proposals_missed:
+          description: The number of proposals the validator failed to share with
+            the network in time, in the given epoch range.
+          format: int64
+          minimum: 0
+          type: integer
+        proposals_completed:
+          description: The number of proposals the validator completed successfully,
+            in the given epoch range.
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+      - epoch_range
+      - proposals_completed
+      - proposals_missed
+      - uptime_percentage
+      type: object
+    EpochRange:
+      properties:
+        from:
+          description: The first epoch considered (inclusive).
+          format: int64
+          type: integer
+        to:
+          description: The last epoch considered (inclusive).
+          format: int64
+          type: integer
+      required:
+      - from
+      - to
+      type: object
+    TransactionsSinceHashBatchRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        since_account_transactions:
+        - account_identifier:
+            address: rdx1qsp000000000000000000000000000000000000000000000000000q9c0gvj
+        - account_identifier:
+            address: rdx1qsprl50r77hg759ccamph85n7fxfvdjwmvmywy867cgr4nermmtcw7q32velj
+          transaction_identifier:
+            hash: 346e1ec8100dcfd916efb6426c7393388173863c804973d8409956cfd6a0079d
+        limit: 30
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        since_account_transactions:
+          description: 'A list of up to 100 pairs: [ account, last seen transaction
+            identifier(optional) ].'
+          items:
+            $ref: '#/components/schemas/AccountTransactionPair'
+          type: array
+        limit:
+          description: The number of transactions to return. The maximum value is
+            100. Default - 30.
+          type: integer
+      required:
+      - network_identifier
+      - since_account_transactions
+      type: object
+    TransactionsSinceHashBatchResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        account_transactions:
+        - account_identifier:
+            address: address
+          transaction:
+            fee_paid:
+              token_identifier:
+                rri: rri
+              value: value
+            transaction_status:
+              status: CONFIRMED
+              confirmed_time: 2021-07-27T17:35:10.726Z
+            metadata:
+              hex: hex
+              message: message
+            transaction_identifier:
+              hash: hash
+            actions:
+            - type: type
+            - type: type
+        - account_identifier:
+            address: address
+          transaction:
+            fee_paid:
+              token_identifier:
+                rri: rri
+              value: value
+            transaction_status:
+              status: CONFIRMED
+              confirmed_time: 2021-07-27T17:35:10.726Z
+            metadata:
+              hex: hex
+              message: message
+            transaction_identifier:
+              hash: hash
+            actions:
+            - type: type
+            - type: type
+        has_more: true
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        account_transactions:
+          description: The oldest transactions that match the criteria.
+          items:
+            $ref: '#/components/schemas/AccountTransactionInfo'
+          type: array
+        has_more:
+          description: true if there are more transactions at the current state version
+            for given accounts
+          type: boolean
+      required:
+      - account_transactions
+      - has_more
+      - ledger_state
+      type: object
+    TransactionsSinceStateBatchRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        account_identifiers:
+        - account_identifier:
+            address: rdx1qsp000000000000000000000000000000000000000000000000000q9c0gvj
+        - account_identifier:
+            address: rdx1qsprl50r77hg759ccamph85n7fxfvdjwmvmywy867cgr4nermmtcw7q32velj
+        since_state_identifier:
+          version: 1234567
+        limit: 30
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        account_identifiers:
+          description: A list of up to 100 accounts to check.
+          items:
+            $ref: '#/components/schemas/AccountIdentifier'
+          type: array
+        since_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+        cursor:
+          description: This cursor allows forward pagination, by providing the cursor
+            from the previous request.
+          type: string
+        limit:
+          description: The page size requested. The maximum value is 100. Default
+            - 30.
+          type: integer
+      required:
+      - account_identifiers
+      - network_identifier
+      type: object
+    TransactionsSinceStateBatchResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        next_cursor: next_cursor
+        account_transactions:
+        - account_identifier:
+            address: address
+          transaction:
+            fee_paid:
+              token_identifier:
+                rri: rri
+              value: value
+            transaction_status:
+              status: CONFIRMED
+              confirmed_time: 2021-07-27T17:35:10.726Z
+            metadata:
+              hex: hex
+              message: message
+            transaction_identifier:
+              hash: hash
+            actions:
+            - type: type
+            - type: type
+        - account_identifier:
+            address: address
+          transaction:
+            fee_paid:
+              token_identifier:
+                rri: rri
+              value: value
+            transaction_status:
+              status: CONFIRMED
+              confirmed_time: 2021-07-27T17:35:10.726Z
+            metadata:
+              hex: hex
+              message: message
+            transaction_identifier:
+              hash: hash
+            actions:
+            - type: type
+            - type: type
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        next_cursor:
+          description: The cursor to be provided with a new request, to get the next
+            page of results. If missing, this is the last page of results.
+          type: string
+        account_transactions:
+          description: The page of the oldest transactions that match the criteria.
+          items:
+            $ref: '#/components/schemas/AccountTransactionInfo'
+          type: array
+      required:
+      - account_transactions
+      - ledger_state
+      type: object
+    Token:
+      example:
+        token_identifier:
+          rri: xrd_rr1qy5wfsfh
+        token_supply:
+          token_identifier:
+            rri: xrd_rr1qy5wfsfh
+          value: "12014560679861300000000000000"
+        info:
+          total_burned:
+            token_identifier:
+              rri: xrd_rr1qy5wfsfh
+            value: "11437173800000000000000"
+          total_minted:
+            token_identifier:
+              rri: xrd_rr1qy5wfsfh
+            value: "12014572117035100000000000000"
+        token_properties:
+          icon_url: https://assets.radixdlt.com/icons/icon-xrd-32x32.png
+          is_supply_mutable: true
+          symbol: xrd
+          granularity: "1"
+          name: Radix
+          description: The Radix Public Network's native token, used to pay the network's
+            required transaction fees and to secure the network through staking to
+            its validator nodes.
+          url: https://tokens.radixdlt.com
+      properties:
+        token_identifier:
+          $ref: '#/components/schemas/TokenIdentifier'
+        token_supply:
+          $ref: '#/components/schemas/TokenAmount'
+        info:
+          $ref: '#/components/schemas/TokenInfo'
+        token_properties:
+          $ref: '#/components/schemas/TokenProperties'
+      required:
+      - info
+      - token_identifier
+      - token_properties
+      - token_supply
+      type: object
+    TokenInfo:
+      properties:
+        total_minted:
+          $ref: '#/components/schemas/TokenAmount'
+        total_burned:
+          $ref: '#/components/schemas/TokenAmount'
+      required:
+      - total_burned
+      - total_minted
+      type: object
+    TokenProperties:
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        icon_url:
+          type: string
+        url:
+          type: string
+        symbol:
+          type: string
+        is_supply_mutable:
+          description: If true, the token is allowed to be minted/burned by the owner.
+          type: boolean
+        granularity:
+          pattern: ^-?[0-9]+$
+          type: string
+        owner:
+          $ref: '#/components/schemas/AccountIdentifier'
+      required:
+      - description
+      - granularity
+      - icon_url
+      - is_supply_mutable
+      - name
+      - symbol
+      - url
+      type: object
+    TransactionInfo:
+      example:
+        fee_paid:
+          token_identifier:
+            rri: rri
+          value: value
+        transaction_status:
+          status: CONFIRMED
+          confirmed_time: 2021-07-27T17:35:10.726Z
+        metadata:
+          hex: hex
+          message: message
+        transaction_identifier:
+          hash: hash
+        actions:
+        - type: type
+        - type: type
+      properties:
+        transaction_status:
+          $ref: '#/components/schemas/TransactionStatus'
+        transaction_identifier:
+          $ref: '#/components/schemas/TransactionIdentifier'
+        actions:
+          items:
+            $ref: '#/components/schemas/Action'
+          type: array
+        fee_paid:
+          $ref: '#/components/schemas/TokenAmount'
+        metadata:
+          $ref: '#/components/schemas/TransactionMetadata'
+      required:
+      - actions
+      - fee_paid
+      - metadata
+      - transaction_identifier
+      - transaction_status
+      type: object
+    TransactionStatus:
+      example:
+        status: CONFIRMED
+        confirmed_time: 2021-07-27T17:35:10.726Z
+      properties:
+        status:
+          enum:
+          - PENDING
+          - CONFIRMED
+          - FAILED
+          type: string
+        confirmed_time:
+          type: string
+        ledger_state_version:
+          format: int64
+          type: integer
+      required:
+      - status
+      type: object
+    TransactionMetadata:
+      example:
+        hex: hex
+        message: message
+      properties:
+        hex:
+          description: The transaction payload, hex encoded.
+          type: string
+        message:
+          description: The message bytes, hex encoded.
+          type: string
+      required:
+      - hex
+      type: object
+    TokenAmount:
+      example:
+        token_identifier:
+          rri: rri
+        value: value
+      properties:
+        value:
+          pattern: ^-?[0-9]+$
+          type: string
+        token_identifier:
+          $ref: '#/components/schemas/TokenIdentifier'
+      required:
+      - token_identifier
+      - value
+      type: object
+    BigInteger:
+      pattern: ^-?[0-9]+$
+      type: string
+    GatewayApiVersions:
+      properties:
+        version:
+          description: The release that is currently deployed to the Gateway API.
+          type: string
+        open_api_schema_version:
+          description: The open api schema version that was used to generate the API
+            models.
+          type: string
+      required:
+      - open_api_schema_version
+      - version
+      type: object
+    NetworkIdentifier:
+      properties:
+        network:
+          description: The name of the network against which the request is made.
+          type: string
+      required:
+      - network
+      type: object
+    AccountIdentifier:
+      example:
+        address: address
+      properties:
+        address:
+          description: The radix address of the account.
+          pattern: ^rdx1[02-9AC-HJ-NP-Zac-hj-np-z]{54}[cgqsCGQS]{1}[02-9AC-HJ-NP-Zac-hj-np-z]{6}$
+          type: string
+      required:
+      - address
+      type: object
+    ValidatorIdentifier:
+      example:
+        address: address
+      properties:
+        address:
+          description: The radix address of the validator.
+          type: string
+      required:
+      - address
+      type: object
+    TokenIdentifier:
+      example:
+        rri: rri
+      properties:
+        rri:
+          description: The radix resource identifier of the token.
+          type: string
+      required:
+      - rri
+      type: object
+    TransactionIdentifier:
+      example:
+        hash: hash
+      properties:
+        hash:
+          description: The transaction identifier hash.
+          maxLength: 64
+          minLength: 64
+          pattern: ^[0123456789abcdef]{64}$
+          type: string
+      required:
+      - hash
+      type: object
+    ErrorResponse:
+      properties:
+        code:
+          description: A numeric code corresponding to the given error type, roughly
+            aligned with HTTP Status Code semantics (eg 400/404/500).
+          type: integer
+        message:
+          description: A human-readable error message.
+          type: string
+        details:
+          $ref: '#/components/schemas/GatewayError'
+        trace_id:
+          description: A GUID to be used when reporting errors, to allow correlation
+            with the Gateway API's error logs.
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    GatewayError:
+      discriminator:
+        mapping:
+          NetworkNotSupportedError: '#/components/schemas/NetworkNotSupportedError'
+          InvalidSignatureError: '#/components/schemas/InvalidSignatureError'
+          InvalidTransactionError: '#/components/schemas/InvalidTransactionError'
+          InvalidTokenRRIError: '#/components/schemas/InvalidTokenRRIError'
+          InvalidAccountAddressError: '#/components/schemas/InvalidAccountAddressError'
+          InvalidValidatorAddressError: '#/components/schemas/InvalidValidatorAddressError'
+          InvalidPublicKeyError: '#/components/schemas/InvalidPublicKeyError'
+          InvalidTokenSymbolError: '#/components/schemas/InvalidTokenSymbolError'
+          InvalidActionError: '#/components/schemas/InvalidActionError'
+          TokenNotFoundError: '#/components/schemas/TokenNotFoundError'
+          TransactionNotFoundError: '#/components/schemas/TransactionNotFoundError'
+          NotEnoughNativeTokensForFeesError: '#/components/schemas/NotEnoughNativeTokensForFeesError'
+          NotEnoughTokensForTransferError: '#/components/schemas/NotEnoughTokensForTransferError'
+          NotEnoughTokensForStakeError: '#/components/schemas/NotEnoughTokensForStakeError'
+          NotEnoughTokensForUnstakeError: '#/components/schemas/NotEnoughTokensForUnstakeError'
+          BelowMinimumStakeError: '#/components/schemas/BelowMinimumStakeError'
+          CannotStakeError: '#/components/schemas/CannotStakeError'
+          MessageTooLongError: '#/components/schemas/MessageTooLongError'
+          CouldNotConstructFeesError: '#/components/schemas/CouldNotConstructFeesError'
+          InvalidRequestError: '#/components/schemas/InvalidRequestError'
+          NotSyncedUpError: '#/components/schemas/NotSyncedUpError'
+          InternalServerError: '#/components/schemas/InternalServerError'
+        propertyName: type
+      properties:
+        type:
+          description: The type of error. Each subtype may have its own additional
+            structured fields.
+          type: string
+      required:
+      - type
+      type: object
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InternalServerError_allOf'
+    NotSyncedUpError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/NotSyncedUpError_allOf'
+    InvalidRequestError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InvalidRequestError_allOf'
+    ValidationErrorsAtPath:
+      properties:
+        path:
+          type: string
+        errors:
+          items:
+            type: string
+          type: array
+      required:
+      - errors
+      - path
+      type: object
+    NetworkNotSupportedError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/NetworkNotSupportedError_allOf'
+    InvalidActionError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InvalidActionError_allOf'
+    InvalidSignatureError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InvalidSignatureError_allOf'
+    InvalidTransactionError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InvalidTransactionError_allOf'
+    NotEnoughNativeTokensForFeesError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/NotEnoughNativeTokensForFeesError_allOf'
+    NotEnoughTokensForTransferError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/NotEnoughTokensForTransferError_allOf'
+    NotEnoughTokensForStakeError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/NotEnoughTokensForTransferError_allOf'
+    NotEnoughTokensForUnstakeError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/NotEnoughTokensForUnstakeError_allOf'
+    BelowMinimumStakeError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/BelowMinimumStakeError_allOf'
+    CannotStakeError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/CannotStakeError_allOf'
+    MessageTooLongError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/MessageTooLongError_allOf'
+    CouldNotConstructFeesError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/CouldNotConstructFeesError_allOf'
+    InvalidPublicKeyError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InvalidPublicKeyError_allOf'
+    InvalidTokenSymbolError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InvalidTokenSymbolError_allOf'
+    InvalidTokenRRIError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InvalidTokenRRIError_allOf'
+    InvalidAccountAddressError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InvalidAccountAddressError_allOf'
+    InvalidValidatorAddressError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InvalidValidatorAddressError_allOf'
+    TokenNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/TokenNotFoundError_allOf'
+    TransactionNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/TransactionNotFoundError_allOf'
+    TransferTokens_allOf:
+      properties:
+        from_account:
+          $ref: '#/components/schemas/AccountIdentifier'
+        to_account:
+          $ref: '#/components/schemas/AccountIdentifier'
+        amount:
+          $ref: '#/components/schemas/TokenAmount'
+      required:
+      - amount
+      - from_account
+      - to_account
+      type: object
+    StakeTokens_allOf:
+      properties:
+        from_account:
+          $ref: '#/components/schemas/AccountIdentifier'
+        to_validator:
+          $ref: '#/components/schemas/ValidatorIdentifier'
+        amount:
+          $ref: '#/components/schemas/TokenAmount'
+      required:
+      - amount
+      - from_account
+      - to_validator
+      type: object
+    UnstakeTokens_allOf:
+      properties:
+        from_validator:
+          $ref: '#/components/schemas/ValidatorIdentifier'
+        to_account:
+          $ref: '#/components/schemas/AccountIdentifier'
+        amount:
+          $ref: '#/components/schemas/TokenAmount'
+        unstake_percentage:
+          description: |
+            The percentage of currently staked XRD to unstake, where the proportion is a proportion of the current active stake at the given LedgerState. To be explicit, the referenced active state does not include pending stake, pending unstake or locked unstake.
+          maximum: 100
+          minimum: 0
+          type: number
+      required:
+      - from_validator
+      - to_account
+      type: object
+    CreateTokenDefinition_allOf:
+      properties:
+        token_properties:
+          $ref: '#/components/schemas/TokenProperties'
+        token_supply:
+          $ref: '#/components/schemas/TokenAmount'
+        to_account:
+          $ref: '#/components/schemas/AccountIdentifier'
+      required:
+      - token_properties
+      - token_supply
+      type: object
+    MintTokens_allOf:
+      properties:
+        to_account:
+          $ref: '#/components/schemas/AccountIdentifier'
+        amount:
+          $ref: '#/components/schemas/TokenAmount'
+      required:
+      - amount
+      - to_account
+      type: object
+    BurnTokens_allOf:
+      properties:
+        from_account:
+          $ref: '#/components/schemas/AccountIdentifier'
+        amount:
+          $ref: '#/components/schemas/TokenAmount'
+      required:
+      - amount
+      - from_account
+      type: object
+    RegisterValidator_allOf:
+      properties:
+        validator:
+          $ref: '#/components/schemas/ValidatorIdentifier'
+      required:
+      - validator
+      type: object
+    InternalServerError_allOf:
+      properties:
+        exception:
+          description: Gives an error type which occurred within the Gateway API when
+            serving the request.
+          type: string
+        cause:
+          description: Gives a human readable message - likely just a trace ID for
+            reporting the error.
+          type: string
+      required:
+      - cause
+      - exception
+      type: object
+    NotSyncedUpError_allOf:
+      properties:
+        request_type:
+          description: The request type that triggered this exception.
+          type: string
+        current_sync_delay_seconds:
+          description: The current delay between the Gateway DB and the network ledger
+            round timestamp.
+          format: int64
+          type: integer
+        max_allowed_sync_delay_seconds:
+          description: The maximum allowed delay between the Gateway DB and the network
+            ledger round timestamp for this `request_type`.
+          format: int64
+          type: integer
+      required:
+      - current_sync_delay_seconds
+      - max_allowed_sync_delay_seconds
+      - request_type
+      type: object
+    InvalidRequestError_allOf:
+      properties:
+        validation_errors:
+          description: One or more validation errors which occurred when validating
+            the request.
+          items:
+            $ref: '#/components/schemas/ValidationErrorsAtPath'
+          type: array
+      required:
+      - validation_errors
+      type: object
+    NetworkNotSupportedError_allOf:
+      properties:
+        networks_supported:
+          description: The networks actually supported by the gateway - one of these
+            needs to be used in the NetworkIdentifier of the request.
+          items:
+            type: string
+          type: array
+      required:
+      - networks_supported
+      type: object
+    InvalidActionError_allOf:
+      properties:
+        invalid_action:
+          $ref: '#/components/schemas/Action'
+      required:
+      - invalid_action
+      type: object
+    InvalidSignatureError_allOf:
+      properties:
+        invalid_signature:
+          $ref: '#/components/schemas/Signature'
+      required:
+      - invalid_signature
+      type: object
+    InvalidTransactionError_allOf:
+      properties:
+        invalid_transaction:
+          description: The transaction payload which was invalid.
+          type: string
+        message:
+          description: A descriptive reason for the invalid transaction.
+          type: string
+      required:
+      - invalid_transaction
+      - message
+      type: object
+    NotEnoughNativeTokensForFeesError_allOf:
+      properties:
+        required_amount:
+          $ref: '#/components/schemas/TokenAmount'
+        available_amount:
+          $ref: '#/components/schemas/TokenAmount'
+      required:
+      - available_amount
+      - required_amount
+      type: object
+    NotEnoughTokensForTransferError_allOf:
+      properties:
+        requested_amount:
+          $ref: '#/components/schemas/TokenAmount'
+        available_amount:
+          $ref: '#/components/schemas/TokenAmount'
+      required:
+      - available_amount
+      - requested_amount
+      type: object
+    NotEnoughTokensForUnstakeError_allOf:
+      properties:
+        requested_amount:
+          $ref: '#/components/schemas/TokenAmount'
+        stake:
+          $ref: '#/components/schemas/AccountStakeEntry'
+        pending_stake:
+          $ref: '#/components/schemas/AccountStakeEntry'
+      required:
+      - pending_stake
+      - requested_amount
+      - stake
+      type: object
+    BelowMinimumStakeError_allOf:
+      properties:
+        requested_amount:
+          $ref: '#/components/schemas/TokenAmount'
+        minimum_amount:
+          $ref: '#/components/schemas/TokenAmount'
+      required:
+      - minimum_amount
+      - requested_amount
+      type: object
+    CannotStakeError_allOf:
+      properties:
+        owner:
+          $ref: '#/components/schemas/AccountIdentifier'
+        user:
+          $ref: '#/components/schemas/AccountIdentifier'
+      required:
+      - owner
+      - user
+      type: object
+    MessageTooLongError_allOf:
+      properties:
+        length_limit:
+          description: The maximum byte length of the message, as per current transaction
+            rules.
+          type: integer
+        attempted_length:
+          description: The byte length of the message in the transaction.
+          type: integer
+      required:
+      - attempted_length
+      - length_limit
+      type: object
+    CouldNotConstructFeesError_allOf:
+      properties:
+        attempts:
+          description: The number of attempts the system tried and failed to create
+            a consistent transaction fee.
+          type: integer
+      required:
+      - attempts
+      type: object
+    InvalidPublicKeyError_allOf:
+      properties:
+        invalid_public_key:
+          description: The public key which was invalid. A descriptive reason is given
+            in the main error message.
+          type: string
+      required:
+      - invalid_public_key
+      type: object
+    InvalidTokenSymbolError_allOf:
+      properties:
+        invalid_token_symbol:
+          description: The token symbol which was invalid. A descriptive reason is
+            given in the main error message.
+          type: string
+      required:
+      - invalid_token_symbol
+      type: object
+    InvalidTokenRRIError_allOf:
+      properties:
+        invalid_rri:
+          description: The token rri which was invalid. A descriptive reason is given
+            in the main error message.
+          type: string
+      required:
+      - invalid_rri
+      type: object
+    InvalidAccountAddressError_allOf:
+      properties:
+        invalid_account_address:
+          description: The account address which was invalid. A descriptive reason
+            is given in the main error message.
+          type: string
+      required:
+      - invalid_account_address
+      type: object
+    InvalidValidatorAddressError_allOf:
+      properties:
+        invalid_account_address:
+          description: The validator address which was invalid. A descriptive reason
+            is given in the main error message.
+          type: string
+      required:
+      - invalid_validator_address
+      type: object
+    TokenNotFoundError_allOf:
+      properties:
+        token_not_found:
+          $ref: '#/components/schemas/TokenIdentifier'
+      required:
+      - token_not_found
+      type: object
+    TransactionNotFoundError_allOf:
+      properties:
+        transaction_not_found:
+          $ref: '#/components/schemas/TransactionIdentifier'
+      required:
+      - transaction_not_found
+      type: object
+
