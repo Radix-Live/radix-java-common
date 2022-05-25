@@ -1,6 +1,8 @@
 # api-gateway-client
 
-Radix Gateway API
+Radix Gateway API  
+
+**The source code is automatically generated from `gateway-api-spec.copy.yaml`**
 
 - API version: 1.1.2-L
 
@@ -78,7 +80,7 @@ Add this dependency to your project's POM:
 <dependency>
   <groupId>live.radix</groupId>
   <artifactId>api-gateway-client</artifactId>
-  <version>1.1.2-L</version>
+  <version>1.1.2</version>
   <scope>compile</scope>
 </dependency>
 ```
