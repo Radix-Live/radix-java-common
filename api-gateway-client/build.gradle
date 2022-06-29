@@ -1,7 +1,7 @@
 apply plugin: 'java-library'
 
 group rootProject.group
-version = '1.1.2'
+version = '1.1.4.1'
 //version rootProject.version
 description 'A generated Client library for Radix Gateway API.'
 

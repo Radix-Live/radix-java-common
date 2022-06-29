@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **stake** | [**TokenAmount**](TokenAmount.md) |  | 
 **info** | [**ValidatorInfo**](ValidatorInfo.md) |  | 
 **properties** | [**ValidatorProperties**](ValidatorProperties.md) |  | 
+**latestForkReadinessSignal** | [**ValidatorForkSignal**](ValidatorForkSignal.md) |  |  [optional]
 
 
 

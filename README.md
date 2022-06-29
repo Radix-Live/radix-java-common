@@ -10,7 +10,7 @@ Java libraries and utilities to help you get started working with Radix APIs.
 <dependency>
   <groupId>live.radix</groupId>
   <artifactId>api-gateway-client</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.4.1</version>
 </dependency>
 ```
 

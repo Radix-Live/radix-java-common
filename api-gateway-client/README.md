@@ -4,9 +4,9 @@ Radix Gateway API
 
 **The source code is automatically generated from `gateway-api-spec.copy.yaml`**
 
-- API version: 1.1.2-L
+- API version: 1.1.4.1-L  
 
-- Build date: 2022-05-21T06:41:39.744899+03:00[Europe/Kiev]
+- Build date: 2022-06-30T00:27:56.028352900+03:00[Europe/Kiev]
 
 This API is designed to enable clients to efficiently query information on the RadixDLT ledger, and allow clients to simply build and submit transactions to the network.
 
@@ -80,7 +80,7 @@ Add this dependency to your project's POM:
 <dependency>
   <groupId>live.radix</groupId>
   <artifactId>api-gateway-client</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.4.1</version>
   <scope>compile</scope>
 </dependency>
 ```
@@ -90,7 +90,7 @@ Add this dependency to your project's POM:
 Add this dependency to your project's build file:
 
 ```groovy
-compile "live.radix:api-gateway-client:1.1.2-L"
+compile "live.radix:api-gateway-client:1.1.4.1"
 ```
 
 ### Others
@@ -103,7 +103,7 @@ mvn clean package
 
 Then manually install the following JARs:
 
-- `target/api-gateway-client-1.1.2-L.jar`
+- `target/api-gateway-client-1.1.4.1.jar`
 - `target/lib/*.jar`
 
 ## Getting Started
@@ -159,6 +159,7 @@ Class | Method | HTTP request | Description
 *TokenApi* | [**tokenPost**](docs/TokenApi.md#tokenPost) | **POST** /token | Get Token Info
 *TransactionApi* | [**transactionBuildPost**](docs/TransactionApi.md#transactionBuildPost) | **POST** /transaction/build | Build Transaction
 *TransactionApi* | [**transactionFinalizePost**](docs/TransactionApi.md#transactionFinalizePost) | **POST** /transaction/finalize | Finalize Transaction
+*TransactionApi* | [**transactionRecentPost**](docs/TransactionApi.md#transactionRecentPost) | **POST** /transaction/recent | Get Recent Transactions
 *TransactionApi* | [**transactionRulesPost**](docs/TransactionApi.md#transactionRulesPost) | **POST** /transaction/rules | Get Transaction Rules
 *TransactionApi* | [**transactionStatusPost**](docs/TransactionApi.md#transactionStatusPost) | **POST** /transaction/status | Transaction Status
 *TransactionApi* | [**transactionSubmitPost**](docs/TransactionApi.md#transactionSubmitPost) | **POST** /transaction/submit | Submit Transaction
@@ -241,6 +242,8 @@ Class | Method | HTTP request | Description
  - [NotSyncedUpErrorAllOf](docs/NotSyncedUpErrorAllOf.md)
  - [PartialLedgerStateIdentifier](docs/PartialLedgerStateIdentifier.md)
  - [PublicKey](docs/PublicKey.md)
+ - [RecentTransactionsRequest](docs/RecentTransactionsRequest.md)
+ - [RecentTransactionsResponse](docs/RecentTransactionsResponse.md)
  - [RegisterValidator](docs/RegisterValidator.md)
  - [RegisterValidatorAllOf](docs/RegisterValidatorAllOf.md)
  - [Signature](docs/Signature.md)
@@ -292,6 +295,7 @@ Class | Method | HTTP request | Description
  - [ValidatorAccountStake](docs/ValidatorAccountStake.md)
  - [ValidatorDeriveRequest](docs/ValidatorDeriveRequest.md)
  - [ValidatorDeriveResponse](docs/ValidatorDeriveResponse.md)
+ - [ValidatorForkSignal](docs/ValidatorForkSignal.md)
  - [ValidatorIdentifier](docs/ValidatorIdentifier.md)
  - [ValidatorInfo](docs/ValidatorInfo.md)
  - [ValidatorProperties](docs/ValidatorProperties.md)

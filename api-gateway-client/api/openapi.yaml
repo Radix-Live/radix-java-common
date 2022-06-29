@@ -41,7 +41,7 @@ info:
     name: The Radix License, Version 1.0
     url: https://www.radixfoundation.org/licenses/LICENSE-v1
   title: Radix Gateway API
-  version: 1.1.2-L
+  version: 1.1.4.1-L
 servers:
 - url: http://localhost:5208
 - url: https://stokenet-gateway.radixdlt.com
@@ -458,6 +458,35 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Gateway Error
       summary: Get Transaction Rules
+      tags:
+      - Transaction
+      x-contentType: application/json
+      x-accepts: application/json
+  /transaction/recent:
+    post:
+      description: |
+        Returns user-initiated transactions which have been succesfully committed to the ledger.
+        The transactions are returned in a paginated format, ordered by most recent.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecentTransactionsRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecentTransactionsResponse'
+          description: A page of the most recent transactions
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway Error
+      summary: Get Recent Transactions
       tags:
       - Transaction
       x-contentType: application/json
@@ -1134,6 +1163,82 @@ components:
           type: integer
         minimum_stake:
           $ref: '#/components/schemas/TokenAmount'
+      type: object
+    RecentTransactionsRequest:
+      example:
+        network_identifier:
+          network: mainnet
+        limit: 10
+      properties:
+        network_identifier:
+          $ref: '#/components/schemas/NetworkIdentifier'
+        at_state_identifier:
+          $ref: '#/components/schemas/PartialLedgerStateIdentifier'
+        cursor:
+          description: This cursor allows forward pagination, by providing the cursor
+            from the previous request.
+          type: string
+        limit:
+          description: The page size requested. The maximum value is 30 at present.
+          type: integer
+      required:
+      - account_identifier
+      - network_identifier
+      type: object
+    RecentTransactionsResponse:
+      example:
+        ledger_state:
+          round: 1
+          epoch: 6
+          version: 0
+          timestamp: timestamp
+        next_cursor: next_cursor
+        transactions:
+        - fee_paid:
+            token_identifier:
+              rri: rri
+            value: value
+          transaction_status:
+            status: CONFIRMED
+            confirmed_time: 2021-07-27T17:35:10.726Z
+          metadata:
+            hex: hex
+            message: message
+          transaction_identifier:
+            hash: hash
+          actions:
+          - type: type
+          - type: type
+        - fee_paid:
+            token_identifier:
+              rri: rri
+            value: value
+          transaction_status:
+            status: CONFIRMED
+            confirmed_time: 2021-07-27T17:35:10.726Z
+          metadata:
+            hex: hex
+            message: message
+          transaction_identifier:
+            hash: hash
+          actions:
+          - type: type
+          - type: type
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+        next_cursor:
+          description: The cursor to be provided for the next page of results. If
+            missing, this is the last page of results.
+          type: string
+        transactions:
+          description: The page of user transactions.
+          items:
+            $ref: '#/components/schemas/TransactionInfo'
+          type: array
+      required:
+      - ledger_state
+      - transactions
       type: object
     TransactionBuildRequest:
       example:
@@ -1946,11 +2051,29 @@ components:
           $ref: '#/components/schemas/ValidatorInfo'
         properties:
           $ref: '#/components/schemas/ValidatorProperties'
+        latest_fork_readiness_signal:
+          $ref: '#/components/schemas/ValidatorForkSignal'
       required:
       - info
       - properties
       - stake
       - validator_identifier
+      type: object
+    ValidatorForkSignal:
+      properties:
+        signalled_at:
+          $ref: '#/components/schemas/LedgerState'
+        fork_id:
+          description: |
+            The logical fork id, which is used for counting votes. The logical id encodes the name, as well as the
+            thresholds when the fork would activate. If a signal is cleared, this field may be empty.
+          type: string
+        fork_name:
+          description: |
+            The human-readable fork name. If a signal is cleared, this field may be empty.
+          type: string
+      required:
+      - signalled_at
       type: object
     ValidatorProperties:
       properties:
@@ -2124,10 +2247,8 @@ components:
         network_identifier:
           network: mainnet
         account_identifiers:
-        - account_identifier:
-            address: rdx1qsp000000000000000000000000000000000000000000000000000q9c0gvj
-        - account_identifier:
-            address: rdx1qsprl50r77hg759ccamph85n7fxfvdjwmvmywy867cgr4nermmtcw7q32velj
+        - address: rdx1qsp000000000000000000000000000000000000000000000000000q9c0gvj
+        - address: rdx1qsprl50r77hg759ccamph85n7fxfvdjwmvmywy867cgr4nermmtcw7q32velj
         since_state_identifier:
           version: 1234567
         limit: 30

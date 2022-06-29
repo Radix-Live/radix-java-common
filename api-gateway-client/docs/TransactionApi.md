@@ -6,6 +6,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**transactionBuildPost**](TransactionApi.md#transactionBuildPost) | **POST** /transaction/build | Build Transaction
 [**transactionFinalizePost**](TransactionApi.md#transactionFinalizePost) | **POST** /transaction/finalize | Finalize Transaction
+[**transactionRecentPost**](TransactionApi.md#transactionRecentPost) | **POST** /transaction/recent | Get Recent Transactions
 [**transactionRulesPost**](TransactionApi.md#transactionRulesPost) | **POST** /transaction/rules | Get Transaction Rules
 [**transactionStatusPost**](TransactionApi.md#transactionStatusPost) | **POST** /transaction/status | Transaction Status
 [**transactionSubmitPost**](TransactionApi.md#transactionSubmitPost) | **POST** /transaction/submit | Submit Transaction
@@ -143,6 +144,73 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Final Signed Transaction |  -  |
+| **500** | Gateway Error |  -  |
+
+
+## transactionRecentPost
+
+> RecentTransactionsResponse transactionRecentPost(recentTransactionsRequest)
+
+Get Recent Transactions
+
+Returns user-initiated transactions which have been succesfully committed to the ledger. The transactions are returned in a paginated format, ordered by most recent. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.TransactionApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost:5208");
+
+        TransactionApi apiInstance = new TransactionApi(defaultClient);
+        RecentTransactionsRequest recentTransactionsRequest = new RecentTransactionsRequest(); // RecentTransactionsRequest | 
+        try {
+            RecentTransactionsResponse result = apiInstance.transactionRecentPost(recentTransactionsRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling TransactionApi#transactionRecentPost");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **recentTransactionsRequest** | [**RecentTransactionsRequest**](RecentTransactionsRequest.md)|  |
+
+### Return type
+
+[**RecentTransactionsResponse**](RecentTransactionsResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | A page of the most recent transactions |  -  |
 | **500** | Gateway Error |  -  |
 
 
