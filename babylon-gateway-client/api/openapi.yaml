@@ -1,0 +1,3264 @@
+openapi: 3.0.0
+info:
+  description: |
+    This API is exposed by the Babylon Radix Gateway to enable clients to efficiently query current and historic
+    state on the RadixDLT ledger, and intelligently handle transaction submission.
+
+    It is designed for use by wallets and explorers. For simple use cases, you can typically use the Core API on
+    a Node. A Gateway is only needed for reading historic snapshots of ledger states or a more robust set-up.
+
+    The Gateway API is implemented by the [Network Gateway](https://github.com/radixdlt/babylon-gateway),
+    which is configured to read from [full node(s)](https://github.com/radixdlt/babylon-node) to extract
+    and index data from the network.
+
+    This document is an API reference documentation, visit [User Guide](https://docs-babylon.radixdlt.com/) to learn more
+    about how to run a Gateway of your own.
+
+    ## Migration guide
+
+    Please see [the latest release notes](https://github.com/radixdlt/babylon-gateway/releases).
+
+    ## Integration and forward compatibility guarantees
+
+    We give no guarantees that other endpoints will not change before Babylon mainnet launch, although changes are expected to
+    be minimal.
+  license:
+    name: "The Radix License, Version 1.0"
+    url: https://www.radixfoundation.org/licenses/license-v1
+  title: Babylon Gateway API - RCnet V3
+  version: 0.5.0
+  x-logo:
+    url: https://docs-babylon.radixdlt.com/main/_images/radix-logo-banner.png
+    href: https://docs-babylon.radixdlt.com
+servers:
+- url: https://rcnet-v3.radixdlt.com
+tags:
+- description: |
+    The Gateway API is split into 5 sub APIs:
+    - **Status** (`/status/*`) - For status and configuration details for the Gateway / Network.
+    - **Transaction** (`/transaction/*`) - For transaction construction, preview, submission, and monitoring the status of an individual transaction.
+    - **Stream** (`/transaction/*`) - For reading committed transactions.
+    - **State** (`/state/*`) - For reading the current or past ledger state of the network.
+    - **Statistics** (`/statistics/*`) - For calculating particular statistics against the current or past ledger state of the network.
+  name: SubAPIs
+  x-displayName: Sub-APIs
+  x-traitTag: true
+- description: |2
+
+    ## Request-Response Format
+
+    The API is designed in a JSON-RPC-like style, using HTTP as a transport layer, which means that:
+    - Requests always use HTTP POST method.
+    - There is no HTTP cache involved.
+    - Client-originated errors result in HTTP 4xx error responses.
+    - Server-originated errors result in HTTP 5xx error responses:
+        - The error object contains an HTTP-like `code`
+        - The error object also contains a structured/typed properties, with a `type` discriminator, allowing for structured error interpretation in client software.
+
+    ## Pagination Model
+
+    Collections can grow in size therefore every dynamic-length collection is a subject to pagination where a generic data struct is used to represent a chunk (page) of
+    underlying data. Gateway API uses cursor-based pagination model where the sole existence of the cursor indicates that next chunk (page) of the underlying collection is
+    available.
+
+    ```
+    collection {
+      int64? total_count,
+      string? next_cursor,
+      T[] items
+    }
+    ```
+
+    - `total_count` *(optional)* if present specifies the overall size of the underlying collection,
+    - `next_cursor` *(optional)* if present indicates that the next chunk (page) exists and can be fetched using collection-specific endpoint and cursor value,
+    - `items` a chunk (page) of unerlying collection items.
+  name: Architecture
+  x-traitTag: true
+- description: |
+    Interacting with this API effectively may require knowledge about the Radix Babylon Transaction Model and the State Model.
+
+    We share some very high-level details below, but please see the [official documentation](http://docs.radixdlt.com) for more details on this.
+
+    ## Transactions and the Gateway
+
+    User transactions are formed of a core "intent", which is then signed by 0+ signatories, before being notarized. The output is called a notarized payload.
+    It is this notarized transaction payload which is submitted to the network.
+
+    For most users, this construction process will generally happen in their Radix Wallet. If you wish to construct transactions programmatically or offline,
+    you will need to integrate the Radix Engine Toolkit into your application for construction and finalization.
+
+    Once submitted, a transaction payload can end up being either rejected or committed. Transactions get rejected if they fail to pass certain criteria at the given time.
+    A transaction payload can be marked as a:
+    - **Permanent Rejection** if it is never possible for it to be committed (eg it's statically invalid, or only valid up until epoch 100 and it's now epoch 101)
+    - **Temporary Rejection** if it still may be possible that the transaction payload could be committed
+
+    A given intent typically is only part of one submitted notarized payload, but it's possible for a notary to notarize and submit multiple payloads for the same intent.
+    The Radix Engine ensures that any intent can only be committed once.
+
+    A committed transaction is either committed with an outcome of "Success" or "Failure":
+    - **Committed Failure** will result in fees being paid up until the failure point, but all other changes will be discarded.
+    - **Committed Success** will result in all changes being committed.
+
+    Only committed transactions appear on ledger.
+
+    The gateway will attempt to submit your transaction to nodes on the network.
+    If it gets temporarily rejected, the error message will be recorded against the transaction, but the Gateway will
+    retry submission for a limited time. During this time, the status will be reported as pending.
+
+    ## State Model
+
+    The Radix Engine consists of "global entities".
+    A global entity has a Bech32m Address, with a human-readable-prefix (and prefix byte) matching the entity type.
+
+    As an example, entities include concepts like Components, Packages, Vaults, Resource Managers and Key-Value Stores.
+
+    Each entity owns substates which store data, and these substates can own other entities.
+    For example, an Account Component has a struct substate which owns a Key-Value Store. This Key-Value store has an
+    entry for each resoure the Account owns, and each Key-Value Store Entry owns a corresponding Vault.
+
+    For each global entity, the Gateway aggregates its owned resources by looking at the contents of Vaults in the
+    subtree of entities under that global entity.
+  name: Concepts
+  x-displayName: Concepts
+  x-traitTag: true
+- description: Query information about the Gateway API status.
+  name: Status
+  x-displayName: Status Endpoints
+- description: "Query status of, construct, preview and submit transactions."
+  name: Transaction
+  x-displayName: Transaction Endpoints
+- description: Browse through the history of transactions.
+  name: Stream
+  x-displayName: Stream Endpoints
+- description: Query information snapshot about state of ledger entities at present
+    or past time.
+  name: State
+  x-displayName: State Endpoints
+- description: Calculate particular statistics based on current or historic ledger
+    state.
+  name: Statistics
+  x-displayName: Statistics Endpoints
+paths:
+  /status/gateway-status:
+    post:
+      description: |
+        Returns the Gateway API version and current ledger state.
+      operationId: GatewayStatus
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GatewayStatusResponse'
+          description: Network Gateway Information
+      summary: Get Gateway Status
+      tags:
+      - Status
+      x-accepts: application/json
+  /status/network-configuration:
+    post:
+      description: |
+        Returns network identifier, network name and well-known network addresses.
+      operationId: NetworkConfiguration
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetworkConfigurationResponse'
+          description: Network Configuration
+      summary: Get Network Configuration
+      tags:
+      - Status
+      x-accepts: application/json
+  /transaction/construction:
+    post:
+      description: |
+        Returns information needed to construct a new transaction including current `epoch` number.
+      operationId: TransactionConstruction
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionConstructionResponse'
+          description: |
+            Returns information needed to construct transaction.
+      summary: Get Construction Metadata
+      tags:
+      - Transaction
+      x-accepts: application/json
+  /transaction/preview:
+    post:
+      description: |
+        Previews transaction against the network.
+        This endpoint is effectively a proxy towards CoreApi's `/v0/transaction/preview` endpoint. See CoreApi's documentation for more details.
+      operationId: TransactionPreview
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionPreviewRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionPreviewResponse'
+          description: Successful Preview
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Preview Transaction
+      tags:
+      - Transaction
+      x-content-type: application/json
+      x-accepts: application/json
+  /transaction/submit:
+    post:
+      description: |
+        Submits a signed transaction payload to the network.
+      operationId: TransactionSubmit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionSubmitRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionSubmitResponse'
+          description: Successful Submission
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Submit Transaction
+      tags:
+      - Transaction
+      x-content-type: application/json
+      x-accepts: application/json
+  /transaction/committed-details:
+    post:
+      description: |
+        Returns the committed details and receipt of the transaction for a given transaction identifier.
+        Transaction identifiers which don't correspond to a committed transaction will return a `TransactionNotFoundError`.
+      operationId: TransactionCommittedDetails
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCommittedDetailsRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionCommittedDetailsResponse'
+          description: Transaction Status
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Committed Transaction Details
+      tags:
+      - Transaction
+      x-content-type: application/json
+      x-accepts: application/json
+  /transaction/status:
+    post:
+      description: |
+        Returns overall transaction status and all of its known payloads based on supplied intent hash.
+      operationId: TransactionStatus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionStatusRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionStatusResponse'
+          description: Transaction Status
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Transaction Status
+      tags:
+      - Transaction
+      x-content-type: application/json
+      x-accepts: application/json
+  /stream/transactions:
+    post:
+      description: |
+        Returns transactions which have been committed to the ledger.
+      operationId: StreamTransactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamTransactionsRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamTransactionsResponse'
+          description: Transactions (paginated)
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Transactions Stream
+      tags:
+      - Stream
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/entity/details:
+    post:
+      description: |
+        Returns detailed information for collection of entities. Aggregate resources globally by default.
+      operationId: StateEntityDetails
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateEntityDetailsRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateEntityDetailsResponse'
+          description: Entity Details
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Entity Details
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/entity/page/metadata:
+    post:
+      description: |
+        Returns all the metadata properties associated with a given global entity.
+        The returned response is in a paginated format, ordered by first appearance on the ledger.
+      operationId: EntityMetadataPage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateEntityMetadataPageRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateEntityMetadataPageResponse'
+          description: Entity Metadata (paginated)
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Entity Metadata Page
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/entity/page/fungibles/:
+    post:
+      description: |
+        Returns the total amount of each fungible resource owned by a given global entity.
+        Result can be aggregated globally or per vault.
+        The returned response is in a paginated format, ordered by the resource's first appearance on the ledger.
+      operationId: EntityFungiblesPage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateEntityFungiblesPageRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateEntityFungiblesPageResponse'
+          description: Entity Fungibles (paginated)
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Entity Fungible Resource Totals Page aggregated globally
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/entity/page/fungible-vaults/:
+    post:
+      description: |
+        Returns vaults for fungible resource owned by a given global entity.
+        The returned response is in a paginated format, ordered by the resource's first appearance on the ledger.
+      operationId: EntityFungibleResourceVaultPage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateEntityFungibleResourceVaultsPageRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateEntityFungibleResourceVaultsPageResponse'
+          description: Entity Fungibles (paginated)
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get vault page of Entity Fungible resource aggregated per vault
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/entity/page/non-fungibles/:
+    post:
+      description: |
+        Returns the total amount of each non-fungible resource owned by a given global entity.
+        Result can be aggregated globally or per vault.
+        The returned response is in a paginated format, ordered by the resource's first appearance on the ledger.
+      operationId: EntityNonFungiblesPage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateEntityNonFungiblesPageRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateEntityNonFungiblesPageResponse'
+          description: Entity Non-Fungibles (paginated)
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Entity Non-Fungible Resource Totals Page aggregated globally
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/entity/page/non-fungible-vaults/:
+    post:
+      description: |
+        Returns vaults for non fungible resource owned by a given global entity.
+        The returned response is in a paginated format, ordered by the resource's first appearance on the ledger.
+      operationId: EntityNonFungibleResourceVaultPage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateEntityNonFungibleResourceVaultsPageRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateEntityNonFungibleResourceVaultsPageResponse'
+          description: Entity Fungibles (paginated)
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get vault page of Entity Non Fungible aggregated per vault
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/entity/page/non-fungible-vault/ids:
+    post:
+      description: |
+        Returns all non-fungible IDs of a given non-fungible resource owned by a given entity.
+        The returned response is in a paginated format, ordered by the resource's first appearence on the ledger.
+      operationId: EntityNonFungibleIdsPage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateEntityNonFungibleIdsPageRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateEntityNonFungibleIdsPageResponse'
+          description: Entity Non-Fungible IDs (paginated)
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Entity Non-Fungible IDs
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/non-fungible/ids:
+    post:
+      description: |
+        Returns the non-fungible IDs of a given non-fungible resource.
+        Returned response is in a paginated format, ordered by their first appearance on the ledger.
+      operationId: NonFungibleIds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateNonFungibleIdsRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateNonFungibleIdsResponse'
+          description: Non-Fungible IDs (paginated)
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Non-Fungible Collection
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/non-fungible/data:
+    post:
+      description: |
+        Returns data associated with a given non-fungible ID of a given non-fungible resource.
+      operationId: NonFungibleData
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateNonFungibleDataRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateNonFungibleDataResponse'
+          description: Non-Fungible ID Data
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Non-Fungible Data
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/non-fungible/location:
+    post:
+      description: |
+        Returns location of a given non-fungible ID.
+      operationId: NonFungibleLocation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateNonFungibleLocationRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateNonFungibleLocationResponse'
+          description: Non-Fungible ID Location
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Non-Fungible Location
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/key-value-store/data:
+    post:
+      description: |
+        Returns data (value) associated with a given key of a given key-value store.
+      operationId: KeyValueStoreData
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateKeyValueStoreDataRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateKeyValueStoreDataResponse'
+          description: Non-Fungible ID Data
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get KeyValueStore Data
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /state/validators/list:
+    post:
+      operationId: StateValidatorsList
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateValidatorsListRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateValidatorsListResponse'
+          description: Validators List
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Validators List
+      tags:
+      - State
+      x-content-type: application/json
+      x-accepts: application/json
+  /statistics/validators/uptime:
+    post:
+      operationId: ValidatorsUptime
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidatorsUptimeRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidatorsUptimeResponse'
+          description: Validators Uptime
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Validators Uptime
+      tags:
+      - Statistics
+      x-content-type: application/json
+      x-accepts: application/json
+components:
+  responses:
+    ErrorResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Client-originated request error
+  schemas:
+    NetworkId:
+      description: The logical id of the network
+      format: int32
+      maximum: 255
+      minimum: 0
+      type: integer
+    NetworkName:
+      description: The logical name of the network
+      example: <network-name>
+      type: string
+    Address:
+      description: Bech32m-encoded human readable version of the address.
+      type: string
+    BigDecimal:
+      description: String-encoded decimal representing the amount of a related fungible
+        resource.
+      type: string
+    NonFungibleId:
+      description: String-encoded non-fungible ID.
+      type: string
+    HashBech32mString:
+      description: Bech32m-encoded hash.
+      type: string
+    HashHexString:
+      description: Hex-encoded SHA-256 hash.
+      type: string
+    HexString:
+      description: Hex-encoded binary blob.
+      type: string
+    NotarizedTransactionHexString:
+      description: Hex-encoded notarized transaction payload which can be submitted.
+      type: string
+    LastUpdatedAtStateVersion:
+      description: TBD
+      format: int64
+      type: integer
+    PublicKeyType:
+      enum:
+      - EcdsaSecp256k1
+      - EddsaEd25519
+      type: string
+    PublicKey:
+      discriminator:
+        mapping:
+          EcdsaSecp256k1: '#/components/schemas/PublicKeyEcdsaSecp256k1'
+          EddsaEd25519: '#/components/schemas/PublicKeyEddsaEd25519'
+        propertyName: key_type
+      example:
+        key_type: null
+      properties:
+        key_type:
+          $ref: '#/components/schemas/PublicKeyType'
+      required:
+      - key_type
+      type: object
+    PublicKeyEcdsaSecp256k1:
+      allOf:
+      - $ref: '#/components/schemas/PublicKey'
+      - $ref: '#/components/schemas/PublicKeyEcdsaSecp256k1_allOf'
+    PublicKeyEddsaEd25519:
+      allOf:
+      - $ref: '#/components/schemas/PublicKey'
+      - $ref: '#/components/schemas/PublicKeyEddsaEd25519_allOf'
+    PublicKeyHashType:
+      enum:
+      - EcdsaSecp256k1
+      - EddsaEd25519
+      type: string
+    PublicKeyHash:
+      discriminator:
+        mapping:
+          EcdsaSecp256k1: '#/components/schemas/PublicKeyHashEcdsaSecp256k1'
+          EddsaEd25519: '#/components/schemas/PublicKeyHashEddsaEd25519'
+        propertyName: key_hash_type
+      properties:
+        key_hash_type:
+          $ref: '#/components/schemas/PublicKeyHashType'
+      required:
+      - key_hash_type
+      type: object
+    PublicKeyHashEcdsaSecp256k1:
+      allOf:
+      - $ref: '#/components/schemas/PublicKeyHash'
+      - $ref: '#/components/schemas/PublicKeyHashEcdsaSecp256k1_allOf'
+    PublicKeyHashEddsaEd25519:
+      allOf:
+      - $ref: '#/components/schemas/PublicKeyHash'
+      - $ref: '#/components/schemas/PublicKeyHashEcdsaSecp256k1_allOf'
+    AtLedgerStateMixin:
+      properties:
+        at_ledger_state:
+          $ref: '#/components/schemas/LedgerStateSelector'
+      type: object
+    LedgerStateSelector:
+      description: |
+        Optional. This allows for a request to be made against a historic state.
+        If a constraint is specified, the Gateway will resolve the request against the ledger state at that time.
+        If not specified, requests will be made with respect to the top of the committed ledger.
+      nullable: true
+      properties:
+        state_version:
+          description: "If provided, the latest ledger state lower than or equal to\
+            \ the given state version is returned."
+          format: int64
+          nullable: true
+          type: integer
+        timestamp:
+          description: "If provided, the latest ledger state lower than or equal to\
+            \ the given round timestamp is returned."
+          format: date-time
+          nullable: true
+          type: string
+        epoch:
+          description: "If provided, the ledger state lower than or equal to the given\
+            \ epoch at round 0 is returned."
+          format: int64
+          nullable: true
+          type: integer
+        round:
+          description: "If provided must be accompanied with `epoch`, the ledger state\
+            \ lower than or equal to the given epoch and round is returned."
+          format: int64
+          nullable: true
+          type: integer
+      type: object
+    CursorLimitMixin:
+      properties:
+        cursor:
+          description: "This cursor allows forward pagination, by providing the cursor\
+            \ from the previous request."
+          nullable: true
+          type: string
+        limit_per_page:
+          description: The page size requested.
+          nullable: true
+          type: integer
+      type: object
+    ObjectModuleId:
+      enum:
+      - Main
+      - Metadata
+      - Royalty
+      - RoleAssignment
+      type: string
+    ValidatorVaultItem:
+      properties:
+        balance:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+        last_changed_at_state_version:
+          format: int64
+          type: integer
+        address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+      required:
+      - address
+      - balance
+      - last_changed_at_state_version
+      type: object
+    LedgerStateMixin:
+      properties:
+        ledger_state:
+          $ref: '#/components/schemas/LedgerState'
+      required:
+      - ledger_state
+      type: object
+    ResultSetCursorMixin:
+      properties:
+        total_count:
+          description: "Total number of items in underlying collection, fragment of\
+            \ which is available in `items` collection."
+          format: int64
+          nullable: true
+          type: integer
+        next_cursor:
+          description: "If specified, contains a cursor to query next page of the\
+            \ `items` collection."
+          nullable: true
+          type: string
+      type: object
+    LedgerState:
+      description: |
+        The ledger state against which the response was generated.
+        Can be used to detect if the Network Gateway is returning up-to-date information.
+      properties:
+        network:
+          description: The logical name of the network
+          example: <network-name>
+          type: string
+        state_version:
+          description: The state version of the ledger. Each transaction increments
+            the state version by 1.
+          format: int64
+          type: integer
+        proposer_round_timestamp:
+          description: |
+            The proposer round timestamp of the consensus round when this transaction was committed to ledger.
+            This is not guaranteed to be strictly increasing, as it is computed as an average across the validator set.
+            If this is significantly behind the current timestamp, the Network Gateway is likely reporting out-dated
+            information, or the network has stalled.
+          type: string
+        epoch:
+          description: The epoch number of the ledger at this state version.
+          format: int64
+          type: integer
+        round:
+          description: The consensus round in the epoch that this state version was
+            committed in.
+          format: int64
+          type: integer
+      required:
+      - epoch
+      - network
+      - proposer_round_timestamp
+      - round
+      - state_version
+      type: object
+    ResourceAggregationLevel:
+      enum:
+      - Global
+      - Vault
+      type: string
+    ScryptoSborValue:
+      properties:
+        raw_hex:
+          type: string
+        programmatic_json:
+          type: object
+      required:
+      - programmatic_json
+      - raw_hex
+      type: object
+    EntityMetadataCollection:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/EntityMetadataCollection_allOf'
+      description: Entity metadata collection.
+    EntityMetadataItem:
+      description: Entity metadata key-value pair.
+      properties:
+        key:
+          description: Entity metadata key.
+          type: string
+        value:
+          $ref: '#/components/schemas/EntityMetadataItemValue'
+        is_locked:
+          type: boolean
+        last_updated_at_state_version:
+          description: TBD
+          format: int64
+          type: integer
+      required:
+      - is_locked
+      - key
+      - last_updated_at_state_version
+      - value
+      type: object
+    EntityMetadataItemValue:
+      allOf:
+      - $ref: '#/components/schemas/ScryptoSborValue'
+      - $ref: '#/components/schemas/EntityMetadataItemValue_allOf'
+    ComponentEntityRoleAssignments:
+      properties:
+        owner:
+          type: object
+        entries:
+          items:
+            $ref: '#/components/schemas/ComponentEntityRoleAssignmentEntry'
+          type: array
+      required:
+      - entries
+      - owner
+      type: object
+    ComponentEntityRoleAssignmentEntry:
+      properties:
+        role_key:
+          $ref: '#/components/schemas/RoleKey'
+        assignment:
+          $ref: '#/components/schemas/ComponentEntityRoleAssignmentEntry_assignment'
+        updater_roles:
+          items:
+            $ref: '#/components/schemas/RoleKey'
+          type: array
+      required:
+      - assignment
+      - role_key
+      type: object
+    RoleAssignmentResolution:
+      enum:
+      - Explicit
+      - Owner
+      type: string
+    RoleKey:
+      properties:
+        name:
+          type: string
+        module:
+          $ref: '#/components/schemas/ObjectModuleId'
+      required:
+      - module
+      - name
+      type: object
+    FungibleResourcesCollection:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/FungibleResourcesCollection_allOf'
+      description: Fungible resources collection.
+    FungibleResourcesCollectionItem:
+      discriminator:
+        mapping:
+          Global: '#/components/schemas/FungibleResourcesCollectionItemGloballyAggregated'
+          Vault: '#/components/schemas/FungibleResourcesCollectionItemVaultAggregated'
+        propertyName: aggregation_level
+      properties:
+        aggregation_level:
+          $ref: '#/components/schemas/ResourceAggregationLevel'
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        explicit_metadata:
+          $ref: '#/components/schemas/EntityMetadataCollection'
+      required:
+      - aggregation_level
+      - resource_address
+      type: object
+    FungibleResourcesCollectionItemGloballyAggregated:
+      allOf:
+      - $ref: '#/components/schemas/FungibleResourcesCollectionItem'
+      - $ref: '#/components/schemas/FungibleResourcesCollectionItemGloballyAggregated_allOf'
+    FungibleResourcesCollectionItemVaultAggregated:
+      allOf:
+      - $ref: '#/components/schemas/FungibleResourcesCollectionItem'
+      - $ref: '#/components/schemas/FungibleResourcesCollectionItemVaultAggregated_allOf'
+    FungibleResourcesCollectionItemVaultAggregatedVault:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/FungibleResourcesCollectionItemVaultAggregatedVault_allOf'
+    FungibleResourcesCollectionItemVaultAggregatedVaultItem:
+      properties:
+        vault_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        amount:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+        last_updated_at_state_version:
+          description: TBD
+          format: int64
+          type: integer
+      required:
+      - amount
+      - last_updated_at_state_version
+      - vault_address
+      type: object
+    NonFungibleResourcesCollection:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/NonFungibleResourcesCollection_allOf'
+      description: Non-fungible resources collection.
+    NonFungibleResourcesCollectionItem:
+      discriminator:
+        mapping:
+          Global: '#/components/schemas/NonFungibleResourcesCollectionItemGloballyAggregated'
+          Vault: '#/components/schemas/NonFungibleResourcesCollectionItemVaultAggregated'
+        propertyName: aggregation_level
+      properties:
+        aggregation_level:
+          $ref: '#/components/schemas/ResourceAggregationLevel'
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        explicit_metadata:
+          $ref: '#/components/schemas/EntityMetadataCollection'
+      required:
+      - aggregation_level
+      - resource_address
+      type: object
+    NonFungibleResourcesCollectionItemGloballyAggregated:
+      allOf:
+      - $ref: '#/components/schemas/NonFungibleResourcesCollectionItem'
+      - $ref: '#/components/schemas/NonFungibleResourcesCollectionItemGloballyAggregated_allOf'
+    NonFungibleResourcesCollectionItemVaultAggregated:
+      allOf:
+      - $ref: '#/components/schemas/NonFungibleResourcesCollectionItem'
+      - $ref: '#/components/schemas/NonFungibleResourcesCollectionItemVaultAggregated_allOf'
+    NonFungibleResourcesCollectionItemVaultAggregatedVault:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/NonFungibleResourcesCollectionItemVaultAggregatedVault_allOf'
+    NonFungibleResourcesCollectionItemVaultAggregatedVaultItem:
+      allOf:
+      - $ref: '#/components/schemas/OptionalNonFungibleIdsCollection'
+      - $ref: '#/components/schemas/NonFungibleResourcesCollectionItemVaultAggregatedVaultItem_allOf'
+    OptionalNonFungibleIdsCollection:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/OptionalNonFungibleIdsCollection_allOf'
+      description: Non-fungible resource IDs collection.
+    NonFungibleIdsCollection:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/NonFungibleIdsCollection_allOf'
+      description: Non-fungible resource IDs collection.
+    CommittedTransactionInfo:
+      properties:
+        state_version:
+          format: int64
+          type: integer
+        epoch:
+          format: int64
+          type: integer
+        round:
+          format: int64
+          type: integer
+        round_timestamp:
+          type: string
+        transaction_status:
+          $ref: '#/components/schemas/TransactionStatus'
+        payload_hash:
+          description: Bech32m-encoded hash.
+          type: string
+        intent_hash:
+          description: Bech32m-encoded hash.
+          type: string
+        fee_paid:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+        affected_global_entities:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+        confirmed_at:
+          format: date-time
+          nullable: true
+          type: string
+        error_message:
+          nullable: true
+          type: string
+        raw_hex:
+          description: Hex-encoded binary blob.
+          type: string
+        receipt:
+          $ref: '#/components/schemas/TransactionReceipt'
+        message:
+          description: defined in core api specs.
+          type: object
+      required:
+      - epoch
+      - round
+      - round_timestamp
+      - state_version
+      - transaction_status
+      type: object
+    TransactionStatus:
+      enum:
+      - Unknown
+      - CommittedSuccess
+      - CommittedFailure
+      - Pending
+      - Rejected
+      type: string
+    TransactionReceipt:
+      properties:
+        status:
+          description: The status of the transaction.
+          type: object
+        fee_summary:
+          description: "Fees paid, Only present if the `status` is not `Rejected`."
+          type: object
+        costing_parameters:
+          type: object
+        fee_destination:
+          description: Only present if the `status` is not `Rejected`.
+          type: object
+        fee_source:
+          description: Only present if the `status` is not `Rejected`.
+          type: object
+        state_updates:
+          description: Transaction state updates (only present if status is Succeeded
+            or Failed).
+          type: object
+        next_epoch:
+          description: Information (number and active validator list) about new epoch
+            if occured.
+          type: object
+        output:
+          description: The manifest line-by-line engine return data (only present
+            if `status` is `Succeeded`).
+          type: object
+        events:
+          description: Events emitted by a transaction.
+          type: object
+        error_message:
+          description: Error message (only present if status is `Failed` or `Rejected`)
+          nullable: true
+          type: string
+      type: object
+    NonFungibleIdType:
+      enum:
+      - String
+      - Integer
+      - Bytes
+      - Ruid
+      type: string
+    PackageVmType:
+      enum:
+      - Native
+      - ScryptoV1
+      type: string
+    ValidatorUptimeCollection:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ValidatorUptimeCollectionItem'
+          type: array
+      required:
+      - items
+      type: object
+    ValidatorUptimeCollectionItem:
+      properties:
+        address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        proposals_made:
+          format: int64
+          nullable: true
+          type: integer
+        proposals_missed:
+          format: int64
+          nullable: true
+          type: integer
+        epochs_active_in:
+          format: int64
+          type: integer
+      required:
+      - address
+      - epochs_active_in
+      type: object
+    ValidatorCollection:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/ValidatorCollection_allOf'
+    ValidatorCollectionItem:
+      properties:
+        address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        stake_vault:
+          $ref: '#/components/schemas/ValidatorVaultItem'
+        pending_xrd_withdraw_vault:
+          $ref: '#/components/schemas/ValidatorVaultItem'
+        locked_owner_stake_unit_vault:
+          $ref: '#/components/schemas/ValidatorVaultItem'
+        pending_owner_stake_unit_unlock_vault:
+          $ref: '#/components/schemas/ValidatorVaultItem'
+        state:
+          nullable: true
+          type: object
+        active_in_epoch:
+          $ref: '#/components/schemas/ValidatorCollectionItemActiveInEpoch'
+        metadata:
+          $ref: '#/components/schemas/EntityMetadataCollection'
+      required:
+      - address
+      - locked_owner_stake_unit_vault
+      - metadata
+      - pending_owner_stake_unit_unlock_vault
+      - pending_xrd_withdraw_vault
+      - stake_vault
+      type: object
+    ValidatorCollectionItemActiveInEpoch:
+      properties:
+        stake:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+        stake_percentage:
+          format: double
+          type: number
+        key:
+          $ref: '#/components/schemas/PublicKey'
+      required:
+      - key
+      - stake
+      - stake_percentage
+      type: object
+    NetworkConfigurationResponse:
+      example:
+        well_known_addresses:
+          secp256k1_signature_virtual_badge: secp256k1_signature_virtual_badge
+          account_owner_badge: account_owner_badge
+          access_controller_package: access_controller_package
+          resource_package: resource_package
+          package_package: package_package
+          account_package: account_package
+          system_transaction_badge: system_transaction_badge
+          global_caller_virtual_badge: global_caller_virtual_badge
+          access_rules_package: access_rules_package
+          metadata_module_package: metadata_module_package
+          transaction_processor_package: transaction_processor_package
+          faucet: faucet
+          ed25519_signature_virtual_badge: ed25519_signature_virtual_badge
+          package_owner_badge: package_owner_badge
+          consensus_manager: consensus_manager
+          consensus_manager_package: consensus_manager_package
+          genesis_helper_package: genesis_helper_package
+          faucet_package: faucet_package
+          xrd: xrd
+          validator_owner_badge: validator_owner_badge
+          royalty_module_package: royalty_module_package
+          pool_package: pool_package
+          identity_package: identity_package
+          package_of_direct_caller_virtual_badge: package_of_direct_caller_virtual_badge
+          genesis_helper: genesis_helper
+          identity_owner_badge: identity_owner_badge
+        network_id: 20
+        network_name: <network-name>
+      properties:
+        network_id:
+          description: The logical id of the network
+          format: int32
+          maximum: 255
+          minimum: 0
+          type: integer
+        network_name:
+          description: The logical name of the network
+          example: <network-name>
+          type: string
+        well_known_addresses:
+          $ref: '#/components/schemas/NetworkConfigurationResponse_well_known_addresses'
+      required:
+      - network_id
+      - network_name
+      - well_known_addresses
+      type: object
+    GatewayStatusResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/GatewayStatusResponse_allOf'
+    GatewayInfoResponseKnownTarget:
+      properties:
+        state_version:
+          description: |
+            The latest-seen state version of the tip of the network's ledger. If this is significantly ahead of the current ledger state version, the Network Gateway is possibly behind and may be reporting outdated information.
+          format: int64
+          type: integer
+      required:
+      - state_version
+      type: object
+    GatewayInfoResponseReleaseInfo:
+      properties:
+        release_version:
+          description: The release that is currently deployed to the Gateway API.
+          type: string
+        open_api_schema_version:
+          description: The Open API Schema version that was used to generate the API
+            models.
+          type: string
+        image_tag:
+          description: Image tag that is currently deployed to the Gateway API.
+          type: string
+      required:
+      - image_tag
+      - open_api_schema_version
+      - release_version
+      type: object
+    TransactionConstructionResponse:
+      allOf:
+      - type: object
+      - $ref: '#/components/schemas/LedgerStateMixin'
+    TransactionPreviewRequest:
+      example:
+        blobs_hex:
+        - blobs_hex
+        - blobs_hex
+        end_epoch_exclusive: 6027456183
+        manifest: manifest
+        start_epoch_inclusive: 800828190
+        signer_public_keys:
+        - key_type: null
+        - key_type: null
+        flags:
+          use_free_credit: true
+          assume_all_signature_proofs: true
+          skip_epoch_check: true
+        notary_public_key:
+          key_type: null
+        nonce: 0
+        notary_is_signatory: true
+        tip_percentage: 37
+      properties:
+        manifest:
+          description: A text-representation of a transaction manifest
+          type: string
+        blobs_hex:
+          description: An array of hex-encoded blob data (optional)
+          items:
+            type: string
+          type: array
+        start_epoch_inclusive:
+          description: "An integer between `0` and `10^10`, marking the epoch at which\
+            \ the transaction starts being valid"
+          format: int64
+          maximum: 10000000000
+          minimum: 0
+          type: integer
+        end_epoch_exclusive:
+          description: "An integer between `0` and `10^10`, marking the epoch at which\
+            \ the transaction is no longer valid"
+          format: int64
+          maximum: 10000000000
+          minimum: 0
+          type: integer
+        notary_public_key:
+          $ref: '#/components/schemas/PublicKey'
+        notary_is_signatory:
+          description: "Whether the notary should count as a signatory (optional,\
+            \ default false)"
+          type: boolean
+        tip_percentage:
+          description: "An integer between `0` and `255`, giving the validator tip\
+            \ as a percentage amount. A value of `1` corresponds to 1% of the fee."
+          format: int32
+          maximum: 255
+          minimum: 0
+          type: integer
+        nonce:
+          description: "A decimal-string-encoded integer between `0` and `2^32 - 1`,\
+            \ used to ensure the transaction intent is unique."
+          format: int64
+          minimum: 0
+          type: integer
+        signer_public_keys:
+          description: A list of public keys to be used as transaction signers
+          items:
+            $ref: '#/components/schemas/PublicKey'
+          type: array
+        flags:
+          $ref: '#/components/schemas/TransactionPreviewRequest_flags'
+      required:
+      - end_epoch_exclusive
+      - flags
+      - manifest
+      - nonce
+      - signer_public_keys
+      - start_epoch_inclusive
+      - tip_percentage
+      type: object
+    TransactionPreviewResponse:
+      example:
+        resource_changes:
+        - "{}"
+        - "{}"
+        receipt: "{}"
+        encoded_receipt: encoded_receipt
+        logs:
+        - level: level
+          message: message
+        - level: level
+          message: message
+      properties:
+        encoded_receipt:
+          description: Hex-encoded binary blob.
+          type: string
+        receipt:
+          type: object
+        resource_changes:
+          items:
+            type: object
+          type: array
+        logs:
+          items:
+            $ref: '#/components/schemas/TransactionPreviewResponse_logs_inner'
+          type: array
+      required:
+      - encoded_receipt
+      - logs
+      - receipt
+      - resource_changes
+      type: object
+    TransactionSubmitRequest:
+      example:
+        notarized_transaction_hex: notarized_transaction_hex
+      properties:
+        notarized_transaction_hex:
+          description: Hex-encoded notarized transaction payload which can be submitted.
+          type: string
+      required:
+      - notarized_transaction_hex
+      type: object
+    TransactionSubmitResponse:
+      example:
+        duplicate: true
+      properties:
+        duplicate:
+          description: Is true if the transaction is a duplicate of an existing pending
+            transaction.
+          type: boolean
+      required:
+      - duplicate
+      type: object
+    TransactionStatusRequest:
+      allOf:
+      - $ref: '#/components/schemas/TransactionStatusRequest_allOf'
+      example:
+        intent_hash: <transaction-intent-hash>
+    TransactionStatusResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/TransactionStatusResponse_allOf'
+    TransactionStatusResponseKnownPayloadItem:
+      properties:
+        payload_hash:
+          description: Bech32m-encoded hash.
+          type: string
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        error_message:
+          nullable: true
+          type: string
+      required:
+      - payload_hash
+      - status
+      type: object
+    TransactionCommittedDetailsRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/TransactionCommittedDetailsRequest_allOf'
+      example:
+        intent_hash: <transaction-intent-hash>
+    TransactionDetailsOptIns:
+      properties:
+        raw_hex:
+          type: boolean
+        receipt_state_changes:
+          type: boolean
+        receipt_fee_summary:
+          type: boolean
+        receipt_fee_source:
+          type: boolean
+        receipt_fee_destination:
+          type: boolean
+        receipt_costing_parameters:
+          type: boolean
+        receipt_events:
+          type: boolean
+        affected_global_entities:
+          type: boolean
+      type: object
+    TransactionCommittedDetailsResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/TransactionCommittedDetailsResponse_allOf'
+    StreamTransactionsRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/CursorLimitMixin'
+      - $ref: '#/components/schemas/StreamTransactionsRequest_allOf'
+      example:
+        limit_per_page: 5
+    StreamTransactionsRequestEventFilterItem:
+      properties:
+        event:
+          enum:
+          - Deposit
+          - Withdrawal
+          type: string
+        emitter_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        quantity:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+      required:
+      - event
+      type: object
+    StreamTransactionsResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/StreamTransactionsResponse_allOf'
+    StateEntityDetailsRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/StateEntityDetailsRequest_allOf'
+      example:
+        addresses:
+        - <entity-address>
+        aggregation_level: Vault
+        opt_ins:
+          ancestor_identities: true
+          component_royalty_vault_balance: true
+          package_royalty_vault_balance: true
+          non_fungible_include_nfids: true
+          explicit_metadata:
+          - name
+          - description
+    StateEntityDetailsOptIns:
+      properties:
+        ancestor_identities:
+          type: boolean
+        component_royalty_vault_balance:
+          type: boolean
+        package_royalty_vault_balance:
+          type: boolean
+        non_fungible_include_nfids:
+          type: boolean
+        explicit_metadata:
+          items:
+            type: string
+          type: array
+      type: object
+    StateEntityDetailsResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/StateEntityDetailsResponse_allOf'
+    StateEntityDetailsResponseItem:
+      properties:
+        address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        fungible_resources:
+          $ref: '#/components/schemas/FungibleResourcesCollection'
+        non_fungible_resources:
+          $ref: '#/components/schemas/NonFungibleResourcesCollection'
+        ancestor_identities:
+          $ref: '#/components/schemas/StateEntityDetailsResponseItemAncestorIdentities'
+        metadata:
+          $ref: '#/components/schemas/EntityMetadataCollection'
+        explicit_metadata:
+          $ref: '#/components/schemas/EntityMetadataCollection'
+        details:
+          $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
+      required:
+      - address
+      - metadata
+      type: object
+    StateEntityDetailsResponseItemAncestorIdentities:
+      properties:
+        parent_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        owner_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        global_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+      type: object
+    StateEntityDetailsResponseItemDetailsType:
+      enum:
+      - FungibleResource
+      - NonFungibleResource
+      - FungibleVault
+      - NonFungibleVault
+      - Package
+      - Component
+      type: string
+    StateEntityDetailsResponseItemDetails:
+      discriminator:
+        mapping:
+          FungibleResource: '#/components/schemas/StateEntityDetailsResponseFungibleResourceDetails'
+          NonFungibleResource: '#/components/schemas/StateEntityDetailsResponseNonFungibleResourceDetails'
+          FungibleVault: '#/components/schemas/StateEntityDetailsResponseFungibleVaultDetails'
+          NonFungibleVault: '#/components/schemas/StateEntityDetailsResponseNonFungibleVaultDetails'
+          Package: '#/components/schemas/StateEntityDetailsResponsePackageDetails'
+          Component: '#/components/schemas/StateEntityDetailsResponseComponentDetails'
+        propertyName: type
+      properties:
+        type:
+          $ref: '#/components/schemas/StateEntityDetailsResponseItemDetailsType'
+      required:
+      - type
+      type: object
+    StateEntityDetailsResponseFungibleResourceDetails:
+      allOf:
+      - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
+      - $ref: '#/components/schemas/StateEntityDetailsResponseFungibleResourceDetails_allOf'
+    StateEntityDetailsResponseNonFungibleResourceDetails:
+      allOf:
+      - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
+      - $ref: '#/components/schemas/StateEntityDetailsResponseNonFungibleResourceDetails_allOf'
+    StateEntityDetailsResponseFungibleVaultDetails:
+      allOf:
+      - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
+      - type: object
+    StateEntityDetailsResponseNonFungibleVaultDetails:
+      allOf:
+      - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
+      - type: object
+    StateEntityDetailsResponsePackageDetails:
+      allOf:
+      - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
+      - $ref: '#/components/schemas/StateEntityDetailsResponsePackageDetails_allOf'
+    StateEntityDetailsResponsePackageDetailsBlueprintCollection:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/StateEntityDetailsResponsePackageDetailsBlueprintCollection_allOf'
+    StateEntityDetailsResponsePackageDetailsBlueprintItem:
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        definition:
+          type: object
+        dependant_entities:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+        auth_template:
+          type: object
+        auth_template_is_locked:
+          nullable: true
+          type: boolean
+        royalty_config:
+          type: object
+        royalty_config_is_locked:
+          nullable: true
+          type: boolean
+      required:
+      - definition
+      - name
+      - version
+      type: object
+    StateEntityDetailsResponsePackageDetailsSchemaCollection:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - $ref: '#/components/schemas/StateEntityDetailsResponsePackageDetailsSchemaCollection_allOf'
+    StateEntityDetailsResponsePackageDetailsSchemaItem:
+      properties:
+        schema_hash_hex:
+          description: Hex-encoded binary blob.
+          type: string
+        schema_hex:
+          description: Hex-encoded binary blob.
+          type: string
+      required:
+      - schema_hash_hex
+      - schema_hex
+      type: object
+    StateEntityDetailsResponseComponentDetails:
+      allOf:
+      - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
+      - $ref: '#/components/schemas/StateEntityDetailsResponseComponentDetails_allOf'
+    StateEntityMetadataPageRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/CursorLimitMixin'
+      - $ref: '#/components/schemas/StateEntityMetadataPageRequest_allOf'
+      example:
+        address: <entity-address>
+    StateEntityMetadataPageResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/EntityMetadataCollection'
+      - $ref: '#/components/schemas/StateEntityMetadataPageRequest_allOf'
+    StateEntityFungiblesPageRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/CursorLimitMixin'
+      - $ref: '#/components/schemas/StateEntityFungiblesPageRequest_allOf'
+      example:
+        address: <component-entity-address>
+    StateEntityFungiblesPageRequestOptIns:
+      properties:
+        explicit_metadata:
+          items:
+            type: string
+          type: array
+      type: object
+    StateEntityFungiblesPageResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/FungibleResourcesCollection'
+      - $ref: '#/components/schemas/StateEntityMetadataPageRequest_allOf'
+    StateEntityFungibleResourceVaultsPageRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/CursorLimitMixin'
+      - $ref: '#/components/schemas/StateEntityFungibleResourceVaultsPageRequest_allOf'
+      example:
+        address: <component-entity-address>
+        resource_address: <resource_address>
+    StateEntityFungibleResourceVaultsPageResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/FungibleResourcesCollectionItemVaultAggregatedVault'
+      - $ref: '#/components/schemas/StateEntityFungibleResourceVaultsPageRequest_allOf'
+    StateEntityNonFungiblesPageRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/CursorLimitMixin'
+      - $ref: '#/components/schemas/StateEntityNonFungiblesPageRequest_allOf'
+      example:
+        address: <component-entity-address>
+    StateEntityNonFungiblesPageRequestOptIns:
+      properties:
+        non_fungible_include_nfids:
+          type: boolean
+        explicit_metadata:
+          items:
+            type: string
+          type: array
+      type: object
+    StateEntityNonFungiblesPageResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/NonFungibleResourcesCollection'
+      - $ref: '#/components/schemas/StateEntityMetadataPageRequest_allOf'
+    StateEntityNonFungibleResourceVaultsPageRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/CursorLimitMixin'
+      - $ref: '#/components/schemas/StateEntityNonFungibleResourceVaultsPageRequest_allOf'
+      example:
+        address: <component-entity-address>
+        resource_address: <resource_address>
+    StateEntityNonFungibleResourceVaultsPageOptIns:
+      properties:
+        non_fungible_include_nfids:
+          type: boolean
+      type: object
+    StateEntityNonFungibleResourceVaultsPageResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/NonFungibleResourcesCollectionItemVaultAggregatedVault'
+      - $ref: '#/components/schemas/StateEntityFungibleResourceVaultsPageRequest_allOf'
+    StateEntityNonFungibleIdsPageRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/CursorLimitMixin'
+      - $ref: '#/components/schemas/StateEntityNonFungibleIdsPageRequest_allOf'
+      example:
+        address: <component-entity-address>
+        resource_address: null
+        vault_address: null
+    StateEntityNonFungibleIdsPageResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/NonFungibleIdsCollection'
+      - $ref: '#/components/schemas/StateEntityFungibleResourceVaultsPageRequest_allOf'
+    StateNonFungibleIdsRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/CursorLimitMixin'
+      - $ref: '#/components/schemas/StateNonFungibleIdsRequest_allOf'
+      example:
+        resource_address: <non-fungible-entity-address>
+    StateNonFungibleIdsResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/StateNonFungibleIdsResponse_allOf'
+    StateNonFungibleLocationRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/StateNonFungibleLocationRequest_allOf'
+      example:
+        resource_address: <non-fungible-entity-address>
+        non_fungible_ids:
+        - '#1#'
+    StateNonFungibleLocationResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/StateNonFungibleLocationResponse_allOf'
+    StateNonFungibleLocationResponseItem:
+      properties:
+        non_fungible_id:
+          description: String-encoded non-fungible ID.
+          type: string
+        owning_vault_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        is_burned:
+          type: boolean
+        last_updated_at_state_version:
+          description: TBD
+          format: int64
+          type: integer
+      required:
+      - is_burned
+      - last_updated_at_state_version
+      - non_fungible_id
+      type: object
+    StateNonFungibleDataRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/StateNonFungibleLocationRequest_allOf'
+      example:
+        resource_address: <non-fungible-entity-address>
+        non_fungible_ids:
+        - '#1#'
+    StateNonFungibleDataResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/StateNonFungibleDataResponse_allOf'
+    StateNonFungibleDetailsResponseItem:
+      properties:
+        is_burned:
+          type: boolean
+        non_fungible_id:
+          description: String-encoded non-fungible ID.
+          type: string
+        data:
+          $ref: '#/components/schemas/ScryptoSborValue'
+        last_updated_at_state_version:
+          description: TBD
+          format: int64
+          type: integer
+      required:
+      - is_burned
+      - last_updated_at_state_version
+      - non_fungible_id
+      type: object
+    StateKeyValueStoreDataRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/StateKeyValueStoreDataRequest_allOf'
+      example:
+        key_value_store_address: <key-value-store-address>
+        keys:
+        - key_hex: edafaaccee
+        - key_hex: ffbbaa2311
+    StateKeyValueStoreDataRequestKeyItem:
+      properties:
+        key_hex:
+          description: Hex-encoded binary blob.
+          type: string
+      required:
+      - key_hex
+      type: object
+    StateKeyValueStoreDataResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/StateKeyValueStoreDataResponse_allOf'
+    StateKeyValueStoreDataResponseItem:
+      properties:
+        key:
+          $ref: '#/components/schemas/ScryptoSborValue'
+        value:
+          $ref: '#/components/schemas/ScryptoSborValue'
+        last_updated_at_state_version:
+          description: TBD
+          format: int64
+          type: integer
+        is_locked:
+          type: boolean
+      required:
+      - is_locked
+      - key
+      - last_updated_at_state_version
+      - value
+      type: object
+    StateValidatorsListRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/StateValidatorsListRequest_allOf'
+      example:
+        at_ledger_state: null
+    StateValidatorsListResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/StateValidatorsListResponse_allOf'
+    ValidatorsUptimeRequest:
+      allOf:
+      - $ref: '#/components/schemas/AtLedgerStateMixin'
+      - $ref: '#/components/schemas/ValidatorsUptimeRequest_allOf'
+    ValidatorsUptimeResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - $ref: '#/components/schemas/ValidatorsUptimeResponse_allOf'
+    ErrorResponse:
+      properties:
+        message:
+          description: A human-readable error message.
+          type: string
+        code:
+          description: A numeric code corresponding to the given error type.
+          type: integer
+        details:
+          $ref: '#/components/schemas/GatewayError'
+        trace_id:
+          description: "A unique request identifier to be used when reporting errors,\
+            \ to allow correlation with the Gateway API's error logs."
+          type: string
+      required:
+      - message
+      type: object
+    GatewayError:
+      discriminator:
+        mapping:
+          EntityNotFoundError: '#/components/schemas/EntityNotFoundError'
+          InvalidEntityError: '#/components/schemas/InvalidEntityError'
+          NotSyncedUpError: '#/components/schemas/NotSyncedUpError'
+          InvalidRequestError: '#/components/schemas/InvalidRequestError'
+          InvalidTransactionError: '#/components/schemas/InvalidTransactionError'
+          TransactionNotFoundError: '#/components/schemas/TransactionNotFoundError'
+          InternalServerError: '#/components/schemas/InternalServerError'
+        propertyName: type
+      properties:
+        type:
+          description: The type of error. Each subtype may have its own additional
+            structured fields.
+          type: string
+      required:
+      - type
+      type: object
+    EntityNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/StateEntityMetadataPageRequest_allOf'
+    InvalidEntityError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/StateEntityMetadataPageRequest_allOf'
+    NotSyncedUpError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/NotSyncedUpError_allOf'
+    InvalidRequestError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InvalidRequestError_allOf'
+    InvalidTransactionError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - type: object
+    TransactionNotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/TransactionStatusRequest_allOf'
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/GatewayError'
+      - $ref: '#/components/schemas/InternalServerError_allOf'
+    ValidationErrorsAtPath:
+      properties:
+        path:
+          type: string
+        errors:
+          items:
+            type: string
+          type: array
+      required:
+      - errors
+      - path
+      type: object
+    MetadataValueType:
+      enum:
+      - String
+      - Bool
+      - U8
+      - U32
+      - U64
+      - I32
+      - I64
+      - Decimal
+      - GlobalAddress
+      - PublicKey
+      - NonFungibleGlobalId
+      - NonFungibleLocalId
+      - Instant
+      - Url
+      - Origin
+      - PublicKeyHash
+      - StringArray
+      - BoolArray
+      - U8Array
+      - U32Array
+      - U64Array
+      - I32Array
+      - I64Array
+      - DecimalArray
+      - GlobalAddressArray
+      - PublicKeyArray
+      - NonFungibleGlobalIdArray
+      - NonFungibleLocalIdArray
+      - InstantArray
+      - UrlArray
+      - OriginArray
+      - PublicKeyHashArray
+      type: string
+    MetadataTypedValue:
+      discriminator:
+        mapping:
+          String: '#/components/schemas/MetadataStringValue'
+          Bool: '#/components/schemas/MetadataBoolValue'
+          U8: '#/components/schemas/MetadataU8Value'
+          U32: '#/components/schemas/MetadataU32Value'
+          U64: '#/components/schemas/MetadataU64Value'
+          I32: '#/components/schemas/MetadataI32Value'
+          I64: '#/components/schemas/MetadataI64Value'
+          Decimal: '#/components/schemas/MetadataDecimalValue'
+          GlobalAddress: '#/components/schemas/MetadataGlobalAddressValue'
+          PublicKey: '#/components/schemas/MetadataPublicKeyValue'
+          NonFungibleGlobalId: '#/components/schemas/MetadataNonFungibleGlobalIdValue'
+          NonFungibleLocalId: '#/components/schemas/MetadataNonFungibleLocalIdValue'
+          Instant: '#/components/schemas/MetadataInstantValue'
+          Url: '#/components/schemas/MetadataUrlValue'
+          Origin: '#/components/schemas/MetadataOriginValue'
+          PublicKeyHash: '#/components/schemas/MetadataPublicKeyHashValue'
+          StringArray: '#/components/schemas/MetadataStringArrayValue'
+          BoolArray: '#/components/schemas/MetadataBoolArrayValue'
+          U8Array: '#/components/schemas/MetadataU8ArrayValue'
+          U32Array: '#/components/schemas/MetadataU32ArrayValue'
+          U64Array: '#/components/schemas/MetadataU64ArrayValue'
+          I32Array: '#/components/schemas/MetadataI32ArrayValue'
+          I64Array: '#/components/schemas/MetadataI64ArrayValue'
+          DecimalArray: '#/components/schemas/MetadataDecimalArrayValue'
+          GlobalAddressArray: '#/components/schemas/MetadataGlobalAddressArrayValue'
+          PublicKeyArray: '#/components/schemas/MetadataPublicKeyArrayValue'
+          NonFungibleGlobalIdArray: '#/components/schemas/MetadataNonFungibleGlobalIdArrayValue'
+          NonFungibleLocalIdArray: '#/components/schemas/MetadataNonFungibleLocalIdArrayValue'
+          InstantArray: '#/components/schemas/MetadataInstantArrayValue'
+          UrlArray: '#/components/schemas/MetadataUrlArrayValue'
+          OriginArray: '#/components/schemas/MetadataOriginArrayValue'
+          PublicKeyHashArray: '#/components/schemas/MetadataPublicKeyHashArrayValue'
+        propertyName: type
+      properties:
+        type:
+          $ref: '#/components/schemas/MetadataValueType'
+      required:
+      - type
+      type: object
+    MetadataStringValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataBoolValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataBoolValue_allOf'
+    MetadataU8Value:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataU32Value:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataU64Value:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataI32Value:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataI64Value:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataDecimalValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataGlobalAddressValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataPublicKeyValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataPublicKeyValue_allOf'
+    MetadataNonFungibleGlobalIdValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataNonFungibleGlobalIdValue_allOf'
+    MetadataNonFungibleLocalIdValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataInstantValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataUrlValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataOriginValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringValue_allOf'
+    MetadataPublicKeyHashValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataPublicKeyHashValue_allOf'
+    MetadataStringArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataBoolArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataBoolArrayValue_allOf'
+    MetadataU8ArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataU8ArrayValue_allOf'
+    MetadataU32ArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataU64ArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataI32ArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataI64ArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataDecimalArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataGlobalAddressArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataPublicKeyArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataPublicKeyArrayValue_allOf'
+    MetadataNonFungibleGlobalIdArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataNonFungibleGlobalIdArrayValue_allOf'
+    MetadataNonFungibleLocalIdArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataInstantArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataUrlArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataOriginArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataStringArrayValue_allOf'
+    MetadataPublicKeyHashArrayValue:
+      allOf:
+      - $ref: '#/components/schemas/MetadataTypedValue'
+      - $ref: '#/components/schemas/MetadataPublicKeyHashArrayValue_allOf'
+    PublicKeyEcdsaSecp256k1_allOf:
+      properties:
+        key_hex:
+          description: The hex-encoded compressed ECDSA Secp256k1 public key (33 bytes)
+          maxLength: 66
+          minLength: 66
+          type: string
+      required:
+      - key_hex
+      type: object
+      example: null
+    PublicKeyEddsaEd25519_allOf:
+      properties:
+        key_hex:
+          description: The hex-encoded compressed EdDSA Ed25519 public key (32 bytes)
+          maxLength: 64
+          minLength: 64
+          type: string
+      required:
+      - key_hex
+      type: object
+      example: null
+    PublicKeyHashEcdsaSecp256k1_allOf:
+      properties:
+        hash_hex:
+          description: Hex-encoded SHA-256 hash.
+          type: string
+      required:
+      - hash_hex
+      type: object
+      example: null
+    EntityMetadataCollection_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EntityMetadataItem'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    EntityMetadataItemValue_allOf:
+      properties:
+        typed:
+          $ref: '#/components/schemas/MetadataTypedValue'
+      required:
+      - typed
+      type: object
+      example: null
+    ComponentEntityRoleAssignmentEntry_assignment:
+      properties:
+        resolution:
+          $ref: '#/components/schemas/RoleAssignmentResolution'
+        explicit_rule:
+          type: object
+      required:
+      - resolution
+      type: object
+    FungibleResourcesCollection_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/FungibleResourcesCollectionItem'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    FungibleResourcesCollectionItemGloballyAggregated_allOf:
+      properties:
+        amount:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+        last_updated_at_state_version:
+          description: TBD
+          format: int64
+          type: integer
+      required:
+      - amount
+      - last_updated_at_state_version
+      type: object
+      example: null
+    FungibleResourcesCollectionItemVaultAggregated_allOf:
+      properties:
+        vaults:
+          $ref: '#/components/schemas/FungibleResourcesCollectionItemVaultAggregatedVault'
+      required:
+      - vaults
+      type: object
+      example: null
+    FungibleResourcesCollectionItemVaultAggregatedVault_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/FungibleResourcesCollectionItemVaultAggregatedVaultItem'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    NonFungibleResourcesCollection_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/NonFungibleResourcesCollectionItem'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    NonFungibleResourcesCollectionItemGloballyAggregated_allOf:
+      properties:
+        amount:
+          description: TBA
+          format: int64
+          type: integer
+        last_updated_at_state_version:
+          description: TBD
+          format: int64
+          type: integer
+      required:
+      - amount
+      - last_updated_at_state_version
+      type: object
+      example: null
+    NonFungibleResourcesCollectionItemVaultAggregated_allOf:
+      properties:
+        vaults:
+          $ref: '#/components/schemas/NonFungibleResourcesCollectionItemVaultAggregatedVault'
+      required:
+      - vaults
+      type: object
+      example: null
+    NonFungibleResourcesCollectionItemVaultAggregatedVault_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/NonFungibleResourcesCollectionItemVaultAggregatedVaultItem'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    NonFungibleResourcesCollectionItemVaultAggregatedVaultItem_allOf:
+      properties:
+        vault_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        total_count:
+          format: int64
+          type: integer
+        last_updated_at_state_version:
+          description: TBD
+          format: int64
+          type: integer
+      required:
+      - last_updated_at_state_version
+      - total_count
+      - vault_address
+      type: object
+      example: null
+    OptionalNonFungibleIdsCollection_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/NonFungibleId'
+          type: array
+      type: object
+      example: null
+    NonFungibleIdsCollection_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/NonFungibleId'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    ValidatorCollection_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ValidatorCollectionItem'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    NetworkConfigurationResponse_well_known_addresses:
+      example:
+        secp256k1_signature_virtual_badge: secp256k1_signature_virtual_badge
+        account_owner_badge: account_owner_badge
+        access_controller_package: access_controller_package
+        resource_package: resource_package
+        package_package: package_package
+        account_package: account_package
+        system_transaction_badge: system_transaction_badge
+        global_caller_virtual_badge: global_caller_virtual_badge
+        access_rules_package: access_rules_package
+        metadata_module_package: metadata_module_package
+        transaction_processor_package: transaction_processor_package
+        faucet: faucet
+        ed25519_signature_virtual_badge: ed25519_signature_virtual_badge
+        package_owner_badge: package_owner_badge
+        consensus_manager: consensus_manager
+        consensus_manager_package: consensus_manager_package
+        genesis_helper_package: genesis_helper_package
+        faucet_package: faucet_package
+        xrd: xrd
+        validator_owner_badge: validator_owner_badge
+        royalty_module_package: royalty_module_package
+        pool_package: pool_package
+        identity_package: identity_package
+        package_of_direct_caller_virtual_badge: package_of_direct_caller_virtual_badge
+        genesis_helper: genesis_helper
+        identity_owner_badge: identity_owner_badge
+      properties:
+        xrd:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        secp256k1_signature_virtual_badge:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        ed25519_signature_virtual_badge:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        package_of_direct_caller_virtual_badge:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        global_caller_virtual_badge:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        system_transaction_badge:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        package_owner_badge:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        validator_owner_badge:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        account_owner_badge:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        identity_owner_badge:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        package_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        resource_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        account_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        identity_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        consensus_manager_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        access_controller_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        transaction_processor_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        metadata_module_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        royalty_module_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        access_rules_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        genesis_helper_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        faucet_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        consensus_manager:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        genesis_helper:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        faucet:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        pool_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+      required:
+      - access_controller_package
+      - access_rules_package
+      - account_owner_badge
+      - account_package
+      - consensus_manager
+      - consensus_manager_package
+      - ed25519_signature_virtual_badge
+      - faucet
+      - faucet_package
+      - genesis_helper
+      - genesis_helper_package
+      - global_caller_virtual_badge
+      - identity_owner_badge
+      - identity_package
+      - metadata_module_package
+      - package_of_direct_caller_virtual_badge
+      - package_owner_badge
+      - package_package
+      - pool_package
+      - resource_package
+      - royalty_module_package
+      - secp256k1_signature_virtual_badge
+      - system_transaction_badge
+      - transaction_processor_package
+      - validator_owner_badge
+      - xrd
+      type: object
+    GatewayStatusResponse_allOf:
+      properties:
+        release_info:
+          $ref: '#/components/schemas/GatewayInfoResponseReleaseInfo'
+      required:
+      - release_info
+      type: object
+      example: null
+    TransactionPreviewRequest_flags:
+      example:
+        use_free_credit: true
+        assume_all_signature_proofs: true
+        skip_epoch_check: true
+      properties:
+        use_free_credit:
+          type: boolean
+        assume_all_signature_proofs:
+          type: boolean
+        skip_epoch_check:
+          type: boolean
+      required:
+      - assume_all_signature_proofs
+      - skip_epoch_check
+      - use_free_credit
+      type: object
+    TransactionPreviewResponse_logs_inner:
+      example:
+        level: level
+        message: message
+      properties:
+        level:
+          type: string
+        message:
+          type: string
+      required:
+      - level
+      - message
+      type: object
+    TransactionStatusRequest_allOf:
+      properties:
+        intent_hash:
+          description: Bech32m-encoded hash.
+          type: string
+      required:
+      - intent_hash
+      type: object
+      example: null
+    TransactionStatusResponse_allOf:
+      properties:
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        known_payloads:
+          items:
+            $ref: '#/components/schemas/TransactionStatusResponseKnownPayloadItem'
+          type: array
+        error_message:
+          nullable: true
+          type: string
+      required:
+      - known_payloads
+      - status
+      type: object
+      example: null
+    TransactionCommittedDetailsRequest_allOf:
+      properties:
+        intent_hash:
+          description: Bech32m-encoded hash.
+          type: string
+        opt_ins:
+          $ref: '#/components/schemas/TransactionDetailsOptIns'
+      required:
+      - intent_hash
+      type: object
+      example: null
+    TransactionCommittedDetailsResponse_allOf:
+      properties:
+        transaction:
+          $ref: '#/components/schemas/CommittedTransactionInfo'
+      required:
+      - transaction
+      type: object
+      example: null
+    StreamTransactionsRequest_allOf:
+      properties:
+        from_ledger_state:
+          $ref: '#/components/schemas/LedgerStateSelector'
+        kind_filter:
+          description: Limit returned transactions by their kind. Defaults to `user`.
+          enum:
+          - User
+          - EpochChange
+          - All
+          type: string
+        manifest_accounts_withdrawn_from_filter:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+        manifest_accounts_deposited_into_filter:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+        manifest_resources_filter:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+        affected_global_entities_filter:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+        events_filter:
+          items:
+            $ref: '#/components/schemas/StreamTransactionsRequestEventFilterItem'
+          type: array
+        order:
+          description: Configures the order of returned result set. Defaults to `desc`.
+          enum:
+          - Asc
+          - Desc
+          type: string
+        opt_ins:
+          $ref: '#/components/schemas/TransactionDetailsOptIns'
+      type: object
+      example: null
+    StreamTransactionsResponse_allOf:
+      properties:
+        items:
+          description: The page of user transactions.
+          items:
+            $ref: '#/components/schemas/CommittedTransactionInfo'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    StateEntityDetailsRequest_allOf:
+      properties:
+        opt_ins:
+          $ref: '#/components/schemas/StateEntityDetailsOptIns'
+        addresses:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+        aggregation_level:
+          $ref: '#/components/schemas/ResourceAggregationLevel'
+      required:
+      - addresses
+      type: object
+      example: null
+    StateEntityDetailsResponse_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/StateEntityDetailsResponseItem'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    StateEntityDetailsResponseFungibleResourceDetails_allOf:
+      properties:
+        role_assignments:
+          $ref: '#/components/schemas/ComponentEntityRoleAssignments'
+        divisibility:
+          minimum: 0
+          type: integer
+        total_supply:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+        total_minted:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+        total_burned:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+      required:
+      - divisibility
+      - role_assignments
+      - total_burned
+      - total_minted
+      - total_supply
+      type: object
+      example: null
+    StateEntityDetailsResponseNonFungibleResourceDetails_allOf:
+      properties:
+        role_assignments:
+          $ref: '#/components/schemas/ComponentEntityRoleAssignments'
+        non_fungible_id_type:
+          $ref: '#/components/schemas/NonFungibleIdType'
+        total_supply:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+        total_minted:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+        total_burned:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+      required:
+      - non_fungible_id_type
+      - role_assignments
+      - total_burned
+      - total_minted
+      - total_supply
+      type: object
+      example: null
+    StateEntityDetailsResponsePackageDetails_allOf:
+      properties:
+        vm_type:
+          $ref: '#/components/schemas/PackageVmType'
+        code_hash_hex:
+          description: Hex-encoded binary blob.
+          type: string
+        code_hex:
+          description: Hex-encoded binary blob.
+          type: string
+        royalty_vault_balance:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+        blueprints:
+          $ref: '#/components/schemas/StateEntityDetailsResponsePackageDetailsBlueprintCollection'
+        schemas:
+          $ref: '#/components/schemas/StateEntityDetailsResponsePackageDetailsSchemaCollection'
+      required:
+      - code_hash_hex
+      - code_hex
+      - vm_type
+      type: object
+      example: null
+    StateEntityDetailsResponsePackageDetailsBlueprintCollection_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/StateEntityDetailsResponsePackageDetailsBlueprintItem'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    StateEntityDetailsResponsePackageDetailsSchemaCollection_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/StateEntityDetailsResponsePackageDetailsSchemaItem'
+          type: array
+      required:
+      - items
+      type: object
+      example: null
+    StateEntityDetailsResponseComponentDetails_allOf:
+      properties:
+        package_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        blueprint_name:
+          type: string
+        blueprint_version:
+          type: string
+        state:
+          type: object
+        role_assignments:
+          $ref: '#/components/schemas/ComponentEntityRoleAssignments'
+        royalty_vault_balance:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+      required:
+      - blueprint_name
+      - blueprint_version
+      type: object
+      example: null
+    StateEntityMetadataPageRequest_allOf:
+      properties:
+        address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+      required:
+      - address
+      type: object
+      example: null
+    StateEntityFungiblesPageRequest_allOf:
+      properties:
+        address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        aggregation_level:
+          $ref: '#/components/schemas/ResourceAggregationLevel'
+        opt_ins:
+          $ref: '#/components/schemas/StateEntityFungiblesPageRequestOptIns'
+      required:
+      - address
+      type: object
+      example: null
+    StateEntityFungibleResourceVaultsPageRequest_allOf:
+      properties:
+        address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+      required:
+      - address
+      - resource_address
+      type: object
+      example: null
+    StateEntityNonFungiblesPageRequest_allOf:
+      properties:
+        address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        aggregation_level:
+          $ref: '#/components/schemas/ResourceAggregationLevel'
+        opt_ins:
+          $ref: '#/components/schemas/StateEntityNonFungiblesPageRequestOptIns'
+      required:
+      - address
+      type: object
+      example: null
+    StateEntityNonFungibleResourceVaultsPageRequest_allOf:
+      properties:
+        address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        opt_ins:
+          $ref: '#/components/schemas/StateEntityNonFungibleResourceVaultsPageOptIns'
+      required:
+      - address
+      - resource_address
+      type: object
+      example: null
+    StateEntityNonFungibleIdsPageRequest_allOf:
+      properties:
+        address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        vault_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+      required:
+      - address
+      - resource_address
+      - vault_address
+      type: object
+      example: null
+    StateNonFungibleIdsRequest_allOf:
+      properties:
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+      required:
+      - resource_address
+      type: object
+      example: null
+    StateNonFungibleIdsResponse_allOf:
+      properties:
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        non_fungible_ids:
+          $ref: '#/components/schemas/NonFungibleIdsCollection'
+      required:
+      - non_fungible_ids
+      - resource_address
+      type: object
+      example: null
+    StateNonFungibleLocationRequest_allOf:
+      properties:
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        non_fungible_ids:
+          items:
+            $ref: '#/components/schemas/NonFungibleId'
+          type: array
+      required:
+      - non_fungible_ids
+      - resource_address
+      type: object
+      example: null
+    StateNonFungibleLocationResponse_allOf:
+      properties:
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        non_fungible_ids:
+          items:
+            $ref: '#/components/schemas/StateNonFungibleLocationResponseItem'
+          type: array
+      required:
+      - non_fungible_ids
+      - resource_address
+      type: object
+      example: null
+    StateNonFungibleDataResponse_allOf:
+      properties:
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        non_fungible_id_type:
+          $ref: '#/components/schemas/NonFungibleIdType'
+        non_fungible_ids:
+          items:
+            $ref: '#/components/schemas/StateNonFungibleDetailsResponseItem'
+          type: array
+      required:
+      - non_fungible_id_type
+      - non_fungible_ids
+      - resource_address
+      type: object
+      example: null
+    StateKeyValueStoreDataRequest_allOf:
+      properties:
+        key_value_store_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        keys:
+          items:
+            $ref: '#/components/schemas/StateKeyValueStoreDataRequestKeyItem'
+          type: array
+      required:
+      - key_value_store_address
+      - keys
+      type: object
+      example: null
+    StateKeyValueStoreDataResponse_allOf:
+      properties:
+        key_value_store_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        entries:
+          items:
+            $ref: '#/components/schemas/StateKeyValueStoreDataResponseItem'
+          type: array
+      required:
+      - entries
+      - key_value_store_address
+      type: object
+      example: null
+    StateValidatorsListRequest_allOf:
+      properties:
+        cursor:
+          description: "This cursor allows forward pagination, by providing the cursor\
+            \ from the previous request."
+          nullable: true
+          type: string
+      type: object
+      example: null
+    StateValidatorsListResponse_allOf:
+      properties:
+        validators:
+          $ref: '#/components/schemas/ValidatorCollection'
+      required:
+      - validators
+      type: object
+      example: null
+    ValidatorsUptimeRequest_allOf:
+      properties:
+        from_ledger_state:
+          $ref: '#/components/schemas/LedgerStateSelector'
+        validator_addresses:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+      type: object
+      example: null
+    ValidatorsUptimeResponse_allOf:
+      properties:
+        validators:
+          $ref: '#/components/schemas/ValidatorUptimeCollection'
+      required:
+      - validators
+      type: object
+      example: null
+    NotSyncedUpError_allOf:
+      properties:
+        request_type:
+          description: The request type that triggered this exception.
+          type: string
+        current_sync_delay_seconds:
+          description: The current delay between the Gateway DB and the network ledger
+            round timestamp.
+          format: int64
+          type: integer
+        max_allowed_sync_delay_seconds:
+          description: The maximum allowed delay between the Gateway DB and the network
+            ledger round timestamp for this `request_type`.
+          format: int64
+          type: integer
+      required:
+      - current_sync_delay_seconds
+      - max_allowed_sync_delay_seconds
+      - request_type
+      type: object
+      example: null
+    InvalidRequestError_allOf:
+      properties:
+        validation_errors:
+          description: One or more validation errors which occurred when validating
+            the request.
+          items:
+            $ref: '#/components/schemas/ValidationErrorsAtPath'
+          type: array
+      required:
+      - validation_errors
+      type: object
+      example: null
+    InternalServerError_allOf:
+      properties:
+        exception:
+          description: Gives an error type which occurred within the Gateway API when
+            serving the request.
+          type: string
+        cause:
+          description: Gives a human readable message - likely just a trace ID for
+            reporting the error.
+          type: string
+      required:
+      - cause
+      - exception
+      type: object
+      example: null
+    MetadataStringValue_allOf:
+      properties:
+        value:
+          type: string
+      required:
+      - value
+      type: object
+      example: null
+    MetadataBoolValue_allOf:
+      properties:
+        value:
+          type: boolean
+      required:
+      - value
+      type: object
+      example: null
+    MetadataPublicKeyValue_allOf:
+      properties:
+        value:
+          $ref: '#/components/schemas/PublicKey'
+      required:
+      - value
+      type: object
+      example: null
+    MetadataNonFungibleGlobalIdValue_allOf:
+      properties:
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        non_fungible_id:
+          description: String-encoded non-fungible ID.
+          type: string
+      required:
+      - non_fungible_id
+      - resource_address
+      type: object
+      example: null
+    MetadataPublicKeyHashValue_allOf:
+      properties:
+        value:
+          $ref: '#/components/schemas/PublicKeyHash'
+      required:
+      - value
+      type: object
+      example: null
+    MetadataStringArrayValue_allOf:
+      properties:
+        values:
+          items:
+            type: string
+          type: array
+      required:
+      - values
+      type: object
+      example: null
+    MetadataBoolArrayValue_allOf:
+      properties:
+        values:
+          items:
+            type: boolean
+          type: array
+      required:
+      - values
+      type: object
+      example: null
+    MetadataU8ArrayValue_allOf:
+      properties:
+        value_hex:
+          type: string
+      required:
+      - value_hex
+      type: object
+      example: null
+    MetadataPublicKeyArrayValue_allOf:
+      properties:
+        values:
+          items:
+            $ref: '#/components/schemas/PublicKey'
+          type: array
+      required:
+      - values
+      type: object
+      example: null
+    MetadataNonFungibleGlobalIdArrayValue_allOf:
+      properties:
+        values:
+          items:
+            $ref: '#/components/schemas/MetadataNonFungibleGlobalIdValue_allOf'
+          type: array
+      required:
+      - values
+      type: object
+      example: null
+    MetadataPublicKeyHashArrayValue_allOf:
+      properties:
+        values:
+          items:
+            $ref: '#/components/schemas/PublicKeyHash'
+          type: array
+      required:
+      - values
+      type: object
+      example: null
+x-tagGroups:
+- name: Overview
+  tags:
+  - SubAPIs
+  - Concepts
+  - Architecture
+- name: Endpoints
+  tags:
+  - Status
+  - Transaction
+  - Stream
+  - State
+  - Statistics
+

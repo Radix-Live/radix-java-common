@@ -1,0 +1,13 @@
+
+
+# PublicKeyEcdsaSecp256k1AllOf
+
+
+## Properties
+
+| Name | Type | Description | Notes |
+|------------ | ------------- | ------------- | -------------|
+|**keyHex** | **String** | The hex-encoded compressed ECDSA Secp256k1 public key (33 bytes) |  |
+
+
+

@@ -2,26 +2,27 @@
 
 Java libraries and utilities to help you get started working with Radix APIs.
 
-### api-gateway-client
-[Gateway API client](api-gateway-client) generated and published to Maven Central Repository.
+### babylon-gateway-client
+[Gateway API client](babylon-gateway-client) generated and **will be**  published to Maven Central Repository.
 
 ```xml
-<!-- https://mvnrepository.com/artifact/live.radix/api-gateway-client -->
+<!-- https://mvnrepository.com/artifact/live.radix/babylon-gateway-client -->
 <dependency>
   <groupId>live.radix</groupId>
-  <artifactId>api-gateway-client</artifactId>
-  <version>1.1.4.1</version>
+  <artifactId>babylon-gateway-client</artifactId>
+  <version>1.0</version>
 </dependency>
 ```
 
-### radixdlt-java-common
-[Java library](radixdlt-java-common) with common utilities (Serialization, Hashing, Crypto) for Radix Network.
+### babylon-core-client
+[Core API client](babylon-core-client) generated and **will be**  published to Maven Central Repository.
 
 ```xml
-<!-- https://mvnrepository.com/artifact/live.radix/radixdlt-java-common -->
+<!-- https://mvnrepository.com/artifact/live.radix/babylon-core-client -->
 <dependency>
-    <groupId>live.radix</groupId>
-    <artifactId>radixdlt-java-common</artifactId>
-    <version>1.2.1</version>
+  <groupId>live.radix</groupId>
+  <artifactId>babylon-core-client</artifactId>
+  <version>1.0</version>
 </dependency>
 ```
+
