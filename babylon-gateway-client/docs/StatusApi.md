@@ -1,6 +1,6 @@
 # StatusApi
 
-All URIs are relative to *https://rcnet-v3.radixdlt.com*
+All URIs are relative to *https://mainnet.radixdlt.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -30,7 +30,7 @@ import live.radix.gateway.client.StatusApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StatusApi apiInstance = new StatusApi(defaultClient);
         try {
@@ -92,7 +92,7 @@ import live.radix.gateway.client.StatusApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StatusApi apiInstance = new StatusApi(defaultClient);
         try {

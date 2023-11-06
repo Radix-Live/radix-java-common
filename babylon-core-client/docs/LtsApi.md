@@ -5,6 +5,7 @@ All URIs are relative to *http://localhost:3333/core*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**ltsStateAccountAllFungibleResourceBalancesPost**](LtsApi.md#ltsStateAccountAllFungibleResourceBalancesPost) | **POST** /lts/state/account-all-fungible-resource-balances | Get All Account Balances |
+| [**ltsStateAccountDepositBehaviourPost**](LtsApi.md#ltsStateAccountDepositBehaviourPost) | **POST** /lts/state/account-deposit-behaviour | Get Account Deposit Behaviour |
 | [**ltsStateAccountFungibleResourceBalancePost**](LtsApi.md#ltsStateAccountFungibleResourceBalancePost) | **POST** /lts/state/account-fungible-resource-balance | Get Single Account Balance |
 | [**ltsStreamAccountTransactionOutcomesPost**](LtsApi.md#ltsStreamAccountTransactionOutcomesPost) | **POST** /lts/stream/account-transaction-outcomes | Get Account Transaction Outcomes |
 | [**ltsStreamTransactionOutcomesPost**](LtsApi.md#ltsStreamTransactionOutcomesPost) | **POST** /lts/stream/transaction-outcomes | Get Transaction Outcomes |
@@ -78,6 +79,73 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Account all resource balances response |  -  |
+| **500** | Server error |  -  |
+
+
+## ltsStateAccountDepositBehaviourPost
+
+> LtsStateAccountDepositBehaviourResponse ltsStateAccountDepositBehaviourPost(ltsStateAccountDepositBehaviourRequest)
+
+Get Account Deposit Behaviour
+
+Returns deposit behaviour of a single account for multiple resource addresses
+
+### Example
+
+```java
+// Import classes:
+import live.radix.core.ApiClient;
+import live.radix.core.ApiException;
+import live.radix.core.Configuration;
+import live.radix.core.models.*;
+import live.radix.core.client.LtsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost:3333/core");
+
+        LtsApi apiInstance = new LtsApi(defaultClient);
+        LtsStateAccountDepositBehaviourRequest ltsStateAccountDepositBehaviourRequest = new LtsStateAccountDepositBehaviourRequest(); // LtsStateAccountDepositBehaviourRequest | 
+        try {
+            LtsStateAccountDepositBehaviourResponse result = apiInstance.ltsStateAccountDepositBehaviourPost(ltsStateAccountDepositBehaviourRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling LtsApi#ltsStateAccountDepositBehaviourPost");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **ltsStateAccountDepositBehaviourRequest** | [**LtsStateAccountDepositBehaviourRequest**](LtsStateAccountDepositBehaviourRequest.md)|  | |
+
+### Return type
+
+[**LtsStateAccountDepositBehaviourResponse**](LtsStateAccountDepositBehaviourResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Account deposit behaviour response |  -  |
 | **500** | Server error |  -  |
 
 

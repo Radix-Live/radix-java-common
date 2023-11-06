@@ -20,7 +20,8 @@
 |**errorMessage** | **String** |  |  [optional] |
 |**rawHex** | **String** | Hex-encoded binary blob. |  [optional] |
 |**receipt** | [**TransactionReceipt**](TransactionReceipt.md) |  |  [optional] |
-|**message** | **Object** | defined in core api specs. |  [optional] |
+|**message** | **Object** | The optional transaction message. This type is defined in the Core API as &#x60;TransactionMessage&#x60;. See the Core API documentation for more details.  |  [optional] |
+|**balanceChanges** | [**TransactionBalanceChanges**](TransactionBalanceChanges.md) |  |  [optional] |
 
 
 

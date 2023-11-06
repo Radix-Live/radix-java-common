@@ -3,8 +3,10 @@ info:
   description: |
     This API is exposed by the Babylon Radix node to give clients access to the Radix Engine, Mempool and State in the node.
 
-    It is intended for use by node-runners on a private network, and is not intended to be exposed publicly.
-    Very heavy load may impact the node's function.
+    The default configuration is intended for use by node-runners on a private network, and is not intended to be exposed publicly.
+    Very heavy load may impact the node's function. The node exposes a configuration flag which allows disabling certain endpoints
+    which may be problematic, but monitoring is advised. This configuration parameter is
+    `api.core.flags.enable_unbounded_endpoints` / `RADIXDLT_CORE_API_FLAGS_ENABLE_UNBOUNDED_ENDPOINTS`.
 
     This API exposes queries against the node's current state (see `/lts/state/` or `/state/`), and streams of transaction history
     (under `/lts/stream/` or `/stream`).
@@ -14,19 +16,23 @@ info:
 
     ## Integration and forward compatibility guarantees
 
-    This version of the Core API belongs to the fourth release candidate of the Radix Babylon network ("RCnet v3.1").
-
     Integrators (such as exchanges) are recommended to use the `/lts/` endpoints - they have been designed to be clear
     and simple for integrators wishing to create and monitor transactions involving fungible transfers to/from accounts.
 
-    All endpoints under `/lts/` are guaranteed to be forward compatible to Babylon mainnet launch (and beyond).
+    All endpoints under `/lts/` have high guarantees of forward compatibility in future node versions.
     We may add new fields, but existing fields will not be changed. Assuming the integrating code uses a permissive
     JSON parser which ignores unknown fields, any additions will not affect existing code.
+
+    Other endpoints may be changed with new node versions carrying protocol-updates, although any breaking changes
+    will be flagged clearly in the corresponding release notes.
+
+    All responses may have additional fields added, so clients are advised to use JSON parsers which ignore unknown
+    fields on JSON objects.
   license:
     name: "The Radix License, Version 1.0"
     url: https://www.radixfoundation.org/licenses/license-v1
-  title: Babylon Core API - RCnet v3.1
-  version: 0.5.1
+  title: Radix Core API - Babylon
+  version: v1.0.4
   x-logo:
     url: https://docs.radixdlt.com/main/_images/radix-logo-banner.png
     href: https://docs.radixdlt.com
@@ -278,6 +284,34 @@ paths:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Server error
       summary: Get Single Account Balance
+      tags:
+      - LTS
+      x-content-type: application/json
+      x-accepts: application/json
+  /lts/state/account-deposit-behaviour:
+    post:
+      description: Returns deposit behaviour of a single account for multiple resource
+        addresses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LtsStateAccountDepositBehaviourRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LtsStateAccountDepositBehaviourResponse'
+          description: Account deposit behaviour response
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicErrorResponse'
+          description: Server error
+      summary: Get Account Deposit Behaviour
       tags:
       - LTS
       x-content-type: application/json
@@ -1087,7 +1121,8 @@ components:
           description: Whether to return the raw hex-encoded bytes (default true)
           type: boolean
         programmatic_json:
-          description: Whether to return the programmatic json format (default true)
+          description: "Whether to return the programmatic json format (normally default\
+            \ true, defaults false for streamed transactions)"
           type: boolean
       type: object
     TransactionFormatOptions:
@@ -1107,7 +1142,7 @@ components:
           description: Whether to return the hex-encoded blobs (default false)
           type: boolean
         message:
-          description: Whether to return the transaction message (default false)
+          description: Whether to return the transaction message (default true)
           type: boolean
         raw_system_transaction:
           description: Whether to return the raw hex-encoded system transaction bytes
@@ -1217,16 +1252,7 @@ components:
                 substate_type: null
                 is_locked: true
               substate_hex: substate_hex
-            substate_id:
-              substate_type: null
-              substate_key:
-                key_type: null
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 180
-              entity_address: entity_address
-              entity_module: null
+            substate_id: null
           - system_structure:
               type: null
             previous_value:
@@ -1235,29 +1261,22 @@ components:
                 substate_type: null
                 is_locked: true
               substate_hex: substate_hex
-            substate_id:
-              substate_type: null
-              substate_key:
-                key_type: null
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 180
-              entity_address: entity_address
-              entity_module: null
+            substate_id: null
+          deleted_partitions:
+          - entity_type: null
+            partition_kind: null
+            partition_number: 180
+            entity_address: entity_address
+            entity_module: null
+          - entity_type: null
+            partition_kind: null
+            partition_number: 180
+            entity_address: entity_address
+            entity_module: null
           created_substates:
           - system_structure:
               type: null
-            substate_id:
-              substate_type: null
-              substate_key:
-                key_type: null
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 180
-              entity_address: entity_address
-              entity_module: null
+            substate_id: null
             value:
               substate_data_hash: substate_data_hash
               substate_data:
@@ -1266,16 +1285,7 @@ components:
               substate_hex: substate_hex
           - system_structure:
               type: null
-            substate_id:
-              substate_type: null
-              substate_key:
-                key_type: null
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 180
-              entity_address: entity_address
-              entity_module: null
+            substate_id: null
             value:
               substate_data_hash: substate_data_hash
               substate_data:
@@ -1291,16 +1301,7 @@ components:
                 substate_type: null
                 is_locked: true
               substate_hex: substate_hex
-            substate_id:
-              substate_type: null
-              substate_key:
-                key_type: null
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 180
-              entity_address: entity_address
-              entity_module: null
+            substate_id: null
             new_value:
               substate_data_hash: substate_data_hash
               substate_data:
@@ -1315,16 +1316,7 @@ components:
                 substate_type: null
                 is_locked: true
               substate_hex: substate_hex
-            substate_id:
-              substate_type: null
-              substate_key:
-                key_type: null
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 180
-              entity_address: entity_address
-              entity_module: null
+            substate_id: null
             new_value:
               substate_data_hash: substate_data_hash
               substate_data:
@@ -1871,6 +1863,7 @@ components:
       - Basic
       - TransactionSubmit
       - LtsTransactionSubmit
+      - StreamTransactions
       type: string
     ErrorResponse:
       discriminator:
@@ -1878,6 +1871,7 @@ components:
           Basic: '#/components/schemas/BasicErrorResponse'
           TransactionSubmit: '#/components/schemas/TransactionSubmitErrorResponse'
           LtsTransactionSubmit: '#/components/schemas/LtsTransactionSubmitErrorResponse'
+          StreamTransactions: '#/components/schemas/StreamTransactionsErrorResponse'
         propertyName: error_type
       properties:
         error_type:
@@ -2159,16 +2153,7 @@ components:
               substate_type: null
               is_locked: true
             substate_hex: substate_hex
-          substate_id:
-            substate_type: null
-            substate_key:
-              key_type: null
-              db_sort_key_hex: db_sort_key_hex
-            entity_type: null
-            partition_kind: null
-            partition_number: 180
-            entity_address: entity_address
-            entity_module: null
+          substate_id: null
         - system_structure:
             type: null
           previous_value:
@@ -2177,29 +2162,22 @@ components:
               substate_type: null
               is_locked: true
             substate_hex: substate_hex
-          substate_id:
-            substate_type: null
-            substate_key:
-              key_type: null
-              db_sort_key_hex: db_sort_key_hex
-            entity_type: null
-            partition_kind: null
-            partition_number: 180
-            entity_address: entity_address
-            entity_module: null
+          substate_id: null
+        deleted_partitions:
+        - entity_type: null
+          partition_kind: null
+          partition_number: 180
+          entity_address: entity_address
+          entity_module: null
+        - entity_type: null
+          partition_kind: null
+          partition_number: 180
+          entity_address: entity_address
+          entity_module: null
         created_substates:
         - system_structure:
             type: null
-          substate_id:
-            substate_type: null
-            substate_key:
-              key_type: null
-              db_sort_key_hex: db_sort_key_hex
-            entity_type: null
-            partition_kind: null
-            partition_number: 180
-            entity_address: entity_address
-            entity_module: null
+          substate_id: null
           value:
             substate_data_hash: substate_data_hash
             substate_data:
@@ -2208,16 +2186,7 @@ components:
             substate_hex: substate_hex
         - system_structure:
             type: null
-          substate_id:
-            substate_type: null
-            substate_key:
-              key_type: null
-              db_sort_key_hex: db_sort_key_hex
-            entity_type: null
-            partition_kind: null
-            partition_number: 180
-            entity_address: entity_address
-            entity_module: null
+          substate_id: null
           value:
             substate_data_hash: substate_data_hash
             substate_data:
@@ -2233,16 +2202,7 @@ components:
               substate_type: null
               is_locked: true
             substate_hex: substate_hex
-          substate_id:
-            substate_type: null
-            substate_key:
-              key_type: null
-              db_sort_key_hex: db_sort_key_hex
-            entity_type: null
-            partition_kind: null
-            partition_number: 180
-            entity_address: entity_address
-            entity_module: null
+          substate_id: null
           new_value:
             substate_data_hash: substate_data_hash
             substate_data:
@@ -2257,16 +2217,7 @@ components:
               substate_type: null
               is_locked: true
             substate_hex: substate_hex
-          substate_id:
-            substate_type: null
-            substate_key:
-              key_type: null
-              db_sort_key_hex: db_sort_key_hex
-            entity_type: null
-            partition_kind: null
-            partition_number: 180
-            entity_address: entity_address
-            entity_module: null
+          substate_id: null
           new_value:
             substate_data_hash: substate_data_hash
             substate_data:
@@ -2281,6 +2232,10 @@ components:
           entity_address: entity_address
           is_global: true
       properties:
+        deleted_partitions:
+          items:
+            $ref: '#/components/schemas/PartitionId'
+          type: array
         created_substates:
           items:
             $ref: '#/components/schemas/CreatedSubstate'
@@ -2299,6 +2254,7 @@ components:
           type: array
       required:
       - created_substates
+      - deleted_partitions
       - deleted_substates
       - new_global_entities
       - updated_substates
@@ -2333,16 +2289,7 @@ components:
       example:
         system_structure:
           type: null
-        substate_id:
-          substate_type: null
-          substate_key:
-            key_type: null
-            db_sort_key_hex: db_sort_key_hex
-          entity_type: null
-          partition_kind: null
-          partition_number: 180
-          entity_address: entity_address
-          entity_module: null
+        substate_id: null
         value:
           substate_data_hash: substate_data_hash
           substate_data:
@@ -2371,16 +2318,7 @@ components:
             substate_type: null
             is_locked: true
           substate_hex: substate_hex
-        substate_id:
-          substate_type: null
-          substate_key:
-            key_type: null
-            db_sort_key_hex: db_sort_key_hex
-          entity_type: null
-          partition_kind: null
-          partition_number: 180
-          entity_address: entity_address
-          entity_module: null
+        substate_id: null
         new_value:
           substate_data_hash: substate_data_hash
           substate_data:
@@ -2431,16 +2369,7 @@ components:
             substate_type: null
             is_locked: true
           substate_hex: substate_hex
-        substate_id:
-          substate_type: null
-          substate_key:
-            key_type: null
-            db_sort_key_hex: db_sort_key_hex
-          entity_type: null
-          partition_kind: null
-          partition_number: 180
-          entity_address: entity_address
-          entity_module: null
+        substate_id: null
       properties:
         substate_id:
           $ref: '#/components/schemas/SubstateId'
@@ -2471,12 +2400,8 @@ components:
       - entity_type
       - is_global
       type: object
-    SubstateId:
+    PartitionId:
       example:
-        substate_type: null
-        substate_key:
-          key_type: null
-          db_sort_key_hex: db_sort_key_hex
         entity_type: null
         partition_kind: null
         partition_number: 180
@@ -2498,19 +2423,17 @@ components:
           maximum: 255
           minimum: 0
           type: integer
-        substate_type:
-          $ref: '#/components/schemas/SubstateType'
-        substate_key:
-          $ref: '#/components/schemas/SubstateKey'
       required:
       - entity_address
       - entity_module
       - entity_type
       - partition_kind
       - partition_number
-      - substate_key
-      - substate_type
       type: object
+    SubstateId:
+      allOf:
+      - $ref: '#/components/schemas/PartitionId'
+      - $ref: '#/components/schemas/SubstateId_allOf'
     EntityModule:
       enum:
       - TypeInfo
@@ -2671,9 +2594,6 @@ components:
           Map: '#/components/schemas/MapSubstateKey'
           Sorted: '#/components/schemas/SortedSubstateKey'
         propertyName: key_type
-      example:
-        key_type: null
-        db_sort_key_hex: db_sort_key_hex
       properties:
         key_type:
           $ref: '#/components/schemas/SubstateKeyType'
@@ -3120,8 +3040,11 @@ components:
         simple_rep:
           description: |
             The simple string representation of the non-fungible id.
-            For string id types, this is simply the string itself; for integer types, this is the integer as a decimal; and for the bytes id type, this is the lower case hex representation.
-            A non-fungible resource has a fixed `NonFungibleIdType`, so this representation uniquely identifies this non-fungible
+            * For string ids, this is `<the-string-id>`
+            * For integer ids, this is `#the-integer-id#`
+            * For bytes ids, this is `[the-lower-case-hex-representation]`
+            * For RUID ids, this is `{...-...-...-...}` where `...` are each 16 hex characters.
+            A given non-fungible resource has a fixed `NonFungibleIdType`, so this representation uniquely identifies this non-fungible
             under the given resource address.
           type: string
         id_type:
@@ -3137,8 +3060,11 @@ components:
     NonFungibleLocalIdSimpleRepresentation:
       description: |
         The simple string representation of the non-fungible id.
-        For string id types, this is simply the string itself; for integer types, this is the integer as a decimal; and for the bytes id type, this is the lower case hex representation.
-        A non-fungible resource has a fixed `NonFungibleIdType`, so this representation uniquely identifies this non-fungible
+        * For string ids, this is `<the-string-id>`
+        * For integer ids, this is `#the-integer-id#`
+        * For bytes ids, this is `[the-lower-case-hex-representation]`
+        * For RUID ids, this is `{...-...-...-...}` where `...` are each 16 hex characters.
+        A given non-fungible resource has a fixed `NonFungibleIdType`, so this representation uniquely identifies this non-fungible
         under the given resource address.
       type: string
     NonFungibleGlobalId:
@@ -3181,6 +3107,39 @@ components:
       allOf:
       - $ref: '#/components/schemas/ResourceAmount'
       - $ref: '#/components/schemas/NonFungibleResourceAmount_allOf'
+    PresentedBadgeType:
+      enum:
+      - Resource
+      - NonFungible
+      type: string
+    PresentedBadge:
+      discriminator:
+        mapping:
+          Resource: '#/components/schemas/ResourcePresentedBadge'
+          NonFungible: '#/components/schemas/NonFungiblePresentedBadge'
+        propertyName: type
+      example:
+        type: null
+        resource_address: resource_address
+      properties:
+        type:
+          $ref: '#/components/schemas/PresentedBadgeType'
+        resource_address:
+          description: The Bech32m-encoded human readable version of the resource
+            address
+          type: string
+      required:
+      - resource_address
+      - type
+      type: object
+    ResourcePresentedBadge:
+      allOf:
+      - $ref: '#/components/schemas/PresentedBadge'
+      - type: object
+    NonFungiblePresentedBadge:
+      allOf:
+      - $ref: '#/components/schemas/PresentedBadge'
+      - $ref: '#/components/schemas/NonFungiblePresentedBadge_allOf'
     DataStruct:
       properties:
         struct_data:
@@ -4246,8 +4205,8 @@ components:
     GenericSubstitution:
       discriminator:
         mapping:
-          Local: '#/components/schemas/LocalGenericSubstition'
-          Remote: '#/components/schemas/RemoteGenericSubstition'
+          Local: '#/components/schemas/LocalGenericSubstitution'
+          Remote: '#/components/schemas/RemoteGenericSubstitution'
         propertyName: type
       properties:
         type:
@@ -4255,14 +4214,14 @@ components:
       required:
       - type
       type: object
-    LocalGenericSubstition:
+    LocalGenericSubstitution:
       allOf:
       - $ref: '#/components/schemas/GenericSubstitution'
-      - $ref: '#/components/schemas/LocalGenericSubstition_allOf'
-    RemoteGenericSubstition:
+      - $ref: '#/components/schemas/LocalGenericSubstitution_allOf'
+    RemoteGenericSubstitution:
       allOf:
       - $ref: '#/components/schemas/GenericSubstitution'
-      - $ref: '#/components/schemas/RemoteGenericSubstition_allOf'
+      - $ref: '#/components/schemas/RemoteGenericSubstitution_allOf'
     RoleAssignmentModuleFieldOwnerRoleSubstate:
       allOf:
       - $ref: '#/components/schemas/Substate'
@@ -5008,7 +4967,7 @@ components:
         This setting has the following interpretations:
         - Allow: Allows the deposit of all resources - the deny list is honored in this state.
         - Reject: Disallows the deposit of all resources - the allow list is honored in this state.
-        - AllowExisting: Only deposits of existing resources is accepted - both allow and deny lists are honored in this mode.
+        - AllowExisting: Only deposits of existing resources *or* XRD are accepted - both allow and deny lists are honored in this mode.
       enum:
       - Accept
       - Reject
@@ -5357,9 +5316,9 @@ components:
       - status
       type: object
     LtsTransactionIntentStatus:
-      description: "The status of the transaction intent, as determined by the node.\n\
-        FateUncertain or FateUncertainButLikelyRejection mean that it's still possible\
-        \ that a payload containing the transaction \n"
+      description: |
+        The status of the transaction intent, as determined by the node.
+        FateUncertain or FateUncertainButLikelyRejection mean that it's still possible that a payload containing the transaction
       enum:
       - CommittedSuccess
       - CommittedFailure
@@ -5587,6 +5546,119 @@ components:
       - ledger_header_summary
       - state_version
       type: object
+    LtsStateAccountDepositBehaviourRequest:
+      example:
+        badge:
+          type: null
+          resource_address: resource_address
+        account_address: account_address
+        resource_addresses:
+        - null
+        - null
+        - null
+        - null
+        - null
+        network: "{{network}}"
+      properties:
+        network:
+          description: The logical name of the network
+          example: "{{network}}"
+          type: string
+        account_address:
+          description: The Bech32m-encoded human readable version of the account's
+            address.
+          type: string
+        resource_addresses:
+          description: The resource addresses to check the deposit behaviours of.
+          items:
+            $ref: '#/components/schemas/ResourceAddress'
+          maxItems: 20
+          type: array
+        badge:
+          $ref: '#/components/schemas/PresentedBadge'
+      required:
+      - account_address
+      - network
+      type: object
+    LtsStateAccountDepositBehaviourResponse:
+      example:
+        state_version: 8008281904611
+        default_deposit_rule: null
+        is_badge_authorized_depositor: true
+        ledger_header_summary:
+          epoch_round:
+            round: 1465812980
+            epoch: 6027456183
+          proposer_timestamp:
+            date_time: date_time
+            unix_timestamp_ms: 60274561830704
+          ledger_hashes:
+            state_tree_hash: state_tree_hash
+            transaction_tree_hash: transaction_tree_hash
+            receipt_tree_hash: receipt_tree_hash
+        resource_specific_behaviours:
+          key:
+            allows_try_deposit: true
+            is_xrd: true
+            vault_exists: true
+            resource_preference: null
+      properties:
+        state_version:
+          format: int64
+          maximum: 100000000000000
+          minimum: 1
+          type: integer
+        ledger_header_summary:
+          $ref: '#/components/schemas/LedgerHeaderSummary'
+        default_deposit_rule:
+          $ref: '#/components/schemas/DefaultDepositRule'
+        is_badge_authorized_depositor:
+          description: |
+            Whether the input `badge` belongs to the account's set of authorized depositors.
+            This field will only be present if any badge was passed in the request.
+          type: boolean
+        resource_specific_behaviours:
+          additionalProperties:
+            $ref: '#/components/schemas/ResourceSpecificDepositBehaviour'
+          description: |
+            A map from one of the input `resource_addresses` to its specific deposit behavior configured for this account.
+            This field will only be present if an array of specific resource addresses was passed in the request (even if empty).
+          type: object
+      required:
+      - default_deposit_rule
+      - ledger_header_summary
+      - state_version
+      type: object
+    ResourceSpecificDepositBehaviour:
+      example:
+        allows_try_deposit: true
+        is_xrd: true
+        vault_exists: true
+        resource_preference: null
+      properties:
+        resource_preference:
+          $ref: '#/components/schemas/ResourcePreference'
+        vault_exists:
+          description: |
+            Whether the account contains a vault for the resource (even if 0 balance).
+            This plays a role when `DefaultDepositRule` is `AllowExisting`.
+          type: boolean
+        is_xrd:
+          description: |
+            Whether the resource represents the native XRD fungible.
+            XRD is a special case which does not require `vault_exists = true` to satisfy the `AllowExisting` rule.
+          type: boolean
+        allows_try_deposit:
+          description: |
+            The fully resolved `try_deposit_*` ability of this resource (which takes all the inputs
+            into account, including the authorized depositor badge, the default deposit rule and
+            the above resource-specific circumstances).
+          type: boolean
+      required:
+      - allows_try_deposit
+      - is_xrd
+      - vault_exists
+      type: object
     LtsStreamTransactionOutcomesRequest:
       description: |
         A request to retrieve a sublist of committed transactions from the ledger.
@@ -5669,7 +5741,25 @@ components:
             - balance_change: balance_change
               type: null
               resource_address: resource_address
+          non_fungible_entity_balance_changes:
+          - removed:
+            - null
+            - null
+            added:
+            - null
+            - null
+            entity_address: entity_address
+            resource_address: resource_address
+          - removed:
+            - null
+            - null
+            added:
+            - null
+            - null
+            entity_address: entity_address
+            resource_address: resource_address
           total_fee: total_fee
+          proposer_timestamp_ms: 56373766566333
           accumulator_hash: accumulator_hash
           status: null
         - user_transaction_identifiers:
@@ -5726,7 +5816,25 @@ components:
             - balance_change: balance_change
               type: null
               resource_address: resource_address
+          non_fungible_entity_balance_changes:
+          - removed:
+            - null
+            - null
+            added:
+            - null
+            - null
+            entity_address: entity_address
+            resource_address: resource_address
+          - removed:
+            - null
+            - null
+            added:
+            - null
+            - null
+            entity_address: entity_address
+            resource_address: resource_address
           total_fee: total_fee
+          proposer_timestamp_ms: 56373766566333
           accumulator_hash: accumulator_hash
           status: null
         max_ledger_state_version: 14658129805030
@@ -5830,7 +5938,25 @@ components:
           - balance_change: balance_change
             type: null
             resource_address: resource_address
+        non_fungible_entity_balance_changes:
+        - removed:
+          - null
+          - null
+          added:
+          - null
+          - null
+          entity_address: entity_address
+          resource_address: resource_address
+        - removed:
+          - null
+          - null
+          added:
+          - null
+          - null
+          entity_address: entity_address
+          resource_address: resource_address
         total_fee: total_fee
+        proposer_timestamp_ms: 56373766566333
         accumulator_hash: accumulator_hash
         status: null
       properties:
@@ -5838,6 +5964,13 @@ components:
           format: int64
           maximum: 100000000000000
           minimum: 1
+          type: integer
+        proposer_timestamp_ms:
+          description: "An integer between `0` and `10^14`, marking the proposer timestamp\
+            \ in ms."
+          format: int64
+          maximum: 100000000000000
+          minimum: 0
           type: integer
         accumulator_hash:
           description: |
@@ -5857,6 +5990,12 @@ components:
           items:
             $ref: '#/components/schemas/LtsEntityFungibleBalanceChanges'
           type: array
+        non_fungible_entity_balance_changes:
+          description: |
+            Non fungible changes per entity and resource
+          items:
+            $ref: '#/components/schemas/LtsEntityNonFungibleBalanceChanges'
+          type: array
         resultant_account_fungible_balances:
           description: |
             A list of the resultant fungible account balances for any balances which changed in this transaction.
@@ -5872,6 +6011,8 @@ components:
       required:
       - accumulator_hash
       - fungible_entity_balance_changes
+      - non_fungible_entity_balance_changes
+      - proposer_timestamp_ms
       - resultant_account_fungible_balances
       - state_version
       - status
@@ -5971,6 +6112,49 @@ components:
       - FeeDistributed
       - TipDistributed
       - RoyaltyDistributed
+      type: string
+    LtsEntityNonFungibleBalanceChanges:
+      example:
+        removed:
+        - null
+        - null
+        added:
+        - null
+        - null
+        entity_address: entity_address
+        resource_address: resource_address
+      properties:
+        entity_address:
+          description: The Bech32m-encoded human readable version of the entity's
+            address
+          type: string
+        resource_address:
+          description: |
+            The Bech32m-encoded human readable version of the non-fungible resource's address
+          type: string
+        added:
+          items:
+            $ref: '#/components/schemas/LtsNonFungibleLocalId'
+          type: array
+        removed:
+          items:
+            $ref: '#/components/schemas/LtsNonFungibleLocalId'
+          type: array
+      required:
+      - added
+      - entity_address
+      - removed
+      - resource_address
+      type: object
+    LtsNonFungibleLocalId:
+      description: |
+        The simple string representation of the non-fungible id.
+        * For string ids, this is `<the-string-id>`
+        * For integer ids, this is `#the-integer-id#`
+        * For bytes ids, this is `[the-lower-case-hex-representation]`
+        * For RUID ids, this is `{...-...-...-...}` where `...` are each 16 hex characters.
+        A given non-fungible resource has a fixed local id kind, so this representation uniquely
+        identifies this non-fungible under the given resource address.
       type: string
     LtsResultantAccountFungibleBalances:
       example:
@@ -6099,7 +6283,25 @@ components:
             - balance_change: balance_change
               type: null
               resource_address: resource_address
+          non_fungible_entity_balance_changes:
+          - removed:
+            - null
+            - null
+            added:
+            - null
+            - null
+            entity_address: entity_address
+            resource_address: resource_address
+          - removed:
+            - null
+            - null
+            added:
+            - null
+            - null
+            entity_address: entity_address
+            resource_address: resource_address
           total_fee: total_fee
+          proposer_timestamp_ms: 56373766566333
           accumulator_hash: accumulator_hash
           status: null
         - user_transaction_identifiers:
@@ -6156,7 +6358,25 @@ components:
             - balance_change: balance_change
               type: null
               resource_address: resource_address
+          non_fungible_entity_balance_changes:
+          - removed:
+            - null
+            - null
+            added:
+            - null
+            - null
+            entity_address: entity_address
+            resource_address: resource_address
+          - removed:
+            - null
+            - null
+            added:
+            - null
+            - null
+            entity_address: entity_address
+            resource_address: resource_address
           total_fee: total_fee
+          proposer_timestamp_ms: 56373766566333
           accumulator_hash: accumulator_hash
           status: null
         max_ledger_state_version: 14658129805030
@@ -7049,9 +7269,9 @@ components:
       - NotInMempool
       type: string
     TransactionIntentStatus:
-      description: "The status of the transaction intent, as determined by the node.\n\
-        FateUncertain or FateUncertainButLikelyRejection mean that it's still possible\
-        \ that a payload containing the transaction \n"
+      description: |
+        The status of the transaction intent, as determined by the node.
+        FateUncertain or FateUncertainButLikelyRejection mean that it's still possible that a payload containing the transaction
       enum:
       - CommittedSuccess
       - CommittedFailure
@@ -7146,16 +7366,7 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
               - system_structure:
                   type: null
                 previous_value:
@@ -7164,29 +7375,22 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
+              deleted_partitions:
+              - entity_type: null
+                partition_kind: null
+                partition_number: 180
+                entity_address: entity_address
+                entity_module: null
+              - entity_type: null
+                partition_kind: null
+                partition_number: 180
+                entity_address: entity_address
+                entity_module: null
               created_substates:
               - system_structure:
                   type: null
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -7195,16 +7399,7 @@ components:
                   substate_hex: substate_hex
               - system_structure:
                   type: null
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -7220,16 +7415,7 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 new_value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -7244,16 +7430,7 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 new_value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -7315,6 +7492,7 @@ components:
                 emitter:
                   type: null
             status: null
+          proposer_timestamp_ms: 20271230230023
       properties:
         committed:
           $ref: '#/components/schemas/CommittedTransaction'
@@ -7603,16 +7781,7 @@ components:
                   substate_type: null
                   is_locked: true
                 substate_hex: substate_hex
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
             - system_structure:
                 type: null
               previous_value:
@@ -7621,29 +7790,22 @@ components:
                   substate_type: null
                   is_locked: true
                 substate_hex: substate_hex
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
+            deleted_partitions:
+            - entity_type: null
+              partition_kind: null
+              partition_number: 180
+              entity_address: entity_address
+              entity_module: null
+            - entity_type: null
+              partition_kind: null
+              partition_number: 180
+              entity_address: entity_address
+              entity_module: null
             created_substates:
             - system_structure:
                 type: null
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
               value:
                 substate_data_hash: substate_data_hash
                 substate_data:
@@ -7652,16 +7814,7 @@ components:
                 substate_hex: substate_hex
             - system_structure:
                 type: null
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
               value:
                 substate_data_hash: substate_data_hash
                 substate_data:
@@ -7677,16 +7830,7 @@ components:
                   substate_type: null
                   is_locked: true
                 substate_hex: substate_hex
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
               new_value:
                 substate_data_hash: substate_data_hash
                 substate_data:
@@ -7701,16 +7845,7 @@ components:
                   substate_type: null
                   is_locked: true
                 substate_hex: substate_hex
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
               new_value:
                 substate_data_hash: substate_data_hash
                 substate_data:
@@ -7829,6 +7964,7 @@ components:
           message: true
           raw_ledger_transaction: true
         limit: 6
+        include_proofs: true
         from_state_version: 8008281904611
         substate_format_options:
           typed: true
@@ -7855,6 +7991,9 @@ components:
           $ref: '#/components/schemas/TransactionFormatOptions'
         substate_format_options:
           $ref: '#/components/schemas/SubstateFormatOptions'
+        include_proofs:
+          description: Whether to include LedgerProofs (default false)
+          type: boolean
       required:
       - from_state_version
       - limit
@@ -7864,6 +8003,65 @@ components:
       example:
         previous_state_identifiers: null
         max_ledger_state_version: 14658129805030
+        proofs:
+        - opaque_hash: opaque_hash
+          ledger_header:
+            consensus_parent_round_timestamp_ms: 70614012415031
+            next_epoch:
+              validators:
+              - stake: stake
+                address: address
+                key: null
+              - stake: stake
+                address: address
+                key: null
+              epoch: 3616076749
+            round: 5637376656
+            state_version: 23021358869348
+            hashes:
+              state_tree_hash: state_tree_hash
+              transaction_tree_hash: transaction_tree_hash
+              receipt_tree_hash: receipt_tree_hash
+            epoch: 5962133916
+            proposer_timestamp_ms: 93014442439325
+          timestamped_signatures:
+          - signature: null
+            validator_address: validator_address
+            timestamp_ms: 36160767492519
+            validator_key: null
+          - signature: null
+            validator_address: validator_address
+            timestamp_ms: 36160767492519
+            validator_key: null
+        - opaque_hash: opaque_hash
+          ledger_header:
+            consensus_parent_round_timestamp_ms: 70614012415031
+            next_epoch:
+              validators:
+              - stake: stake
+                address: address
+                key: null
+              - stake: stake
+                address: address
+                key: null
+              epoch: 3616076749
+            round: 5637376656
+            state_version: 23021358869348
+            hashes:
+              state_tree_hash: state_tree_hash
+              transaction_tree_hash: transaction_tree_hash
+              receipt_tree_hash: receipt_tree_hash
+            epoch: 5962133916
+            proposer_timestamp_ms: 93014442439325
+          timestamped_signatures:
+          - signature: null
+            validator_address: validator_address
+            timestamp_ms: 36160767492519
+            validator_key: null
+          - signature: null
+            validator_address: validator_address
+            timestamp_ms: 36160767492519
+            validator_key: null
         count: 6027
         from_state_version: 8008281904611
         transactions:
@@ -7929,16 +8127,7 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
               - system_structure:
                   type: null
                 previous_value:
@@ -7947,29 +8136,22 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
+              deleted_partitions:
+              - entity_type: null
+                partition_kind: null
+                partition_number: 180
+                entity_address: entity_address
+                entity_module: null
+              - entity_type: null
+                partition_kind: null
+                partition_number: 180
+                entity_address: entity_address
+                entity_module: null
               created_substates:
               - system_structure:
                   type: null
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -7978,16 +8160,7 @@ components:
                   substate_hex: substate_hex
               - system_structure:
                   type: null
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -8003,16 +8176,7 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 new_value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -8027,16 +8191,7 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 new_value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -8098,6 +8253,7 @@ components:
                 emitter:
                   type: null
             status: null
+          proposer_timestamp_ms: 20271230230023
         - ledger_transaction:
             payload_hex: payload_hex
             type: null
@@ -8160,16 +8316,7 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
               - system_structure:
                   type: null
                 previous_value:
@@ -8178,29 +8325,22 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
+              deleted_partitions:
+              - entity_type: null
+                partition_kind: null
+                partition_number: 180
+                entity_address: entity_address
+                entity_module: null
+              - entity_type: null
+                partition_kind: null
+                partition_number: 180
+                entity_address: entity_address
+                entity_module: null
               created_substates:
               - system_structure:
                   type: null
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -8209,16 +8349,7 @@ components:
                   substate_hex: substate_hex
               - system_structure:
                   type: null
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -8234,16 +8365,7 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 new_value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -8258,16 +8380,7 @@ components:
                     substate_type: null
                     is_locked: true
                   substate_hex: substate_hex
-                substate_id:
-                  substate_type: null
-                  substate_key:
-                    key_type: null
-                    db_sort_key_hex: db_sort_key_hex
-                  entity_type: null
-                  partition_kind: null
-                  partition_number: 180
-                  entity_address: entity_address
-                  entity_module: null
+                substate_id: null
                 new_value:
                   substate_data_hash: substate_data_hash
                   substate_data:
@@ -8329,6 +8442,7 @@ components:
                 emitter:
                   type: null
             status: null
+          proposer_timestamp_ms: 20271230230023
       properties:
         previous_state_identifiers:
           $ref: '#/components/schemas/CommittedStateIdentifier'
@@ -8355,12 +8469,41 @@ components:
           items:
             $ref: '#/components/schemas/CommittedTransaction'
           type: array
+        proofs:
+          description: A ledger proof list starting from `from_state_version` (inclusive)
+            stored by this node.
+          items:
+            $ref: '#/components/schemas/LedgerProof'
+          type: array
       required:
       - count
       - from_state_version
       - max_ledger_state_version
       - transactions
       type: object
+    StreamTransactionsErrorResponse:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponse'
+      - $ref: '#/components/schemas/StreamTransactionsErrorResponse_allOf'
+    StreamTransactionsErrorDetailsType:
+      enum:
+      - RequestedStateVersionOutOfBounds
+      type: string
+    StreamTransactionsErrorDetails:
+      discriminator:
+        mapping:
+          RequestedStateVersionOutOfBounds: '#/components/schemas/RequestedStateVersionOutOfBoundsErrorDetails'
+        propertyName: type
+      properties:
+        type:
+          $ref: '#/components/schemas/StreamTransactionsErrorDetailsType'
+      required:
+      - type
+      type: object
+    RequestedStateVersionOutOfBoundsErrorDetails:
+      allOf:
+      - $ref: '#/components/schemas/StreamTransactionsErrorDetails'
+      - $ref: '#/components/schemas/RequestedStateVersionOutOfBoundsErrorDetails_allOf'
     CommittedTransaction:
       example:
         ledger_transaction:
@@ -8425,16 +8568,7 @@ components:
                   substate_type: null
                   is_locked: true
                 substate_hex: substate_hex
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
             - system_structure:
                 type: null
               previous_value:
@@ -8443,29 +8577,22 @@ components:
                   substate_type: null
                   is_locked: true
                 substate_hex: substate_hex
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
+            deleted_partitions:
+            - entity_type: null
+              partition_kind: null
+              partition_number: 180
+              entity_address: entity_address
+              entity_module: null
+            - entity_type: null
+              partition_kind: null
+              partition_number: 180
+              entity_address: entity_address
+              entity_module: null
             created_substates:
             - system_structure:
                 type: null
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
               value:
                 substate_data_hash: substate_data_hash
                 substate_data:
@@ -8474,16 +8601,7 @@ components:
                 substate_hex: substate_hex
             - system_structure:
                 type: null
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
               value:
                 substate_data_hash: substate_data_hash
                 substate_data:
@@ -8499,16 +8617,7 @@ components:
                   substate_type: null
                   is_locked: true
                 substate_hex: substate_hex
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
               new_value:
                 substate_data_hash: substate_data_hash
                 substate_data:
@@ -8523,16 +8632,7 @@ components:
                   substate_type: null
                   is_locked: true
                 substate_hex: substate_hex
-              substate_id:
-                substate_type: null
-                substate_key:
-                  key_type: null
-                  db_sort_key_hex: db_sort_key_hex
-                entity_type: null
-                partition_kind: null
-                partition_number: 180
-                entity_address: entity_address
-                entity_module: null
+              substate_id: null
               new_value:
                 substate_data_hash: substate_data_hash
                 substate_data:
@@ -8594,6 +8694,7 @@ components:
               emitter:
                 type: null
           status: null
+        proposer_timestamp_ms: 20271230230023
       properties:
         resultant_state_identifiers:
           $ref: '#/components/schemas/CommittedStateIdentifier'
@@ -8601,11 +8702,167 @@ components:
           $ref: '#/components/schemas/LedgerTransaction'
         receipt:
           $ref: '#/components/schemas/TransactionReceipt'
+        proposer_timestamp_ms:
+          description: "An integer between `0` and `10^14`, marking the proposer timestamp\
+            \ in ms."
+          format: int64
+          maximum: 100000000000000
+          minimum: 0
+          type: integer
       required:
       - ledger_transaction
+      - proposer_timestamp_ms
       - receipt
       - resultant_state_identifiers
       type: object
+    LedgerProof:
+      example:
+        opaque_hash: opaque_hash
+        ledger_header:
+          consensus_parent_round_timestamp_ms: 70614012415031
+          next_epoch:
+            validators:
+            - stake: stake
+              address: address
+              key: null
+            - stake: stake
+              address: address
+              key: null
+            epoch: 3616076749
+          round: 5637376656
+          state_version: 23021358869348
+          hashes:
+            state_tree_hash: state_tree_hash
+            transaction_tree_hash: transaction_tree_hash
+            receipt_tree_hash: receipt_tree_hash
+          epoch: 5962133916
+          proposer_timestamp_ms: 93014442439325
+        timestamped_signatures:
+        - signature: null
+          validator_address: validator_address
+          timestamp_ms: 36160767492519
+          validator_key: null
+        - signature: null
+          validator_address: validator_address
+          timestamp_ms: 36160767492519
+          validator_key: null
+      properties:
+        opaque_hash:
+          description: "A hex-encoded 32-byte vertex VoteData hash on the consensus\
+            \ side, opaque to ledger."
+          maxLength: 64
+          minLength: 64
+          type: string
+        ledger_header:
+          $ref: '#/components/schemas/LedgerHeader'
+        timestamped_signatures:
+          items:
+            $ref: '#/components/schemas/TimestampedValidatorSignature'
+          type: array
+      required:
+      - ledger_header
+      - opaque_hash
+      - timestamped_signatures
+      type: object
+    LedgerHeader:
+      example:
+        consensus_parent_round_timestamp_ms: 70614012415031
+        next_epoch:
+          validators:
+          - stake: stake
+            address: address
+            key: null
+          - stake: stake
+            address: address
+            key: null
+          epoch: 3616076749
+        round: 5637376656
+        state_version: 23021358869348
+        hashes:
+          state_tree_hash: state_tree_hash
+          transaction_tree_hash: transaction_tree_hash
+          receipt_tree_hash: receipt_tree_hash
+        epoch: 5962133916
+        proposer_timestamp_ms: 93014442439325
+      properties:
+        epoch:
+          description: "An integer between `0` and `10^10`, marking the epoch."
+          format: int64
+          maximum: 10000000000
+          minimum: 0
+          type: integer
+        round:
+          description: "An integer between `0` and `10^10`, marking the current round\
+            \ in an epoch"
+          format: int64
+          maximum: 10000000000
+          minimum: 0
+          type: integer
+        state_version:
+          format: int64
+          maximum: 100000000000000
+          minimum: 1
+          type: integer
+        hashes:
+          $ref: '#/components/schemas/LedgerHashes'
+        consensus_parent_round_timestamp_ms:
+          description: "An integer between `0` and `10^14`, marking the consensus\
+            \ parent round timestamp in ms."
+          format: int64
+          maximum: 100000000000000
+          minimum: 0
+          type: integer
+        proposer_timestamp_ms:
+          description: "An integer between `0` and `10^14`, marking the proposer timestamp\
+            \ in ms."
+          format: int64
+          maximum: 100000000000000
+          minimum: 0
+          type: integer
+        next_epoch:
+          $ref: '#/components/schemas/NextEpoch'
+      required:
+      - consensus_parent_round_timestamp_ms
+      - epoch
+      - hashes
+      - proposer_timestamp_ms
+      - round
+      - state_version
+      type: object
+    TimestampedValidatorSignature:
+      example:
+        signature: null
+        validator_address: validator_address
+        timestamp_ms: 36160767492519
+        validator_key: null
+      properties:
+        validator_key:
+          $ref: '#/components/schemas/EcdsaSecp256k1PublicKey'
+        validator_address:
+          description: The Bech32m-encoded human readable version of the component
+            address
+          type: string
+        timestamp_ms:
+          description: "An integer between `0` and `10^14`, marking the unix timestamp\
+            \ in ms."
+          format: int64
+          maximum: 100000000000000
+          minimum: 0
+          type: integer
+        signature:
+          $ref: '#/components/schemas/EcdsaSecp256k1Signature'
+      required:
+      - signature
+      - timestamp_ms
+      - validator_address
+      - validator_key
+      type: object
+    OpaqueHash:
+      description: "A hex-encoded 32-byte vertex VoteData hash on the consensus side,\
+        \ opaque to ledger."
+      maxLength: 64
+      minLength: 64
+      type: string
     LedgerTransactionType:
       description: The type of the ledger transaction
       enum:
@@ -9336,8 +9593,11 @@ components:
         non_fungible_id:
           description: |
             The simple string representation of the non-fungible id.
-            For string id types, this is simply the string itself; for integer types, this is the integer as a decimal; and for the bytes id type, this is the lower case hex representation.
-            A non-fungible resource has a fixed `NonFungibleIdType`, so this representation uniquely identifies this non-fungible
+            * For string ids, this is `<the-string-id>`
+            * For integer ids, this is `#the-integer-id#`
+            * For bytes ids, this is `[the-lower-case-hex-representation]`
+            * For RUID ids, this is `{...-...-...-...}` where `...` are each 16 hex characters.
+            A given non-fungible resource has a fixed `NonFungibleIdType`, so this representation uniquely identifies this non-fungible
             under the given resource address.
           type: string
       required:
@@ -9474,6 +9734,17 @@ components:
       required:
       - curve_decryptor_sets
       - encrypted_hex
+      type: object
+      example: null
+    SubstateId_allOf:
+      properties:
+        substate_type:
+          $ref: '#/components/schemas/SubstateType'
+        substate_key:
+          $ref: '#/components/schemas/SubstateKey'
+      required:
+      - substate_key
+      - substate_type
       type: object
       example: null
     StaticBlueprintPayloadDef_allOf:
@@ -9739,6 +10010,22 @@ components:
       - non_fungible_ids
       type: object
       example: null
+    NonFungiblePresentedBadge_allOf:
+      properties:
+        local_id:
+          description: |
+            The simple string representation of the non-fungible id.
+            * For string ids, this is `<the-string-id>`
+            * For integer ids, this is `#the-integer-id#`
+            * For bytes ids, this is `[the-lower-case-hex-representation]`
+            * For RUID ids, this is `{...-...-...-...}` where `...` are each 16 hex characters.
+            A given non-fungible resource has a fixed `NonFungibleIdType`, so this representation uniquely identifies this non-fungible
+            under the given resource address.
+          type: string
+      required:
+      - local_id
+      type: object
+      example: null
     SystemFieldStructure_allOf:
       properties:
         field_kind:
@@ -9920,9 +10207,10 @@ components:
       - key_value_store_info
       type: object
       example: null
-    LocalGenericSubstition_allOf:
+    LocalGenericSubstitution_allOf:
       description: |
         The generic substitution is provided by the instance itself.
+        The `scoped_type_id` can be expanded to a `FullyScopedTypeId` by including the current entity's address.
       properties:
         scoped_type_id:
           $ref: '#/components/schemas/ScopedTypeId'
@@ -9930,12 +10218,16 @@ components:
       - scoped_type_id
       type: object
       example: null
-    RemoteGenericSubstition_allOf:
+    RemoteGenericSubstitution_allOf:
       description: |
         The generic substitution is provided remotely by a blueprint type.
+        The `resolved_full_type_id` is added by the node, and is always present in the model returned from the transaction stream API.
+        Other APIs may not resolve the type from the blueprint definition.
       properties:
         blueprint_type_identifier:
           $ref: '#/components/schemas/BlueprintTypeIdentifier'
+        resolved_full_type_id:
+          $ref: '#/components/schemas/FullyScopedTypeId'
       required:
       - blueprint_type_identifier
       type: object
@@ -10741,6 +11033,23 @@ components:
       - level
       - message
       type: object
+    StreamTransactionsErrorResponse_allOf:
+      properties:
+        details:
+          $ref: '#/components/schemas/StreamTransactionsErrorDetails'
+      type: object
+      example: null
+    RequestedStateVersionOutOfBoundsErrorDetails_allOf:
+      properties:
+        max_ledger_state_version:
+          format: int64
+          maximum: 100000000000000
+          minimum: 1
+          type: integer
+      required:
+      - max_ledger_state_version
+      type: object
+      example: null
     GenesisLedgerTransaction_allOf:
       properties:
         is_flash:

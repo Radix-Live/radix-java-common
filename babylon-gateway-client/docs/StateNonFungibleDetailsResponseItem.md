@@ -10,7 +10,7 @@
 |**isBurned** | **Boolean** |  |  |
 |**nonFungibleId** | **String** | String-encoded non-fungible ID. |  |
 |**data** | [**ScryptoSborValue**](ScryptoSborValue.md) |  |  [optional] |
-|**lastUpdatedAtStateVersion** | **Long** | TBD |  |
+|**lastUpdatedAtStateVersion** | **Long** | The most recent state version underlying object was modified at. |  |
 
 
 

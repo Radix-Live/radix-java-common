@@ -14,6 +14,7 @@ A request to retrieve a sublist of committed transactions from the ledger.
 |**sborFormatOptions** | [**SborFormatOptions**](SborFormatOptions.md) |  |  [optional] |
 |**transactionFormatOptions** | [**TransactionFormatOptions**](TransactionFormatOptions.md) |  |  [optional] |
 |**substateFormatOptions** | [**SubstateFormatOptions**](SubstateFormatOptions.md) |  |  [optional] |
+|**includeProofs** | **Boolean** | Whether to include LedgerProofs (default false) |  [optional] |
 
 
 

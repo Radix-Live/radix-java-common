@@ -1,8 +1,7 @@
 apply plugin: 'java-library'
 
 group rootProject.group
-version = '0.5.1'
-//version rootProject.version
+version = '1.0.4'
 
 description 'A generated Client library for Radix Babylon Core API.'
 

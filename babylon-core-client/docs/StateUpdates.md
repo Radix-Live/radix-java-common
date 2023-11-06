@@ -8,6 +8,7 @@ Transaction state updates (only present if status is Succeeded or Failed)
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
+|**deletedPartitions** | [**List&lt;PartitionId&gt;**](PartitionId.md) |  |  |
 |**createdSubstates** | [**List&lt;CreatedSubstate&gt;**](CreatedSubstate.md) |  |  |
 |**updatedSubstates** | [**List&lt;UpdatedSubstate&gt;**](UpdatedSubstate.md) |  |  |
 |**deletedSubstates** | [**List&lt;DeletedSubstate&gt;**](DeletedSubstate.md) |  |  |

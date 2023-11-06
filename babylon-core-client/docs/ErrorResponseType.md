@@ -11,5 +11,7 @@
 
 * `LTSTRANSACTIONSUBMIT` (value: `"LtsTransactionSubmit"`)
 
+* `STREAMTRANSACTIONS` (value: `"StreamTransactions"`)
+
 
 

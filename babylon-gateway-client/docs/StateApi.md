@@ -1,6 +1,6 @@
 # StateApi
 
-All URIs are relative to *https://rcnet-v3.radixdlt.com*
+All URIs are relative to *https://mainnet.radixdlt.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -40,7 +40,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityFungibleResourceVaultsPageRequest stateEntityFungibleResourceVaultsPageRequest = new StateEntityFungibleResourceVaultsPageRequest(); // StateEntityFungibleResourceVaultsPageRequest | 
@@ -107,7 +107,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityFungiblesPageRequest stateEntityFungiblesPageRequest = new StateEntityFungiblesPageRequest(); // StateEntityFungiblesPageRequest | 
@@ -174,7 +174,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityMetadataPageRequest stateEntityMetadataPageRequest = new StateEntityMetadataPageRequest(); // StateEntityMetadataPageRequest | 
@@ -241,7 +241,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityNonFungibleIdsPageRequest stateEntityNonFungibleIdsPageRequest = new StateEntityNonFungibleIdsPageRequest(); // StateEntityNonFungibleIdsPageRequest | 
@@ -308,7 +308,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityNonFungibleResourceVaultsPageRequest stateEntityNonFungibleResourceVaultsPageRequest = new StateEntityNonFungibleResourceVaultsPageRequest(); // StateEntityNonFungibleResourceVaultsPageRequest | 
@@ -375,7 +375,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityNonFungiblesPageRequest stateEntityNonFungiblesPageRequest = new StateEntityNonFungiblesPageRequest(); // StateEntityNonFungiblesPageRequest | 
@@ -442,7 +442,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateKeyValueStoreDataRequest stateKeyValueStoreDataRequest = new StateKeyValueStoreDataRequest(); // StateKeyValueStoreDataRequest | 
@@ -509,7 +509,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateNonFungibleDataRequest stateNonFungibleDataRequest = new StateNonFungibleDataRequest(); // StateNonFungibleDataRequest | 
@@ -576,7 +576,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateNonFungibleIdsRequest stateNonFungibleIdsRequest = new StateNonFungibleIdsRequest(); // StateNonFungibleIdsRequest | 
@@ -643,7 +643,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateNonFungibleLocationRequest stateNonFungibleLocationRequest = new StateNonFungibleLocationRequest(); // StateNonFungibleLocationRequest | 
@@ -710,7 +710,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityDetailsRequest stateEntityDetailsRequest = new StateEntityDetailsRequest(); // StateEntityDetailsRequest | 
@@ -775,7 +775,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateValidatorsListRequest stateValidatorsListRequest = new StateValidatorsListRequest(); // StateValidatorsListRequest | 

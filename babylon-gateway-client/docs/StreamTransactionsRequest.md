@@ -8,9 +8,9 @@
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
 |**atLedgerState** | [**LedgerStateSelector**](LedgerStateSelector.md) |  |  [optional] |
+|**fromLedgerState** | [**LedgerStateSelector**](LedgerStateSelector.md) |  |  [optional] |
 |**cursor** | **String** | This cursor allows forward pagination, by providing the cursor from the previous request. |  [optional] |
 |**limitPerPage** | **Integer** | The page size requested. |  [optional] |
-|**fromLedgerState** | [**LedgerStateSelector**](LedgerStateSelector.md) |  |  [optional] |
 |**kindFilter** | [**KindFilterEnum**](#KindFilterEnum) | Limit returned transactions by their kind. Defaults to &#x60;user&#x60;. |  [optional] |
 |**manifestAccountsWithdrawnFromFilter** | **List&lt;String&gt;** |  |  [optional] |
 |**manifestAccountsDepositedIntoFilter** | **List&lt;String&gt;** |  |  [optional] |

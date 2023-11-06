@@ -7,7 +7,6 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**fromLedgerState** | [**LedgerStateSelector**](LedgerStateSelector.md) |  |  [optional] |
 |**kindFilter** | [**KindFilterEnum**](#KindFilterEnum) | Limit returned transactions by their kind. Defaults to &#x60;user&#x60;. |  [optional] |
 |**manifestAccountsWithdrawnFromFilter** | **List&lt;String&gt;** |  |  [optional] |
 |**manifestAccountsDepositedIntoFilter** | **List&lt;String&gt;** |  |  [optional] |

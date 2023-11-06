@@ -1,6 +1,6 @@
 # StatisticsApi
 
-All URIs are relative to *https://rcnet-v3.radixdlt.com*
+All URIs are relative to *https://mainnet.radixdlt.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -13,6 +13,8 @@ All URIs are relative to *https://rcnet-v3.radixdlt.com*
 > ValidatorsUptimeResponse validatorsUptime(validatorsUptimeRequest)
 
 Get Validators Uptime
+
+Returns validators uptime data for time range limited by &#x60;from_state_version&#x60; and &#x60;at_state_version&#x60;. 
 
 ### Example
 
@@ -27,7 +29,7 @@ import live.radix.gateway.client.StatisticsApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StatisticsApi apiInstance = new StatisticsApi(defaultClient);
         ValidatorsUptimeRequest validatorsUptimeRequest = new ValidatorsUptimeRequest(); // ValidatorsUptimeRequest | 

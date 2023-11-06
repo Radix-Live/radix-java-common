@@ -1,6 +1,6 @@
 # TransactionApi
 
-All URIs are relative to *https://rcnet-v3.radixdlt.com*
+All URIs are relative to *https://mainnet.radixdlt.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -33,7 +33,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         TransactionCommittedDetailsRequest transactionCommittedDetailsRequest = new TransactionCommittedDetailsRequest(); // TransactionCommittedDetailsRequest | 
@@ -100,7 +100,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         try {
@@ -147,7 +147,7 @@ No authorization required
 
 Preview Transaction
 
-Previews transaction against the network. This endpoint is effectively a proxy towards CoreApi&#39;s &#x60;/v0/transaction/preview&#x60; endpoint. See CoreApi&#39;s documentation for more details. 
+Previews transaction against the network. This endpoint is effectively a proxy towards the Core API &#x60;/v0/transaction/preview&#x60; endpoint. See the Core API documentation for more details. 
 
 ### Example
 
@@ -162,7 +162,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         TransactionPreviewRequest transactionPreviewRequest = new TransactionPreviewRequest(); // TransactionPreviewRequest | 
@@ -229,7 +229,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         TransactionStatusRequest transactionStatusRequest = new TransactionStatusRequest(); // TransactionStatusRequest | 
@@ -296,7 +296,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         TransactionSubmitRequest transactionSubmitRequest = new TransactionSubmitRequest(); // TransactionSubmitRequest | 

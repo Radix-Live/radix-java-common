@@ -1,24 +1,23 @@
 # babylon-gateway-client
 
-Babylon Gateway API - RCnet V3
+Radix Gateway API - Babylon
 
-**The source code is automatically generated from `babylon-gateway-swagger.json`**
+- API version: v1.2.0
 
-- API version: 0.5.0
-
-- Build date: 2023-09-18T09:19:23.851991900+03:00[Europe/Kiev]
+- Build date: 2023-11-06T18:53:11.950430200+02:00[Europe/Kiev]
 
 This API is exposed by the Babylon Radix Gateway to enable clients to efficiently query current and historic
 state on the RadixDLT ledger, and intelligently handle transaction submission.
 
-It is designed for use by wallets and explorers. For simple use cases, you can typically use the Core API on
-a Node. A Gateway is only needed for reading historic snapshots of ledger states or a more robust set-up.
+It is designed for use by wallets and explorers, and for light queries from front-end dApps.
+For exchange/asset integrations, back-end dApp integrations, or simple use cases, you should consider using
+the Core API on a Node. A Gateway is only needed for reading historic snapshots of ledger states or a more robust set-up.
 
 The Gateway API is implemented by the [Network Gateway](https://github.com/radixdlt/babylon-gateway),
 which is configured to read from [full node(s)](https://github.com/radixdlt/babylon-node) to extract
 and index data from the network.
 
-This document is an API reference documentation, visit [User Guide](https://docs-babylon.radixdlt.com/) to learn more
+This document is an API reference documentation, visit [User Guide](https://docs.radixdlt.com/) to learn more
 about how to run a Gateway of your own.
 
 ## Migration guide
@@ -27,8 +26,19 @@ Please see [the latest release notes](https://github.com/radixdlt/babylon-gatewa
 
 ## Integration and forward compatibility guarantees
 
-We give no guarantees that other endpoints will not change before Babylon mainnet launch, although changes are expected to
-be minimal.
+All responses may have additional fields added at any release, so clients are advised to use JSON parsers which
+ignore unknown fields on JSON objects.
+
+When the Radix protocol is updated, new functionality may be added, and so discriminated unions returned by the
+API may need to be updated to have new variants added, corresponding to the updated data. Clients may need to update
+in advance to be able to handle these new variants when a protocol update comes out.
+
+On the very rare occasions we need to make breaking changes to the API, these will be warned in advance with
+deprecation notices on previous versions. These deprecation notices will include a safe migration path.
+Deprecation notes or breaking changes will be flagged clearly in release notes for new versions of the Gateway.
+
+The Gateway DB schema is not subject to any compatibility guarantees, and may be changed at any release. DB changes
+will be flagged in the release notes so clients doing custom DB integrations can prepare.
 
 
 
@@ -65,7 +75,7 @@ Add this dependency to your project's POM:
 <dependency>
   <groupId>live.radix</groupId>
   <artifactId>babylon-gateway-client</artifactId>
-  <version>0.5.0</version>
+  <version>v1.2.0</version>
   <scope>compile</scope>
 </dependency>
 ```
@@ -75,7 +85,7 @@ Add this dependency to your project's POM:
 Add this dependency to your project's build file:
 
 ```groovy
-compile "live.radix:babylon-gateway-client:0.5.0"
+compile "live.radix:babylon-gateway-client:v1.2.0"
 ```
 
 ### Others
@@ -88,7 +98,7 @@ mvn clean package
 
 Then manually install the following JARs:
 
-- `target/babylon-gateway-client-0.5.0.jar`
+- `target/babylon-gateway-client-v1.2.0.jar`
 - `target/lib/*.jar`
 
 ## Getting Started
@@ -106,7 +116,7 @@ public class StateApiExample {
 
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
         
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityFungibleResourceVaultsPageRequest stateEntityFungibleResourceVaultsPageRequest = new StateEntityFungibleResourceVaultsPageRequest(); // StateEntityFungibleResourceVaultsPageRequest | 
@@ -127,7 +137,7 @@ public class StateApiExample {
 
 ## Documentation for API Endpoints
 
-All URIs are relative to *https://rcnet-v3.radixdlt.com*
+All URIs are relative to *https://mainnet.radixdlt.com*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
@@ -169,6 +179,8 @@ Class | Method | HTTP request | Description
  - [EntityMetadataItemValueAllOf](docs/EntityMetadataItemValueAllOf.md)
  - [EntityNotFoundError](docs/EntityNotFoundError.md)
  - [ErrorResponse](docs/ErrorResponse.md)
+ - [EventsItem](docs/EventsItem.md)
+ - [FromLedgerStateMixin](docs/FromLedgerStateMixin.md)
  - [FungibleResourcesCollection](docs/FungibleResourcesCollection.md)
  - [FungibleResourcesCollectionAllOf](docs/FungibleResourcesCollectionAllOf.md)
  - [FungibleResourcesCollectionItem](docs/FungibleResourcesCollectionItem.md)
@@ -260,6 +272,36 @@ Class | Method | HTTP request | Description
  - [OptionalNonFungibleIdsCollection](docs/OptionalNonFungibleIdsCollection.md)
  - [OptionalNonFungibleIdsCollectionAllOf](docs/OptionalNonFungibleIdsCollectionAllOf.md)
  - [PackageVmType](docs/PackageVmType.md)
+ - [ProgrammaticScryptoSborValue](docs/ProgrammaticScryptoSborValue.md)
+ - [ProgrammaticScryptoSborValueArray](docs/ProgrammaticScryptoSborValueArray.md)
+ - [ProgrammaticScryptoSborValueArrayAllOf](docs/ProgrammaticScryptoSborValueArrayAllOf.md)
+ - [ProgrammaticScryptoSborValueBool](docs/ProgrammaticScryptoSborValueBool.md)
+ - [ProgrammaticScryptoSborValueBytes](docs/ProgrammaticScryptoSborValueBytes.md)
+ - [ProgrammaticScryptoSborValueBytesAllOf](docs/ProgrammaticScryptoSborValueBytesAllOf.md)
+ - [ProgrammaticScryptoSborValueDecimal](docs/ProgrammaticScryptoSborValueDecimal.md)
+ - [ProgrammaticScryptoSborValueEnum](docs/ProgrammaticScryptoSborValueEnum.md)
+ - [ProgrammaticScryptoSborValueEnumAllOf](docs/ProgrammaticScryptoSborValueEnumAllOf.md)
+ - [ProgrammaticScryptoSborValueI128](docs/ProgrammaticScryptoSborValueI128.md)
+ - [ProgrammaticScryptoSborValueI16](docs/ProgrammaticScryptoSborValueI16.md)
+ - [ProgrammaticScryptoSborValueI32](docs/ProgrammaticScryptoSborValueI32.md)
+ - [ProgrammaticScryptoSborValueI64](docs/ProgrammaticScryptoSborValueI64.md)
+ - [ProgrammaticScryptoSborValueI8](docs/ProgrammaticScryptoSborValueI8.md)
+ - [ProgrammaticScryptoSborValueKind](docs/ProgrammaticScryptoSborValueKind.md)
+ - [ProgrammaticScryptoSborValueMap](docs/ProgrammaticScryptoSborValueMap.md)
+ - [ProgrammaticScryptoSborValueMapAllOf](docs/ProgrammaticScryptoSborValueMapAllOf.md)
+ - [ProgrammaticScryptoSborValueMapEntry](docs/ProgrammaticScryptoSborValueMapEntry.md)
+ - [ProgrammaticScryptoSborValueNonFungibleLocalId](docs/ProgrammaticScryptoSborValueNonFungibleLocalId.md)
+ - [ProgrammaticScryptoSborValueOwn](docs/ProgrammaticScryptoSborValueOwn.md)
+ - [ProgrammaticScryptoSborValuePreciseDecimal](docs/ProgrammaticScryptoSborValuePreciseDecimal.md)
+ - [ProgrammaticScryptoSborValueReference](docs/ProgrammaticScryptoSborValueReference.md)
+ - [ProgrammaticScryptoSborValueString](docs/ProgrammaticScryptoSborValueString.md)
+ - [ProgrammaticScryptoSborValueTuple](docs/ProgrammaticScryptoSborValueTuple.md)
+ - [ProgrammaticScryptoSborValueTupleAllOf](docs/ProgrammaticScryptoSborValueTupleAllOf.md)
+ - [ProgrammaticScryptoSborValueU128](docs/ProgrammaticScryptoSborValueU128.md)
+ - [ProgrammaticScryptoSborValueU16](docs/ProgrammaticScryptoSborValueU16.md)
+ - [ProgrammaticScryptoSborValueU32](docs/ProgrammaticScryptoSborValueU32.md)
+ - [ProgrammaticScryptoSborValueU64](docs/ProgrammaticScryptoSborValueU64.md)
+ - [ProgrammaticScryptoSborValueU8](docs/ProgrammaticScryptoSborValueU8.md)
  - [PublicKey](docs/PublicKey.md)
  - [PublicKeyEcdsaSecp256k1](docs/PublicKeyEcdsaSecp256k1.md)
  - [PublicKeyEcdsaSecp256k1AllOf](docs/PublicKeyEcdsaSecp256k1AllOf.md)
@@ -286,6 +328,7 @@ Class | Method | HTTP request | Description
  - [StateEntityDetailsResponseFungibleResourceDetails](docs/StateEntityDetailsResponseFungibleResourceDetails.md)
  - [StateEntityDetailsResponseFungibleResourceDetailsAllOf](docs/StateEntityDetailsResponseFungibleResourceDetailsAllOf.md)
  - [StateEntityDetailsResponseFungibleVaultDetails](docs/StateEntityDetailsResponseFungibleVaultDetails.md)
+ - [StateEntityDetailsResponseFungibleVaultDetailsAllOf](docs/StateEntityDetailsResponseFungibleVaultDetailsAllOf.md)
  - [StateEntityDetailsResponseItem](docs/StateEntityDetailsResponseItem.md)
  - [StateEntityDetailsResponseItemAncestorIdentities](docs/StateEntityDetailsResponseItemAncestorIdentities.md)
  - [StateEntityDetailsResponseItemDetails](docs/StateEntityDetailsResponseItemDetails.md)
@@ -293,6 +336,7 @@ Class | Method | HTTP request | Description
  - [StateEntityDetailsResponseNonFungibleResourceDetails](docs/StateEntityDetailsResponseNonFungibleResourceDetails.md)
  - [StateEntityDetailsResponseNonFungibleResourceDetailsAllOf](docs/StateEntityDetailsResponseNonFungibleResourceDetailsAllOf.md)
  - [StateEntityDetailsResponseNonFungibleVaultDetails](docs/StateEntityDetailsResponseNonFungibleVaultDetails.md)
+ - [StateEntityDetailsResponseNonFungibleVaultDetailsAllOf](docs/StateEntityDetailsResponseNonFungibleVaultDetailsAllOf.md)
  - [StateEntityDetailsResponsePackageDetails](docs/StateEntityDetailsResponsePackageDetails.md)
  - [StateEntityDetailsResponsePackageDetailsAllOf](docs/StateEntityDetailsResponsePackageDetailsAllOf.md)
  - [StateEntityDetailsResponsePackageDetailsBlueprintCollection](docs/StateEntityDetailsResponsePackageDetailsBlueprintCollection.md)
@@ -350,13 +394,21 @@ Class | Method | HTTP request | Description
  - [StreamTransactionsRequestEventFilterItem](docs/StreamTransactionsRequestEventFilterItem.md)
  - [StreamTransactionsResponse](docs/StreamTransactionsResponse.md)
  - [StreamTransactionsResponseAllOf](docs/StreamTransactionsResponseAllOf.md)
+ - [TransactionBalanceChanges](docs/TransactionBalanceChanges.md)
  - [TransactionCommittedDetailsRequest](docs/TransactionCommittedDetailsRequest.md)
  - [TransactionCommittedDetailsRequestAllOf](docs/TransactionCommittedDetailsRequestAllOf.md)
  - [TransactionCommittedDetailsResponse](docs/TransactionCommittedDetailsResponse.md)
  - [TransactionCommittedDetailsResponseAllOf](docs/TransactionCommittedDetailsResponseAllOf.md)
  - [TransactionConstructionResponse](docs/TransactionConstructionResponse.md)
  - [TransactionDetailsOptIns](docs/TransactionDetailsOptIns.md)
+ - [TransactionFungibleBalanceChanges](docs/TransactionFungibleBalanceChanges.md)
+ - [TransactionFungibleFeeBalanceChangeType](docs/TransactionFungibleFeeBalanceChangeType.md)
+ - [TransactionFungibleFeeBalanceChanges](docs/TransactionFungibleFeeBalanceChanges.md)
+ - [TransactionIntentStatus](docs/TransactionIntentStatus.md)
+ - [TransactionNonFungibleBalanceChanges](docs/TransactionNonFungibleBalanceChanges.md)
  - [TransactionNotFoundError](docs/TransactionNotFoundError.md)
+ - [TransactionPayloadGatewayHandlingStatus](docs/TransactionPayloadGatewayHandlingStatus.md)
+ - [TransactionPayloadStatus](docs/TransactionPayloadStatus.md)
  - [TransactionPreviewRequest](docs/TransactionPreviewRequest.md)
  - [TransactionPreviewRequestFlags](docs/TransactionPreviewRequestFlags.md)
  - [TransactionPreviewResponse](docs/TransactionPreviewResponse.md)

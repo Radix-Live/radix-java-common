@@ -7,8 +7,8 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**rawHex** | **String** |  |  |
-|**programmaticJson** | **Object** |  |  |
+|**rawHex** | **String** | Hex-encoded binary blob. |  |
+|**programmaticJson** | [**ProgrammaticScryptoSborValue**](ProgrammaticScryptoSborValue.md) |  |  |
 
 
 

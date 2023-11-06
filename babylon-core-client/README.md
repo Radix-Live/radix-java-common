@@ -1,17 +1,17 @@
 # babylon-core-client
 
-Babylon Core API - RCnet v3.1
+Radix Core API - Babylon
 
-**The source code is automatically generated from `babylon-core-swagger.json`**
+- API version: v1.0.4
 
-- API version: 0.5.1
-
-- Build date: 2023-09-18T09:57:43.738813900+03:00[Europe/Kiev]
+- Build date: 2023-11-06T18:51:31.842802500+02:00[Europe/Kiev]
 
 This API is exposed by the Babylon Radix node to give clients access to the Radix Engine, Mempool and State in the node.
 
-It is intended for use by node-runners on a private network, and is not intended to be exposed publicly.
-Very heavy load may impact the node's function.
+The default configuration is intended for use by node-runners on a private network, and is not intended to be exposed publicly.
+Very heavy load may impact the node's function. The node exposes a configuration flag which allows disabling certain endpoints
+which may be problematic, but monitoring is advised. This configuration parameter is
+`api.core.flags.enable_unbounded_endpoints` / `RADIXDLT_CORE_API_FLAGS_ENABLE_UNBOUNDED_ENDPOINTS`.
 
 This API exposes queries against the node's current state (see `/lts/state/` or `/state/`), and streams of transaction history
 (under `/lts/stream/` or `/stream`).
@@ -21,14 +21,18 @@ If you require queries against snapshots of historical ledger state, you may als
 
 ## Integration and forward compatibility guarantees
 
-This version of the Core API belongs to the fourth release candidate of the Radix Babylon network (\"RCnet v3.1\").
-
 Integrators (such as exchanges) are recommended to use the `/lts/` endpoints - they have been designed to be clear
 and simple for integrators wishing to create and monitor transactions involving fungible transfers to/from accounts.
 
-All endpoints under `/lts/` are guaranteed to be forward compatible to Babylon mainnet launch (and beyond).
+All endpoints under `/lts/` have high guarantees of forward compatibility in future node versions.
 We may add new fields, but existing fields will not be changed. Assuming the integrating code uses a permissive
 JSON parser which ignores unknown fields, any additions will not affect existing code.
+
+Other endpoints may be changed with new node versions carrying protocol-updates, although any breaking changes
+will be flagged clearly in the corresponding release notes.
+
+All responses may have additional fields added, so clients are advised to use JSON parsers which ignore unknown
+fields on JSON objects.
 
 
 
@@ -65,7 +69,7 @@ Add this dependency to your project's POM:
 <dependency>
   <groupId>live.radix</groupId>
   <artifactId>babylon-core-client</artifactId>
-  <version>0.5.1</version>
+  <version>v1.0.4</version>
   <scope>compile</scope>
 </dependency>
 ```
@@ -75,7 +79,7 @@ Add this dependency to your project's POM:
 Add this dependency to your project's build file:
 
 ```groovy
-compile "live.radix:babylon-core-client:0.5.1"
+compile "live.radix:babylon-core-client:v1.0.4"
 ```
 
 ### Others
@@ -88,7 +92,7 @@ mvn clean package
 
 Then manually install the following JARs:
 
-- `target/babylon-core-client-0.5.1.jar`
+- `target/babylon-core-client-v1.0.4.jar`
 - `target/lib/*.jar`
 
 ## Getting Started
@@ -132,6 +136,7 @@ All URIs are relative to *http://localhost:3333/core*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *LtsApi* | [**ltsStateAccountAllFungibleResourceBalancesPost**](docs/LtsApi.md#ltsStateAccountAllFungibleResourceBalancesPost) | **POST** /lts/state/account-all-fungible-resource-balances | Get All Account Balances
+*LtsApi* | [**ltsStateAccountDepositBehaviourPost**](docs/LtsApi.md#ltsStateAccountDepositBehaviourPost) | **POST** /lts/state/account-deposit-behaviour | Get Account Deposit Behaviour
 *LtsApi* | [**ltsStateAccountFungibleResourceBalancePost**](docs/LtsApi.md#ltsStateAccountFungibleResourceBalancePost) | **POST** /lts/state/account-fungible-resource-balance | Get Single Account Balance
 *LtsApi* | [**ltsStreamAccountTransactionOutcomesPost**](docs/LtsApi.md#ltsStreamAccountTransactionOutcomesPost) | **POST** /lts/stream/account-transaction-outcomes | Get Account Transaction Outcomes
 *LtsApi* | [**ltsStreamTransactionOutcomesPost**](docs/LtsApi.md#ltsStreamTransactionOutcomesPost) | **POST** /lts/stream/transaction-outcomes | Get Transaction Outcomes
@@ -354,17 +359,20 @@ Class | Method | HTTP request | Description
  - [KeyValueStoreTypeInfoDetailsAllOf](docs/KeyValueStoreTypeInfoDetailsAllOf.md)
  - [LeaderProposalHistory](docs/LeaderProposalHistory.md)
  - [LedgerHashes](docs/LedgerHashes.md)
+ - [LedgerHeader](docs/LedgerHeader.md)
  - [LedgerHeaderSummary](docs/LedgerHeaderSummary.md)
+ - [LedgerProof](docs/LedgerProof.md)
  - [LedgerStateSummary](docs/LedgerStateSummary.md)
  - [LedgerTransaction](docs/LedgerTransaction.md)
  - [LedgerTransactionType](docs/LedgerTransactionType.md)
- - [LocalGenericSubstition](docs/LocalGenericSubstition.md)
- - [LocalGenericSubstitionAllOf](docs/LocalGenericSubstitionAllOf.md)
+ - [LocalGenericSubstitution](docs/LocalGenericSubstitution.md)
+ - [LocalGenericSubstitutionAllOf](docs/LocalGenericSubstitutionAllOf.md)
  - [LocalNonFungibleKey](docs/LocalNonFungibleKey.md)
  - [LocalTypeId](docs/LocalTypeId.md)
  - [LtsCommittedTransactionOutcome](docs/LtsCommittedTransactionOutcome.md)
  - [LtsCommittedTransactionStatus](docs/LtsCommittedTransactionStatus.md)
  - [LtsEntityFungibleBalanceChanges](docs/LtsEntityFungibleBalanceChanges.md)
+ - [LtsEntityNonFungibleBalanceChanges](docs/LtsEntityNonFungibleBalanceChanges.md)
  - [LtsFeeFungibleResourceBalanceChange](docs/LtsFeeFungibleResourceBalanceChange.md)
  - [LtsFeeFungibleResourceBalanceChangeType](docs/LtsFeeFungibleResourceBalanceChangeType.md)
  - [LtsFungibleResourceBalance](docs/LtsFungibleResourceBalance.md)
@@ -373,6 +381,8 @@ Class | Method | HTTP request | Description
  - [LtsResultantFungibleBalance](docs/LtsResultantFungibleBalance.md)
  - [LtsStateAccountAllFungibleResourceBalancesRequest](docs/LtsStateAccountAllFungibleResourceBalancesRequest.md)
  - [LtsStateAccountAllFungibleResourceBalancesResponse](docs/LtsStateAccountAllFungibleResourceBalancesResponse.md)
+ - [LtsStateAccountDepositBehaviourRequest](docs/LtsStateAccountDepositBehaviourRequest.md)
+ - [LtsStateAccountDepositBehaviourResponse](docs/LtsStateAccountDepositBehaviourResponse.md)
  - [LtsStateAccountFungibleResourceBalanceRequest](docs/LtsStateAccountFungibleResourceBalanceRequest.md)
  - [LtsStateAccountFungibleResourceBalanceResponse](docs/LtsStateAccountFungibleResourceBalanceResponse.md)
  - [LtsStreamAccountTransactionOutcomesRequest](docs/LtsStreamAccountTransactionOutcomesRequest.md)
@@ -433,6 +443,8 @@ Class | Method | HTTP request | Description
  - [NonFungibleGlobalId](docs/NonFungibleGlobalId.md)
  - [NonFungibleIdType](docs/NonFungibleIdType.md)
  - [NonFungibleLocalId](docs/NonFungibleLocalId.md)
+ - [NonFungiblePresentedBadge](docs/NonFungiblePresentedBadge.md)
+ - [NonFungiblePresentedBadgeAllOf](docs/NonFungiblePresentedBadgeAllOf.md)
  - [NonFungibleRequirement](docs/NonFungibleRequirement.md)
  - [NonFungibleRequirementAllOf](docs/NonFungibleRequirementAllOf.md)
  - [NonFungibleResourceAmount](docs/NonFungibleResourceAmount.md)
@@ -524,6 +536,7 @@ Class | Method | HTTP request | Description
  - [ParsedTransactionType](docs/ParsedTransactionType.md)
  - [PartitionDescription](docs/PartitionDescription.md)
  - [PartitionDescriptionType](docs/PartitionDescriptionType.md)
+ - [PartitionId](docs/PartitionId.md)
  - [PartitionKind](docs/PartitionKind.md)
  - [PaymentFromVault](docs/PaymentFromVault.md)
  - [PaymentToRoyaltyRecipient](docs/PaymentToRoyaltyRecipient.md)
@@ -533,6 +546,8 @@ Class | Method | HTTP request | Description
  - [PlaintextTransactionMessage](docs/PlaintextTransactionMessage.md)
  - [PlaintextTransactionMessageAllOf](docs/PlaintextTransactionMessageAllOf.md)
  - [PoolVault](docs/PoolVault.md)
+ - [PresentedBadge](docs/PresentedBadge.md)
+ - [PresentedBadgeType](docs/PresentedBadgeType.md)
  - [PrimaryRoleRecoveryAttempt](docs/PrimaryRoleRecoveryAttempt.md)
  - [ProofAccessRuleNode](docs/ProofAccessRuleNode.md)
  - [ProofAccessRuleNodeAllOf](docs/ProofAccessRuleNodeAllOf.md)
@@ -548,8 +563,10 @@ Class | Method | HTTP request | Description
  - [RecoveryProposal](docs/RecoveryProposal.md)
  - [RecoveryRoleRecoveryAttempt](docs/RecoveryRoleRecoveryAttempt.md)
  - [ReferenceType](docs/ReferenceType.md)
- - [RemoteGenericSubstition](docs/RemoteGenericSubstition.md)
- - [RemoteGenericSubstitionAllOf](docs/RemoteGenericSubstitionAllOf.md)
+ - [RemoteGenericSubstitution](docs/RemoteGenericSubstitution.md)
+ - [RemoteGenericSubstitutionAllOf](docs/RemoteGenericSubstitutionAllOf.md)
+ - [RequestedStateVersionOutOfBoundsErrorDetails](docs/RequestedStateVersionOutOfBoundsErrorDetails.md)
+ - [RequestedStateVersionOutOfBoundsErrorDetailsAllOf](docs/RequestedStateVersionOutOfBoundsErrorDetailsAllOf.md)
  - [RequireProofRule](docs/RequireProofRule.md)
  - [RequireProofRuleAllOf](docs/RequireProofRuleAllOf.md)
  - [Requirement](docs/Requirement.md)
@@ -560,8 +577,10 @@ Class | Method | HTTP request | Description
  - [ResourceChange](docs/ResourceChange.md)
  - [ResourceKey](docs/ResourceKey.md)
  - [ResourcePreference](docs/ResourcePreference.md)
+ - [ResourcePresentedBadge](docs/ResourcePresentedBadge.md)
  - [ResourceRequirement](docs/ResourceRequirement.md)
  - [ResourceRequirementAllOf](docs/ResourceRequirementAllOf.md)
+ - [ResourceSpecificDepositBehaviour](docs/ResourceSpecificDepositBehaviour.md)
  - [ResourceType](docs/ResourceType.md)
  - [RoleAssignmentModuleFieldOwnerRoleSubstate](docs/RoleAssignmentModuleFieldOwnerRoleSubstate.md)
  - [RoleAssignmentModuleFieldOwnerRoleSubstateAllOf](docs/RoleAssignmentModuleFieldOwnerRoleSubstateAllOf.md)
@@ -626,6 +645,10 @@ Class | Method | HTTP request | Description
  - [StaticBlueprintPayloadDef](docs/StaticBlueprintPayloadDef.md)
  - [StaticBlueprintPayloadDefAllOf](docs/StaticBlueprintPayloadDefAllOf.md)
  - [StaticRoleDefinitionAuthTemplate](docs/StaticRoleDefinitionAuthTemplate.md)
+ - [StreamTransactionsErrorDetails](docs/StreamTransactionsErrorDetails.md)
+ - [StreamTransactionsErrorDetailsType](docs/StreamTransactionsErrorDetailsType.md)
+ - [StreamTransactionsErrorResponse](docs/StreamTransactionsErrorResponse.md)
+ - [StreamTransactionsErrorResponseAllOf](docs/StreamTransactionsErrorResponseAllOf.md)
  - [StreamTransactionsRequest](docs/StreamTransactionsRequest.md)
  - [StreamTransactionsResponse](docs/StreamTransactionsResponse.md)
  - [StringPlaintextMessageContent](docs/StringPlaintextMessageContent.md)
@@ -633,6 +656,7 @@ Class | Method | HTTP request | Description
  - [Substate](docs/Substate.md)
  - [SubstateFormatOptions](docs/SubstateFormatOptions.md)
  - [SubstateId](docs/SubstateId.md)
+ - [SubstateIdAllOf](docs/SubstateIdAllOf.md)
  - [SubstateKey](docs/SubstateKey.md)
  - [SubstateKeyType](docs/SubstateKeyType.md)
  - [SubstateSystemStructure](docs/SubstateSystemStructure.md)
@@ -646,6 +670,7 @@ Class | Method | HTTP request | Description
  - [SystemTransaction](docs/SystemTransaction.md)
  - [TargetIdentifier](docs/TargetIdentifier.md)
  - [TargetIdentifierType](docs/TargetIdentifierType.md)
+ - [TimestampedValidatorSignature](docs/TimestampedValidatorSignature.md)
  - [TransactionCallPreviewRequest](docs/TransactionCallPreviewRequest.md)
  - [TransactionCallPreviewResponse](docs/TransactionCallPreviewResponse.md)
  - [TransactionFormatOptions](docs/TransactionFormatOptions.md)

@@ -9,7 +9,7 @@
 |------------ | ------------- | ------------- | -------------|
 |**key** | [**ScryptoSborValue**](ScryptoSborValue.md) |  |  |
 |**value** | [**ScryptoSborValue**](ScryptoSborValue.md) |  |  |
-|**lastUpdatedAtStateVersion** | **Long** | TBD |  |
+|**lastUpdatedAtStateVersion** | **Long** | The most recent state version underlying object was modified at. |  |
 |**isLocked** | **Boolean** |  |  |
 
 

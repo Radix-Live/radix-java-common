@@ -1,6 +1,6 @@
 # StreamApi
 
-All URIs are relative to *https://rcnet-v3.radixdlt.com*
+All URIs are relative to *https://mainnet.radixdlt.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -29,7 +29,7 @@ import live.radix.gateway.client.StreamApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://rcnet-v3.radixdlt.com");
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
 
         StreamApi apiInstance = new StreamApi(defaultClient);
         StreamTransactionsRequest streamTransactionsRequest = new StreamTransactionsRequest(); // StreamTransactionsRequest | 
