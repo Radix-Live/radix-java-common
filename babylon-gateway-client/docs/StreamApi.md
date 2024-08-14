@@ -14,7 +14,7 @@ All URIs are relative to *https://mainnet.radixdlt.com*
 
 Get Transactions Stream
 
-Returns transactions which have been committed to the ledger. 
+Returns transactions which have been committed to the ledger. [Check detailed documentation for brief explanation](#section/Using-the-streamtransactions-endpoint) 
 
 ### Example
 
@@ -72,5 +72,5 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Transactions (paginated) |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 

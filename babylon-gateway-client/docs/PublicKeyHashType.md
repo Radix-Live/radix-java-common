@@ -5,9 +5,9 @@
 ## Enum
 
 
-* `ECDSASECP256K1` (value: `"EcdsaSecp256k1"`)
+* `ECDSA_SECP256K1` (value: `"EcdsaSecp256k1"`)
 
-* `EDDSAED25519` (value: `"EddsaEd25519"`)
+* `EDDSA_ED25519` (value: `"EddsaEd25519"`)
 
 
 

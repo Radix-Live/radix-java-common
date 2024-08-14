@@ -5,13 +5,13 @@
 ## Enum
 
 
-* `FEEPAYMENT` (value: `"FeePayment"`)
+* `FEE_PAYMENT` (value: `"FeePayment"`)
 
-* `FEEDISTRIBUTED` (value: `"FeeDistributed"`)
+* `FEE_DISTRIBUTED` (value: `"FeeDistributed"`)
 
-* `TIPDISTRIBUTED` (value: `"TipDistributed"`)
+* `TIP_DISTRIBUTED` (value: `"TipDistributed"`)
 
-* `ROYALTYDISTRIBUTED` (value: `"RoyaltyDistributed"`)
+* `ROYALTY_DISTRIBUTED` (value: `"RoyaltyDistributed"`)
 
 
 

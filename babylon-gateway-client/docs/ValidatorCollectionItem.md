@@ -12,9 +12,10 @@
 |**pendingXrdWithdrawVault** | [**ValidatorVaultItem**](ValidatorVaultItem.md) |  |  |
 |**lockedOwnerStakeUnitVault** | [**ValidatorVaultItem**](ValidatorVaultItem.md) |  |  |
 |**pendingOwnerStakeUnitUnlockVault** | [**ValidatorVaultItem**](ValidatorVaultItem.md) |  |  |
-|**state** | **Object** | Validator inner state representation. This type is defined in the Core API as &#x60;ValidatorFieldStateValue&#x60;. See the Core API documentation for more details.  |  [optional] |
+|**state** | **Object** | Validator inner state representation. This type is defined in the Core API as &#x60;ValidatorFieldStateValue&#x60;. See the Core API documentation for more details.  |  |
 |**activeInEpoch** | [**ValidatorCollectionItemActiveInEpoch**](ValidatorCollectionItemActiveInEpoch.md) |  |  [optional] |
 |**metadata** | [**EntityMetadataCollection**](EntityMetadataCollection.md) |  |  |
+|**effectiveFeeFactor** | [**ValidatorCollectionItemEffectiveFeeFactor**](ValidatorCollectionItemEffectiveFeeFactor.md) |  |  |
 
 
 

@@ -4,26 +4,302 @@ All URIs are relative to *https://mainnet.radixdlt.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**entityFungibleResourceVaultPage**](StateApi.md#entityFungibleResourceVaultPage) | **POST** /state/entity/page/fungible-vaults/ | Get vault page of Entity Fungible resource aggregated per vault |
-| [**entityFungiblesPage**](StateApi.md#entityFungiblesPage) | **POST** /state/entity/page/fungibles/ | Get Entity Fungible Resource Totals Page aggregated globally |
+| [**accountAuthorizedDepositorsPage**](StateApi.md#accountAuthorizedDepositorsPage) | **POST** /state/account/page/authorized-depositors | Get Account authorized depositors |
+| [**accountLockerVaultsPage**](StateApi.md#accountLockerVaultsPage) | **POST** /state/account-locker/page/vaults | Get Account Locker Vaults Page |
+| [**accountLockersTouchedAt**](StateApi.md#accountLockersTouchedAt) | **POST** /state/account-lockers/touched-at | Get Most Recent Touch of Account Lockers |
+| [**accountResourcePreferencesPage**](StateApi.md#accountResourcePreferencesPage) | **POST** /state/account/page/resource-preferences | Get Account resource preferences |
+| [**entityFungibleResourceVaultPage**](StateApi.md#entityFungibleResourceVaultPage) | **POST** /state/entity/page/fungible-vaults/ | Get page of Global Entity Fungible Resource Vaults |
+| [**entityFungiblesPage**](StateApi.md#entityFungiblesPage) | **POST** /state/entity/page/fungibles/ | Get page of Global Entity Fungible Resource Balances |
 | [**entityMetadataPage**](StateApi.md#entityMetadataPage) | **POST** /state/entity/page/metadata | Get Entity Metadata Page |
-| [**entityNonFungibleIdsPage**](StateApi.md#entityNonFungibleIdsPage) | **POST** /state/entity/page/non-fungible-vault/ids | Get Entity Non-Fungible IDs |
-| [**entityNonFungibleResourceVaultPage**](StateApi.md#entityNonFungibleResourceVaultPage) | **POST** /state/entity/page/non-fungible-vaults/ | Get vault page of Entity Non Fungible aggregated per vault |
-| [**entityNonFungiblesPage**](StateApi.md#entityNonFungiblesPage) | **POST** /state/entity/page/non-fungibles/ | Get Entity Non-Fungible Resource Totals Page aggregated globally |
+| [**entityNonFungibleIdsPage**](StateApi.md#entityNonFungibleIdsPage) | **POST** /state/entity/page/non-fungible-vault/ids | Get page of Non-Fungibles in Vault |
+| [**entityNonFungibleResourceVaultPage**](StateApi.md#entityNonFungibleResourceVaultPage) | **POST** /state/entity/page/non-fungible-vaults/ | Get page of Global Entity Non-Fungible Resource Vaults |
+| [**entityNonFungiblesPage**](StateApi.md#entityNonFungiblesPage) | **POST** /state/entity/page/non-fungibles/ | Get page of Global Entity Non-Fungible Resource Balances |
+| [**entitySchemaPage**](StateApi.md#entitySchemaPage) | **POST** /state/entity/page/schemas | Get Entity Schema Page |
 | [**keyValueStoreData**](StateApi.md#keyValueStoreData) | **POST** /state/key-value-store/data | Get KeyValueStore Data |
+| [**keyValueStoreKeys**](StateApi.md#keyValueStoreKeys) | **POST** /state/key-value-store/keys | Get KeyValueStore Keys |
 | [**nonFungibleData**](StateApi.md#nonFungibleData) | **POST** /state/non-fungible/data | Get Non-Fungible Data |
-| [**nonFungibleIds**](StateApi.md#nonFungibleIds) | **POST** /state/non-fungible/ids | Get Non-Fungible Collection |
+| [**nonFungibleIds**](StateApi.md#nonFungibleIds) | **POST** /state/non-fungible/ids | Get page of Non-Fungible Ids in Resource Collection |
 | [**nonFungibleLocation**](StateApi.md#nonFungibleLocation) | **POST** /state/non-fungible/location | Get Non-Fungible Location |
+| [**packageBlueprintPage**](StateApi.md#packageBlueprintPage) | **POST** /state/package/page/blueprints | Get Package Blueprints Page |
+| [**packageCodePage**](StateApi.md#packageCodePage) | **POST** /state/package/page/codes | Get Package Codes Page |
 | [**stateEntityDetails**](StateApi.md#stateEntityDetails) | **POST** /state/entity/details | Get Entity Details |
 | [**stateValidatorsList**](StateApi.md#stateValidatorsList) | **POST** /state/validators/list | Get Validators List |
 
+
+
+## accountAuthorizedDepositorsPage
+
+> StateAccountAuthorizedDepositorsPageResponse accountAuthorizedDepositorsPage(stateAccountAuthorizedDepositorsPageRequest)
+
+Get Account authorized depositors
+
+Returns paginable collection of authorized depositors for given account. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.StateApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+
+        StateApi apiInstance = new StateApi(defaultClient);
+        StateAccountAuthorizedDepositorsPageRequest stateAccountAuthorizedDepositorsPageRequest = new StateAccountAuthorizedDepositorsPageRequest(); // StateAccountAuthorizedDepositorsPageRequest | 
+        try {
+            StateAccountAuthorizedDepositorsPageResponse result = apiInstance.accountAuthorizedDepositorsPage(stateAccountAuthorizedDepositorsPageRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling StateApi#accountAuthorizedDepositorsPage");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **stateAccountAuthorizedDepositorsPageRequest** | [**StateAccountAuthorizedDepositorsPageRequest**](StateAccountAuthorizedDepositorsPageRequest.md)|  | |
+
+### Return type
+
+[**StateAccountAuthorizedDepositorsPageResponse**](StateAccountAuthorizedDepositorsPageResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Account resource preferences page |  -  |
+| **4XX** |  |  -  |
+
+
+## accountLockerVaultsPage
+
+> StateAccountLockerPageVaultsResponse accountLockerVaultsPage(stateAccountLockerPageVaultsRequest)
+
+Get Account Locker Vaults Page
+
+Returns all the resource vaults associated with a given account locker. The returned response is in a paginated format, ordered by the most recent resource vault creation on the ledger. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.StateApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+
+        StateApi apiInstance = new StateApi(defaultClient);
+        StateAccountLockerPageVaultsRequest stateAccountLockerPageVaultsRequest = new StateAccountLockerPageVaultsRequest(); // StateAccountLockerPageVaultsRequest | 
+        try {
+            StateAccountLockerPageVaultsResponse result = apiInstance.accountLockerVaultsPage(stateAccountLockerPageVaultsRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling StateApi#accountLockerVaultsPage");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **stateAccountLockerPageVaultsRequest** | [**StateAccountLockerPageVaultsRequest**](StateAccountLockerPageVaultsRequest.md)|  | |
+
+### Return type
+
+[**StateAccountLockerPageVaultsResponse**](StateAccountLockerPageVaultsResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Account Locker vaults (paginated) |  -  |
+| **4XX** |  |  -  |
+
+
+## accountLockersTouchedAt
+
+> StateAccountLockersTouchedAtResponse accountLockersTouchedAt(stateAccountLockersTouchedAtRequest)
+
+Get Most Recent Touch of Account Lockers
+
+Returns most recent state version given account locker has been touched. Touch refers to the creation of the account locker itself as well as any modification to its contents, such as resource claim, airdrop or store. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.StateApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+
+        StateApi apiInstance = new StateApi(defaultClient);
+        StateAccountLockersTouchedAtRequest stateAccountLockersTouchedAtRequest = new StateAccountLockersTouchedAtRequest(); // StateAccountLockersTouchedAtRequest | 
+        try {
+            StateAccountLockersTouchedAtResponse result = apiInstance.accountLockersTouchedAt(stateAccountLockersTouchedAtRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling StateApi#accountLockersTouchedAt");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **stateAccountLockersTouchedAtRequest** | [**StateAccountLockersTouchedAtRequest**](StateAccountLockersTouchedAtRequest.md)|  | |
+
+### Return type
+
+[**StateAccountLockersTouchedAtResponse**](StateAccountLockersTouchedAtResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Account locker account pair last touch state version |  -  |
+| **4XX** |  |  -  |
+
+
+## accountResourcePreferencesPage
+
+> StateAccountResourcePreferencesPageResponse accountResourcePreferencesPage(stateAccountResourcePreferencesPageRequest)
+
+Get Account resource preferences
+
+Returns paginable collection of resource preference rules for given account. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.StateApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+
+        StateApi apiInstance = new StateApi(defaultClient);
+        StateAccountResourcePreferencesPageRequest stateAccountResourcePreferencesPageRequest = new StateAccountResourcePreferencesPageRequest(); // StateAccountResourcePreferencesPageRequest | 
+        try {
+            StateAccountResourcePreferencesPageResponse result = apiInstance.accountResourcePreferencesPage(stateAccountResourcePreferencesPageRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling StateApi#accountResourcePreferencesPage");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **stateAccountResourcePreferencesPageRequest** | [**StateAccountResourcePreferencesPageRequest**](StateAccountResourcePreferencesPageRequest.md)|  | |
+
+### Return type
+
+[**StateAccountResourcePreferencesPageResponse**](StateAccountResourcePreferencesPageResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Account resource preferences page |  -  |
+| **4XX** |  |  -  |
 
 
 ## entityFungibleResourceVaultPage
 
 > StateEntityFungibleResourceVaultsPageResponse entityFungibleResourceVaultPage(stateEntityFungibleResourceVaultsPageRequest)
 
-Get vault page of Entity Fungible resource aggregated per vault
+Get page of Global Entity Fungible Resource Vaults
 
 Returns vaults for fungible resource owned by a given global entity. The returned response is in a paginated format, ordered by the resource&#39;s first appearance on the ledger. 
 
@@ -83,14 +359,14 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Fungibles (paginated) |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 
 
 ## entityFungiblesPage
 
 > StateEntityFungiblesPageResponse entityFungiblesPage(stateEntityFungiblesPageRequest)
 
-Get Entity Fungible Resource Totals Page aggregated globally
+Get page of Global Entity Fungible Resource Balances
 
 Returns the total amount of each fungible resource owned by a given global entity. Result can be aggregated globally or per vault. The returned response is in a paginated format, ordered by the resource&#39;s first appearance on the ledger. 
 
@@ -150,7 +426,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Fungibles (paginated) |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 
 
 ## entityMetadataPage
@@ -217,14 +493,14 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Metadata (paginated) |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 
 
 ## entityNonFungibleIdsPage
 
 > StateEntityNonFungibleIdsPageResponse entityNonFungibleIdsPage(stateEntityNonFungibleIdsPageRequest)
 
-Get Entity Non-Fungible IDs
+Get page of Non-Fungibles in Vault
 
 Returns all non-fungible IDs of a given non-fungible resource owned by a given entity. The returned response is in a paginated format, ordered by the resource&#39;s first appearence on the ledger. 
 
@@ -284,14 +560,14 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Non-Fungible IDs (paginated) |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 
 
 ## entityNonFungibleResourceVaultPage
 
 > StateEntityNonFungibleResourceVaultsPageResponse entityNonFungibleResourceVaultPage(stateEntityNonFungibleResourceVaultsPageRequest)
 
-Get vault page of Entity Non Fungible aggregated per vault
+Get page of Global Entity Non-Fungible Resource Vaults
 
 Returns vaults for non fungible resource owned by a given global entity. The returned response is in a paginated format, ordered by the resource&#39;s first appearance on the ledger. 
 
@@ -351,14 +627,14 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Fungibles (paginated) |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 
 
 ## entityNonFungiblesPage
 
 > StateEntityNonFungiblesPageResponse entityNonFungiblesPage(stateEntityNonFungiblesPageRequest)
 
-Get Entity Non-Fungible Resource Totals Page aggregated globally
+Get page of Global Entity Non-Fungible Resource Balances
 
 Returns the total amount of each non-fungible resource owned by a given global entity. Result can be aggregated globally or per vault. The returned response is in a paginated format, ordered by the resource&#39;s first appearance on the ledger. 
 
@@ -418,7 +694,74 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Non-Fungibles (paginated) |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
+
+
+## entitySchemaPage
+
+> StateEntitySchemaPageResponse entitySchemaPage(stateEntitySchemaPageRequest)
+
+Get Entity Schema Page
+
+Returns all the schemas associated with a given global entity. The returned response is in a paginated format, ordered by first appearance on the ledger. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.StateApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+
+        StateApi apiInstance = new StateApi(defaultClient);
+        StateEntitySchemaPageRequest stateEntitySchemaPageRequest = new StateEntitySchemaPageRequest(); // StateEntitySchemaPageRequest | 
+        try {
+            StateEntitySchemaPageResponse result = apiInstance.entitySchemaPage(stateEntitySchemaPageRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling StateApi#entitySchemaPage");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **stateEntitySchemaPageRequest** | [**StateEntitySchemaPageRequest**](StateEntitySchemaPageRequest.md)|  | |
+
+### Return type
+
+[**StateEntitySchemaPageResponse**](StateEntitySchemaPageResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Entity Schemas (paginated) |  -  |
+| **4XX** |  |  -  |
 
 
 ## keyValueStoreData
@@ -427,7 +770,7 @@ No authorization required
 
 Get KeyValueStore Data
 
-Returns data (value) associated with a given key of a given key-value store. 
+Returns data (value) associated with a given key of a given key-value store. [Check detailed documentation for explanation](#section/How-to-query-the-content-of-a-key-value-store-inside-a-component) 
 
 ### Example
 
@@ -485,7 +828,74 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Non-Fungible ID Data |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
+
+
+## keyValueStoreKeys
+
+> StateKeyValueStoreKeysResponse keyValueStoreKeys(stateKeyValueStoreKeysRequest)
+
+Get KeyValueStore Keys
+
+Allows to iterate over key value store keys.
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.StateApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+
+        StateApi apiInstance = new StateApi(defaultClient);
+        StateKeyValueStoreKeysRequest stateKeyValueStoreKeysRequest = new StateKeyValueStoreKeysRequest(); // StateKeyValueStoreKeysRequest | 
+        try {
+            StateKeyValueStoreKeysResponse result = apiInstance.keyValueStoreKeys(stateKeyValueStoreKeysRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling StateApi#keyValueStoreKeys");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **stateKeyValueStoreKeysRequest** | [**StateKeyValueStoreKeysRequest**](StateKeyValueStoreKeysRequest.md)|  | |
+
+### Return type
+
+[**StateKeyValueStoreKeysResponse**](StateKeyValueStoreKeysResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | KeyValueStore keys collection |  -  |
+| **4XX** |  |  -  |
 
 
 ## nonFungibleData
@@ -552,14 +962,14 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Non-Fungible ID Data |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 
 
 ## nonFungibleIds
 
 > StateNonFungibleIdsResponse nonFungibleIds(stateNonFungibleIdsRequest)
 
-Get Non-Fungible Collection
+Get page of Non-Fungible Ids in Resource Collection
 
 Returns the non-fungible IDs of a given non-fungible resource. Returned response is in a paginated format, ordered by their first appearance on the ledger. 
 
@@ -619,7 +1029,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Non-Fungible IDs (paginated) |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 
 
 ## nonFungibleLocation
@@ -686,7 +1096,141 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Non-Fungible ID Location |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
+
+
+## packageBlueprintPage
+
+> StatePackageBlueprintPageResponse packageBlueprintPage(statePackageBlueprintPageRequest)
+
+Get Package Blueprints Page
+
+Returns all the blueprints associated with a given package entity. The returned response is in a paginated format, ordered by first appearance on the ledger. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.StateApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+
+        StateApi apiInstance = new StateApi(defaultClient);
+        StatePackageBlueprintPageRequest statePackageBlueprintPageRequest = new StatePackageBlueprintPageRequest(); // StatePackageBlueprintPageRequest | 
+        try {
+            StatePackageBlueprintPageResponse result = apiInstance.packageBlueprintPage(statePackageBlueprintPageRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling StateApi#packageBlueprintPage");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **statePackageBlueprintPageRequest** | [**StatePackageBlueprintPageRequest**](StatePackageBlueprintPageRequest.md)|  | |
+
+### Return type
+
+[**StatePackageBlueprintPageResponse**](StatePackageBlueprintPageResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Package Blueprints (paginated) |  -  |
+| **4XX** |  |  -  |
+
+
+## packageCodePage
+
+> StatePackageCodePageResponse packageCodePage(statePackageCodePageRequest)
+
+Get Package Codes Page
+
+Returns all the codes associated with a given package entity. The returned response is in a paginated format, ordered by first appearance on the ledger. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.StateApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+
+        StateApi apiInstance = new StateApi(defaultClient);
+        StatePackageCodePageRequest statePackageCodePageRequest = new StatePackageCodePageRequest(); // StatePackageCodePageRequest | 
+        try {
+            StatePackageCodePageResponse result = apiInstance.packageCodePage(statePackageCodePageRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling StateApi#packageCodePage");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **statePackageCodePageRequest** | [**StatePackageCodePageRequest**](StatePackageCodePageRequest.md)|  | |
+
+### Return type
+
+[**StatePackageCodePageResponse**](StatePackageCodePageResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Package Blueprints (paginated) |  -  |
+| **4XX** |  |  -  |
 
 
 ## stateEntityDetails
@@ -753,7 +1297,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Details |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 
 
 ## stateValidatorsList
@@ -818,5 +1362,5 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Validators List |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 

@@ -27,12 +27,15 @@
 |**metadataModulePackage** | **String** | Bech32m-encoded human readable version of the address. |  |
 |**royaltyModulePackage** | **String** | Bech32m-encoded human readable version of the address. |  |
 |**accessRulesPackage** | **String** | Bech32m-encoded human readable version of the address. |  |
+|**roleAssignmentModulePackage** | **String** | Bech32m-encoded human readable version of the address. |  |
 |**genesisHelperPackage** | **String** | Bech32m-encoded human readable version of the address. |  |
 |**faucetPackage** | **String** | Bech32m-encoded human readable version of the address. |  |
 |**consensusManager** | **String** | Bech32m-encoded human readable version of the address. |  |
 |**genesisHelper** | **String** | Bech32m-encoded human readable version of the address. |  |
 |**faucet** | **String** | Bech32m-encoded human readable version of the address. |  |
 |**poolPackage** | **String** | Bech32m-encoded human readable version of the address. |  |
+|**lockerPackage** | **String** | Bech32m-encoded human readable version of the address. |  |
+|**transactionTracker** | **String** | Bech32m-encoded human readable version of the address. |  |
 
 
 

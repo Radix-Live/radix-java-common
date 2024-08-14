@@ -7,7 +7,7 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**values** | [**List&lt;MetadataNonFungibleGlobalIdValueAllOf&gt;**](MetadataNonFungibleGlobalIdValueAllOf.md) |  |  |
+|**values** | [**List&lt;MetadataNonFungibleGlobalIdArrayValueAllOfValues&gt;**](MetadataNonFungibleGlobalIdArrayValueAllOfValues.md) |  |  |
 
 
 

@@ -2,9 +2,11 @@
 
 Radix Gateway API - Babylon
 
-- API version: v1.2.0
+- API version: v1.6.3
 
-- Build date: 2023-11-06T18:53:11.950430200+02:00[Europe/Kiev]
+- Build date: 2024-08-15T00:18:13.130575900+03:00[Europe/Kiev]
+
+- Generator version: 7.7.0
 
 This API is exposed by the Babylon Radix Gateway to enable clients to efficiently query current and historic
 state on the RadixDLT ledger, and intelligently handle transaction submission.
@@ -75,7 +77,7 @@ Add this dependency to your project's POM:
 <dependency>
   <groupId>live.radix</groupId>
   <artifactId>babylon-gateway-client</artifactId>
-  <version>v1.2.0</version>
+  <version>v1.6.3</version>
   <scope>compile</scope>
 </dependency>
 ```
@@ -85,7 +87,7 @@ Add this dependency to your project's POM:
 Add this dependency to your project's build file:
 
 ```groovy
-compile "live.radix:babylon-gateway-client:v1.2.0"
+compile "live.radix:babylon-gateway-client:v1.6.3"
 ```
 
 ### Others
@@ -98,7 +100,7 @@ mvn clean package
 
 Then manually install the following JARs:
 
-- `target/babylon-gateway-client-v1.2.0.jar`
+- `target/babylon-gateway-client-v1.6.3.jar`
 - `target/lib/*.jar`
 
 ## Getting Started
@@ -119,12 +121,12 @@ public class StateApiExample {
         defaultClient.setBasePath("https://mainnet.radixdlt.com");
         
         StateApi apiInstance = new StateApi(defaultClient);
-        StateEntityFungibleResourceVaultsPageRequest stateEntityFungibleResourceVaultsPageRequest = new StateEntityFungibleResourceVaultsPageRequest(); // StateEntityFungibleResourceVaultsPageRequest | 
+        StateAccountAuthorizedDepositorsPageRequest stateAccountAuthorizedDepositorsPageRequest = new StateAccountAuthorizedDepositorsPageRequest(); // StateAccountAuthorizedDepositorsPageRequest | 
         try {
-            StateEntityFungibleResourceVaultsPageResponse result = apiInstance.entityFungibleResourceVaultPage(stateEntityFungibleResourceVaultsPageRequest);
+            StateAccountAuthorizedDepositorsPageResponse result = apiInstance.accountAuthorizedDepositorsPage(stateAccountAuthorizedDepositorsPageRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling StateApi#entityFungibleResourceVaultPage");
+            System.err.println("Exception when calling StateApi#accountAuthorizedDepositorsPage");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -141,22 +143,31 @@ All URIs are relative to *https://mainnet.radixdlt.com*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*StateApi* | [**entityFungibleResourceVaultPage**](docs/StateApi.md#entityFungibleResourceVaultPage) | **POST** /state/entity/page/fungible-vaults/ | Get vault page of Entity Fungible resource aggregated per vault
-*StateApi* | [**entityFungiblesPage**](docs/StateApi.md#entityFungiblesPage) | **POST** /state/entity/page/fungibles/ | Get Entity Fungible Resource Totals Page aggregated globally
+*StateApi* | [**accountAuthorizedDepositorsPage**](docs/StateApi.md#accountAuthorizedDepositorsPage) | **POST** /state/account/page/authorized-depositors | Get Account authorized depositors
+*StateApi* | [**accountLockerVaultsPage**](docs/StateApi.md#accountLockerVaultsPage) | **POST** /state/account-locker/page/vaults | Get Account Locker Vaults Page
+*StateApi* | [**accountLockersTouchedAt**](docs/StateApi.md#accountLockersTouchedAt) | **POST** /state/account-lockers/touched-at | Get Most Recent Touch of Account Lockers
+*StateApi* | [**accountResourcePreferencesPage**](docs/StateApi.md#accountResourcePreferencesPage) | **POST** /state/account/page/resource-preferences | Get Account resource preferences
+*StateApi* | [**entityFungibleResourceVaultPage**](docs/StateApi.md#entityFungibleResourceVaultPage) | **POST** /state/entity/page/fungible-vaults/ | Get page of Global Entity Fungible Resource Vaults
+*StateApi* | [**entityFungiblesPage**](docs/StateApi.md#entityFungiblesPage) | **POST** /state/entity/page/fungibles/ | Get page of Global Entity Fungible Resource Balances
 *StateApi* | [**entityMetadataPage**](docs/StateApi.md#entityMetadataPage) | **POST** /state/entity/page/metadata | Get Entity Metadata Page
-*StateApi* | [**entityNonFungibleIdsPage**](docs/StateApi.md#entityNonFungibleIdsPage) | **POST** /state/entity/page/non-fungible-vault/ids | Get Entity Non-Fungible IDs
-*StateApi* | [**entityNonFungibleResourceVaultPage**](docs/StateApi.md#entityNonFungibleResourceVaultPage) | **POST** /state/entity/page/non-fungible-vaults/ | Get vault page of Entity Non Fungible aggregated per vault
-*StateApi* | [**entityNonFungiblesPage**](docs/StateApi.md#entityNonFungiblesPage) | **POST** /state/entity/page/non-fungibles/ | Get Entity Non-Fungible Resource Totals Page aggregated globally
+*StateApi* | [**entityNonFungibleIdsPage**](docs/StateApi.md#entityNonFungibleIdsPage) | **POST** /state/entity/page/non-fungible-vault/ids | Get page of Non-Fungibles in Vault
+*StateApi* | [**entityNonFungibleResourceVaultPage**](docs/StateApi.md#entityNonFungibleResourceVaultPage) | **POST** /state/entity/page/non-fungible-vaults/ | Get page of Global Entity Non-Fungible Resource Vaults
+*StateApi* | [**entityNonFungiblesPage**](docs/StateApi.md#entityNonFungiblesPage) | **POST** /state/entity/page/non-fungibles/ | Get page of Global Entity Non-Fungible Resource Balances
+*StateApi* | [**entitySchemaPage**](docs/StateApi.md#entitySchemaPage) | **POST** /state/entity/page/schemas | Get Entity Schema Page
 *StateApi* | [**keyValueStoreData**](docs/StateApi.md#keyValueStoreData) | **POST** /state/key-value-store/data | Get KeyValueStore Data
+*StateApi* | [**keyValueStoreKeys**](docs/StateApi.md#keyValueStoreKeys) | **POST** /state/key-value-store/keys | Get KeyValueStore Keys
 *StateApi* | [**nonFungibleData**](docs/StateApi.md#nonFungibleData) | **POST** /state/non-fungible/data | Get Non-Fungible Data
-*StateApi* | [**nonFungibleIds**](docs/StateApi.md#nonFungibleIds) | **POST** /state/non-fungible/ids | Get Non-Fungible Collection
+*StateApi* | [**nonFungibleIds**](docs/StateApi.md#nonFungibleIds) | **POST** /state/non-fungible/ids | Get page of Non-Fungible Ids in Resource Collection
 *StateApi* | [**nonFungibleLocation**](docs/StateApi.md#nonFungibleLocation) | **POST** /state/non-fungible/location | Get Non-Fungible Location
+*StateApi* | [**packageBlueprintPage**](docs/StateApi.md#packageBlueprintPage) | **POST** /state/package/page/blueprints | Get Package Blueprints Page
+*StateApi* | [**packageCodePage**](docs/StateApi.md#packageCodePage) | **POST** /state/package/page/codes | Get Package Codes Page
 *StateApi* | [**stateEntityDetails**](docs/StateApi.md#stateEntityDetails) | **POST** /state/entity/details | Get Entity Details
 *StateApi* | [**stateValidatorsList**](docs/StateApi.md#stateValidatorsList) | **POST** /state/validators/list | Get Validators List
 *StatisticsApi* | [**validatorsUptime**](docs/StatisticsApi.md#validatorsUptime) | **POST** /statistics/validators/uptime | Get Validators Uptime
 *StatusApi* | [**gatewayStatus**](docs/StatusApi.md#gatewayStatus) | **POST** /status/gateway-status | Get Gateway Status
 *StatusApi* | [**networkConfiguration**](docs/StatusApi.md#networkConfiguration) | **POST** /status/network-configuration | Get Network Configuration
 *StreamApi* | [**streamTransactions**](docs/StreamApi.md#streamTransactions) | **POST** /stream/transactions | Get Transactions Stream
+*TransactionApi* | [**accountDepositPreValidation**](docs/TransactionApi.md#accountDepositPreValidation) | **POST** /transaction/account-deposit-pre-validation | PreValidate deposit of resources to an account
 *TransactionApi* | [**transactionCommittedDetails**](docs/TransactionApi.md#transactionCommittedDetails) | **POST** /transaction/committed-details | Get Committed Transaction Details
 *TransactionApi* | [**transactionConstruction**](docs/TransactionApi.md#transactionConstruction) | **POST** /transaction/construction | Get Construction Metadata
 *TransactionApi* | [**transactionPreview**](docs/TransactionApi.md#transactionPreview) | **POST** /transaction/preview | Preview Transaction
@@ -166,49 +177,68 @@ Class | Method | HTTP request | Description
 
 ## Documentation for Models
 
+ - [AccountAuthorizedDepositorBadgeType](docs/AccountAuthorizedDepositorBadgeType.md)
+ - [AccountAuthorizedDepositorsCollection](docs/AccountAuthorizedDepositorsCollection.md)
+ - [AccountAuthorizedDepositorsNonFungibleBadge](docs/AccountAuthorizedDepositorsNonFungibleBadge.md)
+ - [AccountAuthorizedDepositorsResourceBadge](docs/AccountAuthorizedDepositorsResourceBadge.md)
+ - [AccountAuthorizedDepositorsResponseItem](docs/AccountAuthorizedDepositorsResponseItem.md)
+ - [AccountDefaultDepositRule](docs/AccountDefaultDepositRule.md)
+ - [AccountDepositPreValidationDecidingFactors](docs/AccountDepositPreValidationDecidingFactors.md)
+ - [AccountDepositPreValidationDecidingFactorsResourceSpecificDetailsItem](docs/AccountDepositPreValidationDecidingFactorsResourceSpecificDetailsItem.md)
+ - [AccountDepositPreValidationNonFungibleBadge](docs/AccountDepositPreValidationNonFungibleBadge.md)
+ - [AccountDepositPreValidationRequest](docs/AccountDepositPreValidationRequest.md)
+ - [AccountDepositPreValidationResourceBadge](docs/AccountDepositPreValidationResourceBadge.md)
+ - [AccountDepositPreValidationResourceSpecificBehaviourItem](docs/AccountDepositPreValidationResourceSpecificBehaviourItem.md)
+ - [AccountDepositPreValidationResponse](docs/AccountDepositPreValidationResponse.md)
+ - [AccountLockerAddress](docs/AccountLockerAddress.md)
+ - [AccountLockerNotFoundError](docs/AccountLockerNotFoundError.md)
+ - [AccountLockerVaultCollection](docs/AccountLockerVaultCollection.md)
+ - [AccountLockerVaultCollectionItem](docs/AccountLockerVaultCollectionItem.md)
+ - [AccountLockerVaultCollectionItemFungible](docs/AccountLockerVaultCollectionItemFungible.md)
+ - [AccountLockerVaultCollectionItemNonFungible](docs/AccountLockerVaultCollectionItemNonFungible.md)
+ - [AccountLockerVaultCollectionItemType](docs/AccountLockerVaultCollectionItemType.md)
+ - [AccountResourcePreferenceRule](docs/AccountResourcePreferenceRule.md)
+ - [AccountResourcePreferencesCollection](docs/AccountResourcePreferencesCollection.md)
+ - [AccountResourcePreferencesResponseItem](docs/AccountResourcePreferencesResponseItem.md)
  - [AtLedgerStateMixin](docs/AtLedgerStateMixin.md)
+ - [BlueprintMethodRoyalty](docs/BlueprintMethodRoyalty.md)
+ - [BlueprintRoyaltyConfig](docs/BlueprintRoyaltyConfig.md)
  - [CommittedTransactionInfo](docs/CommittedTransactionInfo.md)
  - [ComponentEntityRoleAssignmentEntry](docs/ComponentEntityRoleAssignmentEntry.md)
  - [ComponentEntityRoleAssignmentEntryAssignment](docs/ComponentEntityRoleAssignmentEntryAssignment.md)
  - [ComponentEntityRoleAssignments](docs/ComponentEntityRoleAssignments.md)
+ - [ComponentMethodRoyalty](docs/ComponentMethodRoyalty.md)
+ - [ComponentRoyaltyConfig](docs/ComponentRoyaltyConfig.md)
  - [CursorLimitMixin](docs/CursorLimitMixin.md)
  - [EntityMetadataCollection](docs/EntityMetadataCollection.md)
- - [EntityMetadataCollectionAllOf](docs/EntityMetadataCollectionAllOf.md)
  - [EntityMetadataItem](docs/EntityMetadataItem.md)
  - [EntityMetadataItemValue](docs/EntityMetadataItemValue.md)
- - [EntityMetadataItemValueAllOf](docs/EntityMetadataItemValueAllOf.md)
  - [EntityNotFoundError](docs/EntityNotFoundError.md)
+ - [EntitySchemaCollection](docs/EntitySchemaCollection.md)
+ - [EntitySchemaCollectionItem](docs/EntitySchemaCollectionItem.md)
  - [ErrorResponse](docs/ErrorResponse.md)
  - [EventsItem](docs/EventsItem.md)
  - [FromLedgerStateMixin](docs/FromLedgerStateMixin.md)
  - [FungibleResourcesCollection](docs/FungibleResourcesCollection.md)
- - [FungibleResourcesCollectionAllOf](docs/FungibleResourcesCollectionAllOf.md)
  - [FungibleResourcesCollectionItem](docs/FungibleResourcesCollectionItem.md)
  - [FungibleResourcesCollectionItemGloballyAggregated](docs/FungibleResourcesCollectionItemGloballyAggregated.md)
- - [FungibleResourcesCollectionItemGloballyAggregatedAllOf](docs/FungibleResourcesCollectionItemGloballyAggregatedAllOf.md)
  - [FungibleResourcesCollectionItemVaultAggregated](docs/FungibleResourcesCollectionItemVaultAggregated.md)
- - [FungibleResourcesCollectionItemVaultAggregatedAllOf](docs/FungibleResourcesCollectionItemVaultAggregatedAllOf.md)
  - [FungibleResourcesCollectionItemVaultAggregatedVault](docs/FungibleResourcesCollectionItemVaultAggregatedVault.md)
- - [FungibleResourcesCollectionItemVaultAggregatedVaultAllOf](docs/FungibleResourcesCollectionItemVaultAggregatedVaultAllOf.md)
  - [FungibleResourcesCollectionItemVaultAggregatedVaultItem](docs/FungibleResourcesCollectionItemVaultAggregatedVaultItem.md)
  - [GatewayError](docs/GatewayError.md)
  - [GatewayInfoResponseKnownTarget](docs/GatewayInfoResponseKnownTarget.md)
  - [GatewayInfoResponseReleaseInfo](docs/GatewayInfoResponseReleaseInfo.md)
  - [GatewayStatusResponse](docs/GatewayStatusResponse.md)
- - [GatewayStatusResponseAllOf](docs/GatewayStatusResponseAllOf.md)
  - [InternalServerError](docs/InternalServerError.md)
- - [InternalServerErrorAllOf](docs/InternalServerErrorAllOf.md)
  - [InvalidEntityError](docs/InvalidEntityError.md)
  - [InvalidRequestError](docs/InvalidRequestError.md)
- - [InvalidRequestErrorAllOf](docs/InvalidRequestErrorAllOf.md)
  - [InvalidTransactionError](docs/InvalidTransactionError.md)
  - [LedgerState](docs/LedgerState.md)
  - [LedgerStateMixin](docs/LedgerStateMixin.md)
  - [LedgerStateSelector](docs/LedgerStateSelector.md)
+ - [ManifestClass](docs/ManifestClass.md)
  - [MetadataBoolArrayValue](docs/MetadataBoolArrayValue.md)
- - [MetadataBoolArrayValueAllOf](docs/MetadataBoolArrayValueAllOf.md)
  - [MetadataBoolValue](docs/MetadataBoolValue.md)
- - [MetadataBoolValueAllOf](docs/MetadataBoolValueAllOf.md)
  - [MetadataDecimalArrayValue](docs/MetadataDecimalArrayValue.md)
  - [MetadataDecimalValue](docs/MetadataDecimalValue.md)
  - [MetadataGlobalAddressArrayValue](docs/MetadataGlobalAddressArrayValue.md)
@@ -220,32 +250,24 @@ Class | Method | HTTP request | Description
  - [MetadataInstantArrayValue](docs/MetadataInstantArrayValue.md)
  - [MetadataInstantValue](docs/MetadataInstantValue.md)
  - [MetadataNonFungibleGlobalIdArrayValue](docs/MetadataNonFungibleGlobalIdArrayValue.md)
- - [MetadataNonFungibleGlobalIdArrayValueAllOf](docs/MetadataNonFungibleGlobalIdArrayValueAllOf.md)
+ - [MetadataNonFungibleGlobalIdArrayValueAllOfValues](docs/MetadataNonFungibleGlobalIdArrayValueAllOfValues.md)
  - [MetadataNonFungibleGlobalIdValue](docs/MetadataNonFungibleGlobalIdValue.md)
- - [MetadataNonFungibleGlobalIdValueAllOf](docs/MetadataNonFungibleGlobalIdValueAllOf.md)
  - [MetadataNonFungibleLocalIdArrayValue](docs/MetadataNonFungibleLocalIdArrayValue.md)
  - [MetadataNonFungibleLocalIdValue](docs/MetadataNonFungibleLocalIdValue.md)
  - [MetadataOriginArrayValue](docs/MetadataOriginArrayValue.md)
  - [MetadataOriginValue](docs/MetadataOriginValue.md)
  - [MetadataPublicKeyArrayValue](docs/MetadataPublicKeyArrayValue.md)
- - [MetadataPublicKeyArrayValueAllOf](docs/MetadataPublicKeyArrayValueAllOf.md)
  - [MetadataPublicKeyHashArrayValue](docs/MetadataPublicKeyHashArrayValue.md)
- - [MetadataPublicKeyHashArrayValueAllOf](docs/MetadataPublicKeyHashArrayValueAllOf.md)
  - [MetadataPublicKeyHashValue](docs/MetadataPublicKeyHashValue.md)
- - [MetadataPublicKeyHashValueAllOf](docs/MetadataPublicKeyHashValueAllOf.md)
  - [MetadataPublicKeyValue](docs/MetadataPublicKeyValue.md)
- - [MetadataPublicKeyValueAllOf](docs/MetadataPublicKeyValueAllOf.md)
  - [MetadataStringArrayValue](docs/MetadataStringArrayValue.md)
- - [MetadataStringArrayValueAllOf](docs/MetadataStringArrayValueAllOf.md)
  - [MetadataStringValue](docs/MetadataStringValue.md)
- - [MetadataStringValueAllOf](docs/MetadataStringValueAllOf.md)
  - [MetadataTypedValue](docs/MetadataTypedValue.md)
  - [MetadataU32ArrayValue](docs/MetadataU32ArrayValue.md)
  - [MetadataU32Value](docs/MetadataU32Value.md)
  - [MetadataU64ArrayValue](docs/MetadataU64ArrayValue.md)
  - [MetadataU64Value](docs/MetadataU64Value.md)
  - [MetadataU8ArrayValue](docs/MetadataU8ArrayValue.md)
- - [MetadataU8ArrayValueAllOf](docs/MetadataU8ArrayValueAllOf.md)
  - [MetadataU8Value](docs/MetadataU8Value.md)
  - [MetadataUrlArrayValue](docs/MetadataUrlArrayValue.md)
  - [MetadataUrlValue](docs/MetadataUrlValue.md)
@@ -254,33 +276,26 @@ Class | Method | HTTP request | Description
  - [NetworkConfigurationResponseWellKnownAddresses](docs/NetworkConfigurationResponseWellKnownAddresses.md)
  - [NonFungibleIdType](docs/NonFungibleIdType.md)
  - [NonFungibleIdsCollection](docs/NonFungibleIdsCollection.md)
- - [NonFungibleIdsCollectionAllOf](docs/NonFungibleIdsCollectionAllOf.md)
  - [NonFungibleResourcesCollection](docs/NonFungibleResourcesCollection.md)
- - [NonFungibleResourcesCollectionAllOf](docs/NonFungibleResourcesCollectionAllOf.md)
  - [NonFungibleResourcesCollectionItem](docs/NonFungibleResourcesCollectionItem.md)
  - [NonFungibleResourcesCollectionItemGloballyAggregated](docs/NonFungibleResourcesCollectionItemGloballyAggregated.md)
- - [NonFungibleResourcesCollectionItemGloballyAggregatedAllOf](docs/NonFungibleResourcesCollectionItemGloballyAggregatedAllOf.md)
  - [NonFungibleResourcesCollectionItemVaultAggregated](docs/NonFungibleResourcesCollectionItemVaultAggregated.md)
- - [NonFungibleResourcesCollectionItemVaultAggregatedAllOf](docs/NonFungibleResourcesCollectionItemVaultAggregatedAllOf.md)
  - [NonFungibleResourcesCollectionItemVaultAggregatedVault](docs/NonFungibleResourcesCollectionItemVaultAggregatedVault.md)
- - [NonFungibleResourcesCollectionItemVaultAggregatedVaultAllOf](docs/NonFungibleResourcesCollectionItemVaultAggregatedVaultAllOf.md)
  - [NonFungibleResourcesCollectionItemVaultAggregatedVaultItem](docs/NonFungibleResourcesCollectionItemVaultAggregatedVaultItem.md)
- - [NonFungibleResourcesCollectionItemVaultAggregatedVaultItemAllOf](docs/NonFungibleResourcesCollectionItemVaultAggregatedVaultItemAllOf.md)
  - [NotSyncedUpError](docs/NotSyncedUpError.md)
- - [NotSyncedUpErrorAllOf](docs/NotSyncedUpErrorAllOf.md)
  - [ObjectModuleId](docs/ObjectModuleId.md)
  - [OptionalNonFungibleIdsCollection](docs/OptionalNonFungibleIdsCollection.md)
- - [OptionalNonFungibleIdsCollectionAllOf](docs/OptionalNonFungibleIdsCollectionAllOf.md)
+ - [PackageBlueprintCollection](docs/PackageBlueprintCollection.md)
+ - [PackageBlueprintCollectionItem](docs/PackageBlueprintCollectionItem.md)
+ - [PackageCodeCollection](docs/PackageCodeCollection.md)
+ - [PackageCodeCollectionItem](docs/PackageCodeCollectionItem.md)
  - [PackageVmType](docs/PackageVmType.md)
  - [ProgrammaticScryptoSborValue](docs/ProgrammaticScryptoSborValue.md)
  - [ProgrammaticScryptoSborValueArray](docs/ProgrammaticScryptoSborValueArray.md)
- - [ProgrammaticScryptoSborValueArrayAllOf](docs/ProgrammaticScryptoSborValueArrayAllOf.md)
  - [ProgrammaticScryptoSborValueBool](docs/ProgrammaticScryptoSborValueBool.md)
  - [ProgrammaticScryptoSborValueBytes](docs/ProgrammaticScryptoSborValueBytes.md)
- - [ProgrammaticScryptoSborValueBytesAllOf](docs/ProgrammaticScryptoSborValueBytesAllOf.md)
  - [ProgrammaticScryptoSborValueDecimal](docs/ProgrammaticScryptoSborValueDecimal.md)
  - [ProgrammaticScryptoSborValueEnum](docs/ProgrammaticScryptoSborValueEnum.md)
- - [ProgrammaticScryptoSborValueEnumAllOf](docs/ProgrammaticScryptoSborValueEnumAllOf.md)
  - [ProgrammaticScryptoSborValueI128](docs/ProgrammaticScryptoSborValueI128.md)
  - [ProgrammaticScryptoSborValueI16](docs/ProgrammaticScryptoSborValueI16.md)
  - [ProgrammaticScryptoSborValueI32](docs/ProgrammaticScryptoSborValueI32.md)
@@ -288,7 +303,6 @@ Class | Method | HTTP request | Description
  - [ProgrammaticScryptoSborValueI8](docs/ProgrammaticScryptoSborValueI8.md)
  - [ProgrammaticScryptoSborValueKind](docs/ProgrammaticScryptoSborValueKind.md)
  - [ProgrammaticScryptoSborValueMap](docs/ProgrammaticScryptoSborValueMap.md)
- - [ProgrammaticScryptoSborValueMapAllOf](docs/ProgrammaticScryptoSborValueMapAllOf.md)
  - [ProgrammaticScryptoSborValueMapEntry](docs/ProgrammaticScryptoSborValueMapEntry.md)
  - [ProgrammaticScryptoSborValueNonFungibleLocalId](docs/ProgrammaticScryptoSborValueNonFungibleLocalId.md)
  - [ProgrammaticScryptoSborValueOwn](docs/ProgrammaticScryptoSborValueOwn.md)
@@ -296,7 +310,6 @@ Class | Method | HTTP request | Description
  - [ProgrammaticScryptoSborValueReference](docs/ProgrammaticScryptoSborValueReference.md)
  - [ProgrammaticScryptoSborValueString](docs/ProgrammaticScryptoSborValueString.md)
  - [ProgrammaticScryptoSborValueTuple](docs/ProgrammaticScryptoSborValueTuple.md)
- - [ProgrammaticScryptoSborValueTupleAllOf](docs/ProgrammaticScryptoSborValueTupleAllOf.md)
  - [ProgrammaticScryptoSborValueU128](docs/ProgrammaticScryptoSborValueU128.md)
  - [ProgrammaticScryptoSborValueU16](docs/ProgrammaticScryptoSborValueU16.md)
  - [ProgrammaticScryptoSborValueU32](docs/ProgrammaticScryptoSborValueU32.md)
@@ -304,12 +317,9 @@ Class | Method | HTTP request | Description
  - [ProgrammaticScryptoSborValueU8](docs/ProgrammaticScryptoSborValueU8.md)
  - [PublicKey](docs/PublicKey.md)
  - [PublicKeyEcdsaSecp256k1](docs/PublicKeyEcdsaSecp256k1.md)
- - [PublicKeyEcdsaSecp256k1AllOf](docs/PublicKeyEcdsaSecp256k1AllOf.md)
  - [PublicKeyEddsaEd25519](docs/PublicKeyEddsaEd25519.md)
- - [PublicKeyEddsaEd25519AllOf](docs/PublicKeyEddsaEd25519AllOf.md)
  - [PublicKeyHash](docs/PublicKeyHash.md)
  - [PublicKeyHashEcdsaSecp256k1](docs/PublicKeyHashEcdsaSecp256k1.md)
- - [PublicKeyHashEcdsaSecp256k1AllOf](docs/PublicKeyHashEcdsaSecp256k1AllOf.md)
  - [PublicKeyHashEddsaEd25519](docs/PublicKeyHashEddsaEd25519.md)
  - [PublicKeyHashType](docs/PublicKeyHashType.md)
  - [PublicKeyType](docs/PublicKeyType.md)
@@ -317,88 +327,77 @@ Class | Method | HTTP request | Description
  - [ResultSetCursorMixin](docs/ResultSetCursorMixin.md)
  - [RoleAssignmentResolution](docs/RoleAssignmentResolution.md)
  - [RoleKey](docs/RoleKey.md)
+ - [RoyaltyAmount](docs/RoyaltyAmount.md)
  - [ScryptoSborValue](docs/ScryptoSborValue.md)
+ - [StateAccountAuthorizedDepositorsPageRequest](docs/StateAccountAuthorizedDepositorsPageRequest.md)
+ - [StateAccountAuthorizedDepositorsPageResponse](docs/StateAccountAuthorizedDepositorsPageResponse.md)
+ - [StateAccountLockerPageVaultsRequest](docs/StateAccountLockerPageVaultsRequest.md)
+ - [StateAccountLockerPageVaultsResponse](docs/StateAccountLockerPageVaultsResponse.md)
+ - [StateAccountLockersTouchedAtRequest](docs/StateAccountLockersTouchedAtRequest.md)
+ - [StateAccountLockersTouchedAtResponse](docs/StateAccountLockersTouchedAtResponse.md)
+ - [StateAccountLockersTouchedAtResponseItem](docs/StateAccountLockersTouchedAtResponseItem.md)
+ - [StateAccountResourcePreferencesPageRequest](docs/StateAccountResourcePreferencesPageRequest.md)
+ - [StateAccountResourcePreferencesPageResponse](docs/StateAccountResourcePreferencesPageResponse.md)
  - [StateEntityDetailsOptIns](docs/StateEntityDetailsOptIns.md)
  - [StateEntityDetailsRequest](docs/StateEntityDetailsRequest.md)
- - [StateEntityDetailsRequestAllOf](docs/StateEntityDetailsRequestAllOf.md)
  - [StateEntityDetailsResponse](docs/StateEntityDetailsResponse.md)
- - [StateEntityDetailsResponseAllOf](docs/StateEntityDetailsResponseAllOf.md)
  - [StateEntityDetailsResponseComponentDetails](docs/StateEntityDetailsResponseComponentDetails.md)
- - [StateEntityDetailsResponseComponentDetailsAllOf](docs/StateEntityDetailsResponseComponentDetailsAllOf.md)
  - [StateEntityDetailsResponseFungibleResourceDetails](docs/StateEntityDetailsResponseFungibleResourceDetails.md)
- - [StateEntityDetailsResponseFungibleResourceDetailsAllOf](docs/StateEntityDetailsResponseFungibleResourceDetailsAllOf.md)
  - [StateEntityDetailsResponseFungibleVaultDetails](docs/StateEntityDetailsResponseFungibleVaultDetails.md)
- - [StateEntityDetailsResponseFungibleVaultDetailsAllOf](docs/StateEntityDetailsResponseFungibleVaultDetailsAllOf.md)
  - [StateEntityDetailsResponseItem](docs/StateEntityDetailsResponseItem.md)
  - [StateEntityDetailsResponseItemAncestorIdentities](docs/StateEntityDetailsResponseItemAncestorIdentities.md)
  - [StateEntityDetailsResponseItemDetails](docs/StateEntityDetailsResponseItemDetails.md)
  - [StateEntityDetailsResponseItemDetailsType](docs/StateEntityDetailsResponseItemDetailsType.md)
  - [StateEntityDetailsResponseNonFungibleResourceDetails](docs/StateEntityDetailsResponseNonFungibleResourceDetails.md)
- - [StateEntityDetailsResponseNonFungibleResourceDetailsAllOf](docs/StateEntityDetailsResponseNonFungibleResourceDetailsAllOf.md)
  - [StateEntityDetailsResponseNonFungibleVaultDetails](docs/StateEntityDetailsResponseNonFungibleVaultDetails.md)
- - [StateEntityDetailsResponseNonFungibleVaultDetailsAllOf](docs/StateEntityDetailsResponseNonFungibleVaultDetailsAllOf.md)
  - [StateEntityDetailsResponsePackageDetails](docs/StateEntityDetailsResponsePackageDetails.md)
- - [StateEntityDetailsResponsePackageDetailsAllOf](docs/StateEntityDetailsResponsePackageDetailsAllOf.md)
- - [StateEntityDetailsResponsePackageDetailsBlueprintCollection](docs/StateEntityDetailsResponsePackageDetailsBlueprintCollection.md)
- - [StateEntityDetailsResponsePackageDetailsBlueprintCollectionAllOf](docs/StateEntityDetailsResponsePackageDetailsBlueprintCollectionAllOf.md)
- - [StateEntityDetailsResponsePackageDetailsBlueprintItem](docs/StateEntityDetailsResponsePackageDetailsBlueprintItem.md)
- - [StateEntityDetailsResponsePackageDetailsSchemaCollection](docs/StateEntityDetailsResponsePackageDetailsSchemaCollection.md)
- - [StateEntityDetailsResponsePackageDetailsSchemaCollectionAllOf](docs/StateEntityDetailsResponsePackageDetailsSchemaCollectionAllOf.md)
- - [StateEntityDetailsResponsePackageDetailsSchemaItem](docs/StateEntityDetailsResponsePackageDetailsSchemaItem.md)
  - [StateEntityFungibleResourceVaultsPageRequest](docs/StateEntityFungibleResourceVaultsPageRequest.md)
- - [StateEntityFungibleResourceVaultsPageRequestAllOf](docs/StateEntityFungibleResourceVaultsPageRequestAllOf.md)
  - [StateEntityFungibleResourceVaultsPageResponse](docs/StateEntityFungibleResourceVaultsPageResponse.md)
  - [StateEntityFungiblesPageRequest](docs/StateEntityFungiblesPageRequest.md)
- - [StateEntityFungiblesPageRequestAllOf](docs/StateEntityFungiblesPageRequestAllOf.md)
  - [StateEntityFungiblesPageRequestOptIns](docs/StateEntityFungiblesPageRequestOptIns.md)
  - [StateEntityFungiblesPageResponse](docs/StateEntityFungiblesPageResponse.md)
  - [StateEntityMetadataPageRequest](docs/StateEntityMetadataPageRequest.md)
- - [StateEntityMetadataPageRequestAllOf](docs/StateEntityMetadataPageRequestAllOf.md)
  - [StateEntityMetadataPageResponse](docs/StateEntityMetadataPageResponse.md)
  - [StateEntityNonFungibleIdsPageRequest](docs/StateEntityNonFungibleIdsPageRequest.md)
- - [StateEntityNonFungibleIdsPageRequestAllOf](docs/StateEntityNonFungibleIdsPageRequestAllOf.md)
  - [StateEntityNonFungibleIdsPageResponse](docs/StateEntityNonFungibleIdsPageResponse.md)
  - [StateEntityNonFungibleResourceVaultsPageOptIns](docs/StateEntityNonFungibleResourceVaultsPageOptIns.md)
  - [StateEntityNonFungibleResourceVaultsPageRequest](docs/StateEntityNonFungibleResourceVaultsPageRequest.md)
- - [StateEntityNonFungibleResourceVaultsPageRequestAllOf](docs/StateEntityNonFungibleResourceVaultsPageRequestAllOf.md)
  - [StateEntityNonFungibleResourceVaultsPageResponse](docs/StateEntityNonFungibleResourceVaultsPageResponse.md)
  - [StateEntityNonFungiblesPageRequest](docs/StateEntityNonFungiblesPageRequest.md)
- - [StateEntityNonFungiblesPageRequestAllOf](docs/StateEntityNonFungiblesPageRequestAllOf.md)
  - [StateEntityNonFungiblesPageRequestOptIns](docs/StateEntityNonFungiblesPageRequestOptIns.md)
  - [StateEntityNonFungiblesPageResponse](docs/StateEntityNonFungiblesPageResponse.md)
+ - [StateEntitySchemaPageRequest](docs/StateEntitySchemaPageRequest.md)
+ - [StateEntitySchemaPageResponse](docs/StateEntitySchemaPageResponse.md)
  - [StateKeyValueStoreDataRequest](docs/StateKeyValueStoreDataRequest.md)
- - [StateKeyValueStoreDataRequestAllOf](docs/StateKeyValueStoreDataRequestAllOf.md)
  - [StateKeyValueStoreDataRequestKeyItem](docs/StateKeyValueStoreDataRequestKeyItem.md)
  - [StateKeyValueStoreDataResponse](docs/StateKeyValueStoreDataResponse.md)
- - [StateKeyValueStoreDataResponseAllOf](docs/StateKeyValueStoreDataResponseAllOf.md)
  - [StateKeyValueStoreDataResponseItem](docs/StateKeyValueStoreDataResponseItem.md)
+ - [StateKeyValueStoreKeysCollection](docs/StateKeyValueStoreKeysCollection.md)
+ - [StateKeyValueStoreKeysRequest](docs/StateKeyValueStoreKeysRequest.md)
+ - [StateKeyValueStoreKeysResponse](docs/StateKeyValueStoreKeysResponse.md)
+ - [StateKeyValueStoreKeysResponseItem](docs/StateKeyValueStoreKeysResponseItem.md)
  - [StateNonFungibleDataRequest](docs/StateNonFungibleDataRequest.md)
  - [StateNonFungibleDataResponse](docs/StateNonFungibleDataResponse.md)
- - [StateNonFungibleDataResponseAllOf](docs/StateNonFungibleDataResponseAllOf.md)
  - [StateNonFungibleDetailsResponseItem](docs/StateNonFungibleDetailsResponseItem.md)
  - [StateNonFungibleIdsRequest](docs/StateNonFungibleIdsRequest.md)
- - [StateNonFungibleIdsRequestAllOf](docs/StateNonFungibleIdsRequestAllOf.md)
  - [StateNonFungibleIdsResponse](docs/StateNonFungibleIdsResponse.md)
- - [StateNonFungibleIdsResponseAllOf](docs/StateNonFungibleIdsResponseAllOf.md)
  - [StateNonFungibleLocationRequest](docs/StateNonFungibleLocationRequest.md)
- - [StateNonFungibleLocationRequestAllOf](docs/StateNonFungibleLocationRequestAllOf.md)
  - [StateNonFungibleLocationResponse](docs/StateNonFungibleLocationResponse.md)
- - [StateNonFungibleLocationResponseAllOf](docs/StateNonFungibleLocationResponseAllOf.md)
  - [StateNonFungibleLocationResponseItem](docs/StateNonFungibleLocationResponseItem.md)
+ - [StatePackageBlueprintPageRequest](docs/StatePackageBlueprintPageRequest.md)
+ - [StatePackageBlueprintPageResponse](docs/StatePackageBlueprintPageResponse.md)
+ - [StatePackageCodePageRequest](docs/StatePackageCodePageRequest.md)
+ - [StatePackageCodePageResponse](docs/StatePackageCodePageResponse.md)
  - [StateValidatorsListRequest](docs/StateValidatorsListRequest.md)
- - [StateValidatorsListRequestAllOf](docs/StateValidatorsListRequestAllOf.md)
  - [StateValidatorsListResponse](docs/StateValidatorsListResponse.md)
- - [StateValidatorsListResponseAllOf](docs/StateValidatorsListResponseAllOf.md)
  - [StreamTransactionsRequest](docs/StreamTransactionsRequest.md)
- - [StreamTransactionsRequestAllOf](docs/StreamTransactionsRequestAllOf.md)
+ - [StreamTransactionsRequestAllOfManifestClassFilter](docs/StreamTransactionsRequestAllOfManifestClassFilter.md)
  - [StreamTransactionsRequestEventFilterItem](docs/StreamTransactionsRequestEventFilterItem.md)
  - [StreamTransactionsResponse](docs/StreamTransactionsResponse.md)
- - [StreamTransactionsResponseAllOf](docs/StreamTransactionsResponseAllOf.md)
+ - [TransactionAccountDepositPreValidationAuthorizedDepositorBadge](docs/TransactionAccountDepositPreValidationAuthorizedDepositorBadge.md)
  - [TransactionBalanceChanges](docs/TransactionBalanceChanges.md)
  - [TransactionCommittedDetailsRequest](docs/TransactionCommittedDetailsRequest.md)
- - [TransactionCommittedDetailsRequestAllOf](docs/TransactionCommittedDetailsRequestAllOf.md)
  - [TransactionCommittedDetailsResponse](docs/TransactionCommittedDetailsResponse.md)
- - [TransactionCommittedDetailsResponseAllOf](docs/TransactionCommittedDetailsResponseAllOf.md)
  - [TransactionConstructionResponse](docs/TransactionConstructionResponse.md)
  - [TransactionDetailsOptIns](docs/TransactionDetailsOptIns.md)
  - [TransactionFungibleBalanceChanges](docs/TransactionFungibleBalanceChanges.md)
@@ -416,24 +415,22 @@ Class | Method | HTTP request | Description
  - [TransactionReceipt](docs/TransactionReceipt.md)
  - [TransactionStatus](docs/TransactionStatus.md)
  - [TransactionStatusRequest](docs/TransactionStatusRequest.md)
- - [TransactionStatusRequestAllOf](docs/TransactionStatusRequestAllOf.md)
  - [TransactionStatusResponse](docs/TransactionStatusResponse.md)
- - [TransactionStatusResponseAllOf](docs/TransactionStatusResponseAllOf.md)
  - [TransactionStatusResponseKnownPayloadItem](docs/TransactionStatusResponseKnownPayloadItem.md)
  - [TransactionSubmitRequest](docs/TransactionSubmitRequest.md)
  - [TransactionSubmitResponse](docs/TransactionSubmitResponse.md)
  - [ValidationErrorsAtPath](docs/ValidationErrorsAtPath.md)
  - [ValidatorCollection](docs/ValidatorCollection.md)
- - [ValidatorCollectionAllOf](docs/ValidatorCollectionAllOf.md)
  - [ValidatorCollectionItem](docs/ValidatorCollectionItem.md)
  - [ValidatorCollectionItemActiveInEpoch](docs/ValidatorCollectionItemActiveInEpoch.md)
+ - [ValidatorCollectionItemEffectiveFeeFactor](docs/ValidatorCollectionItemEffectiveFeeFactor.md)
+ - [ValidatorCollectionItemEffectiveFeeFactorCurrent](docs/ValidatorCollectionItemEffectiveFeeFactorCurrent.md)
+ - [ValidatorCollectionItemEffectiveFeeFactorPending](docs/ValidatorCollectionItemEffectiveFeeFactorPending.md)
  - [ValidatorUptimeCollection](docs/ValidatorUptimeCollection.md)
  - [ValidatorUptimeCollectionItem](docs/ValidatorUptimeCollectionItem.md)
  - [ValidatorVaultItem](docs/ValidatorVaultItem.md)
  - [ValidatorsUptimeRequest](docs/ValidatorsUptimeRequest.md)
- - [ValidatorsUptimeRequestAllOf](docs/ValidatorsUptimeRequestAllOf.md)
  - [ValidatorsUptimeResponse](docs/ValidatorsUptimeResponse.md)
- - [ValidatorsUptimeResponseAllOf](docs/ValidatorsUptimeResponseAllOf.md)
 
 
 <a id="documentation-for-authorization"></a>

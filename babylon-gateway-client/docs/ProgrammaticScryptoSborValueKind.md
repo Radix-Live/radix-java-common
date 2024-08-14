@@ -45,9 +45,9 @@
 
 * `DECIMAL` (value: `"Decimal"`)
 
-* `PRECISEDECIMAL` (value: `"PreciseDecimal"`)
+* `PRECISE_DECIMAL` (value: `"PreciseDecimal"`)
 
-* `NONFUNGIBLELOCALID` (value: `"NonFungibleLocalId"`)
+* `NON_FUNGIBLE_LOCAL_ID` (value: `"NonFungibleLocalId"`)
 
 
 

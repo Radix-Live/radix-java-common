@@ -7,7 +7,7 @@
 
 * `NATIVE` (value: `"Native"`)
 
-* `SCRYPTOV1` (value: `"ScryptoV1"`)
+* `SCRYPTO_V1` (value: `"ScryptoV1"`)
 
 
 

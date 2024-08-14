@@ -1,18 +1,19 @@
 apply plugin: 'java-library'
 
 group rootProject.group
-version = '1.2.0'
+version = '1.6.3'
 
 description 'A generated Client library for Radix Babylon Gateway API.'
 
 ext {
     swagger_annotations_version = "1.6.6"
-    jackson_version = "2.14.1"
-    jackson_databind_version = "2.14.1"
+    jackson_version = "2.17.1"
+    jackson_databind_version = "2.17.1"
     jackson_databind_nullable_version = "0.2.6"
     jakarta_annotation_version = "1.3.5"
     httpclient_version = "5.1.3"
-    junit_version = "4.13.2"
+    jodatime_version = "2.9.9"
+    junit_version = "5.11.0"
 }
 
 dependencies {
@@ -26,5 +27,5 @@ dependencies {
     api "org.openapitools:jackson-databind-nullable:$jackson_databind_nullable_version"
     api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version"
     api "jakarta.annotation:jakarta.annotation-api:$jakarta_annotation_version"
-    testImplementation "junit:junit:$junit_version"
+    testImplementation "org.junit.jupiter:junit-jupiter:$junit_version"
 }

@@ -9,8 +9,8 @@ Arbitrary SBOR value represented as programmatic JSON with optional property nam
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
 |**kind** | **ProgrammaticScryptoSborValueKind** |  |  |
-|**typeName** | **String** | Object type name; available only when a schema is present and the type has a name. |  [optional] |
-|**fieldName** | **String** | Field name; available only when the value is a child of a &#x60;Tuple&#x60; or &#x60;Enum&#x60;, which has a type with named fields. |  [optional] |
+|**typeName** | **String** | The name of the type of this value. This is only output when a schema is present and the type has a name. This property is ignored when the value is used as an input to the API.  |  [optional] |
+|**fieldName** | **String** | The name of the field which hosts this value. This property is only included if this value is a child of a &#x60;Tuple&#x60; or &#x60;Enum&#x60; with named fields. This property is ignored when the value is used as an input to the API.  |  [optional] |
 
 
 

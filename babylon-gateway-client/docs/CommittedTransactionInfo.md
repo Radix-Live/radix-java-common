@@ -20,6 +20,8 @@
 |**errorMessage** | **String** |  |  [optional] |
 |**rawHex** | **String** | Hex-encoded binary blob. |  [optional] |
 |**receipt** | [**TransactionReceipt**](TransactionReceipt.md) |  |  [optional] |
+|**manifestInstructions** | **String** | A text-representation of a transaction manifest. This field will be present only for user transactions and when explicitly opted-in using &#x60;manifest_instructions&#x60; flag.  |  [optional] |
+|**manifestClasses** | **List&lt;ManifestClass&gt;** | A collection of zero or more manifest classes ordered from the most specific class to the least specific one. This field will be present only for user transactions.  |  [optional] |
 |**message** | **Object** | The optional transaction message. This type is defined in the Core API as &#x60;TransactionMessage&#x60;. See the Core API documentation for more details.  |  [optional] |
 |**balanceChanges** | [**TransactionBalanceChanges**](TransactionBalanceChanges.md) |  |  [optional] |
 

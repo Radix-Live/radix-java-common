@@ -7,9 +7,9 @@
 
 * `UNKNOWN` (value: `"Unknown"`)
 
-* `COMMITTEDSUCCESS` (value: `"CommittedSuccess"`)
+* `COMMITTED_SUCCESS` (value: `"CommittedSuccess"`)
 
-* `COMMITTEDFAILURE` (value: `"CommittedFailure"`)
+* `COMMITTED_FAILURE` (value: `"CommittedFailure"`)
 
 * `PENDING` (value: `"Pending"`)
 

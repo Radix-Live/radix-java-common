@@ -5,7 +5,7 @@
 ## Enum
 
 
-* `HANDLINGSUBMISSION` (value: `"HandlingSubmission"`)
+* `HANDLING_SUBMISSION` (value: `"HandlingSubmission"`)
 
 * `CONCLUDED` (value: `"Concluded"`)
 

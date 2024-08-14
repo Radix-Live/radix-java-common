@@ -7,15 +7,15 @@
 
 * `UNKNOWN` (value: `"Unknown"`)
 
-* `COMMITTEDSUCCESS` (value: `"CommittedSuccess"`)
+* `COMMITTED_SUCCESS` (value: `"CommittedSuccess"`)
 
-* `COMMITTEDFAILURE` (value: `"CommittedFailure"`)
+* `COMMITTED_FAILURE` (value: `"CommittedFailure"`)
 
-* `COMMITPENDINGOUTCOMEUNKNOWN` (value: `"CommitPendingOutcomeUnknown"`)
+* `COMMIT_PENDING_OUTCOME_UNKNOWN` (value: `"CommitPendingOutcomeUnknown"`)
 
-* `PERMANENTLYREJECTED` (value: `"PermanentlyRejected"`)
+* `PERMANENTLY_REJECTED` (value: `"PermanentlyRejected"`)
 
-* `LIKELYBUTNOTCERTAINREJECTION` (value: `"LikelyButNotCertainRejection"`)
+* `LIKELY_BUT_NOT_CERTAIN_REJECTION` (value: `"LikelyButNotCertainRejection"`)
 
 * `PENDING` (value: `"Pending"`)
 

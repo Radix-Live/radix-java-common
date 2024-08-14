@@ -14,9 +14,13 @@
 |**kindFilter** | [**KindFilterEnum**](#KindFilterEnum) | Limit returned transactions by their kind. Defaults to &#x60;user&#x60;. |  [optional] |
 |**manifestAccountsWithdrawnFromFilter** | **List&lt;String&gt;** |  |  [optional] |
 |**manifestAccountsDepositedIntoFilter** | **List&lt;String&gt;** |  |  [optional] |
+|**manifestBadgesPresentedFilter** | **List&lt;String&gt;** |  |  [optional] |
 |**manifestResourcesFilter** | **List&lt;String&gt;** |  |  [optional] |
 |**affectedGlobalEntitiesFilter** | **List&lt;String&gt;** |  |  [optional] |
 |**eventsFilter** | [**List&lt;StreamTransactionsRequestEventFilterItem&gt;**](StreamTransactionsRequestEventFilterItem.md) |  |  [optional] |
+|**accountsWithManifestOwnerMethodCalls** | **List&lt;String&gt;** |  |  [optional] |
+|**accountsWithoutManifestOwnerMethodCalls** | **List&lt;String&gt;** |  |  [optional] |
+|**manifestClassFilter** | [**StreamTransactionsRequestAllOfManifestClassFilter**](StreamTransactionsRequestAllOfManifestClassFilter.md) |  |  [optional] |
 |**order** | [**OrderEnum**](#OrderEnum) | Configures the order of returned result set. Defaults to &#x60;desc&#x60;. |  [optional] |
 |**optIns** | [**TransactionDetailsOptIns**](TransactionDetailsOptIns.md) |  |  [optional] |
 
@@ -27,7 +31,7 @@
 | Name | Value |
 |---- | -----|
 | USER | &quot;User&quot; |
-| EPOCHCHANGE | &quot;EpochChange&quot; |
+| EPOCH_CHANGE | &quot;EpochChange&quot; |
 | ALL | &quot;All&quot; |
 
 

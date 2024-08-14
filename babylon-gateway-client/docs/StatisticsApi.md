@@ -72,5 +72,5 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Validators Uptime |  -  |
-| **4XX** | Client-originated request error |  -  |
+| **4XX** |  |  -  |
 

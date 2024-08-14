@@ -5,13 +5,13 @@
 ## Enum
 
 
-* `FUNGIBLERESOURCE` (value: `"FungibleResource"`)
+* `FUNGIBLE_RESOURCE` (value: `"FungibleResource"`)
 
-* `NONFUNGIBLERESOURCE` (value: `"NonFungibleResource"`)
+* `NON_FUNGIBLE_RESOURCE` (value: `"NonFungibleResource"`)
 
-* `FUNGIBLEVAULT` (value: `"FungibleVault"`)
+* `FUNGIBLE_VAULT` (value: `"FungibleVault"`)
 
-* `NONFUNGIBLEVAULT` (value: `"NonFungibleVault"`)
+* `NON_FUNGIBLE_VAULT` (value: `"NonFungibleVault"`)
 
 * `PACKAGE` (value: `"Package"`)
 

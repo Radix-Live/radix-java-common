@@ -2,6 +2,7 @@
 
 # StateEntityNonFungibleResourceVaultsPageOptIns
 
+Check detailed [OptIns](#section/Using-endpoints-with-opt-in-features) documentation for more details
 
 ## Properties
 

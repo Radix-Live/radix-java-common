@@ -21,13 +21,13 @@
 
 * `DECIMAL` (value: `"Decimal"`)
 
-* `GLOBALADDRESS` (value: `"GlobalAddress"`)
+* `GLOBAL_ADDRESS` (value: `"GlobalAddress"`)
 
-* `PUBLICKEY` (value: `"PublicKey"`)
+* `PUBLIC_KEY` (value: `"PublicKey"`)
 
-* `NONFUNGIBLEGLOBALID` (value: `"NonFungibleGlobalId"`)
+* `NON_FUNGIBLE_GLOBAL_ID` (value: `"NonFungibleGlobalId"`)
 
-* `NONFUNGIBLELOCALID` (value: `"NonFungibleLocalId"`)
+* `NON_FUNGIBLE_LOCAL_ID` (value: `"NonFungibleLocalId"`)
 
 * `INSTANT` (value: `"Instant"`)
 
@@ -35,39 +35,39 @@
 
 * `ORIGIN` (value: `"Origin"`)
 
-* `PUBLICKEYHASH` (value: `"PublicKeyHash"`)
+* `PUBLIC_KEY_HASH` (value: `"PublicKeyHash"`)
 
-* `STRINGARRAY` (value: `"StringArray"`)
+* `STRING_ARRAY` (value: `"StringArray"`)
 
-* `BOOLARRAY` (value: `"BoolArray"`)
+* `BOOL_ARRAY` (value: `"BoolArray"`)
 
-* `U8ARRAY` (value: `"U8Array"`)
+* `U8_ARRAY` (value: `"U8Array"`)
 
-* `U32ARRAY` (value: `"U32Array"`)
+* `U32_ARRAY` (value: `"U32Array"`)
 
-* `U64ARRAY` (value: `"U64Array"`)
+* `U64_ARRAY` (value: `"U64Array"`)
 
-* `I32ARRAY` (value: `"I32Array"`)
+* `I32_ARRAY` (value: `"I32Array"`)
 
-* `I64ARRAY` (value: `"I64Array"`)
+* `I64_ARRAY` (value: `"I64Array"`)
 
-* `DECIMALARRAY` (value: `"DecimalArray"`)
+* `DECIMAL_ARRAY` (value: `"DecimalArray"`)
 
-* `GLOBALADDRESSARRAY` (value: `"GlobalAddressArray"`)
+* `GLOBAL_ADDRESS_ARRAY` (value: `"GlobalAddressArray"`)
 
-* `PUBLICKEYARRAY` (value: `"PublicKeyArray"`)
+* `PUBLIC_KEY_ARRAY` (value: `"PublicKeyArray"`)
 
-* `NONFUNGIBLEGLOBALIDARRAY` (value: `"NonFungibleGlobalIdArray"`)
+* `NON_FUNGIBLE_GLOBAL_ID_ARRAY` (value: `"NonFungibleGlobalIdArray"`)
 
-* `NONFUNGIBLELOCALIDARRAY` (value: `"NonFungibleLocalIdArray"`)
+* `NON_FUNGIBLE_LOCAL_ID_ARRAY` (value: `"NonFungibleLocalIdArray"`)
 
-* `INSTANTARRAY` (value: `"InstantArray"`)
+* `INSTANT_ARRAY` (value: `"InstantArray"`)
 
-* `URLARRAY` (value: `"UrlArray"`)
+* `URL_ARRAY` (value: `"UrlArray"`)
 
-* `ORIGINARRAY` (value: `"OriginArray"`)
+* `ORIGIN_ARRAY` (value: `"OriginArray"`)
 
-* `PUBLICKEYHASHARRAY` (value: `"PublicKeyHashArray"`)
+* `PUBLIC_KEY_HASH_ARRAY` (value: `"PublicKeyHashArray"`)
 
 
 
