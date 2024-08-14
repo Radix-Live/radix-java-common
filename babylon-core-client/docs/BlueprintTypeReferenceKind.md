@@ -5,9 +5,9 @@
 ## Enum
 
 
-* `BLUEPRINTSCHEMA` (value: `"BlueprintSchema"`)
+* `BLUEPRINT_SCHEMA` (value: `"BlueprintSchema"`)
 
-* `INSTANCESCHEMA` (value: `"InstanceSchema"`)
+* `INSTANCE_SCHEMA` (value: `"InstanceSchema"`)
 
 
 

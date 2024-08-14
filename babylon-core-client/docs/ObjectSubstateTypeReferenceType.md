@@ -7,7 +7,7 @@
 
 * `PACKAGE` (value: `"Package"`)
 
-* `OBJECTINSTANCE` (value: `"ObjectInstance"`)
+* `OBJECT_INSTANCE` (value: `"ObjectInstance"`)
 
 
 

@@ -7,13 +7,13 @@
 
 * `REQUIRE` (value: `"Require"`)
 
-* `AMOUNTOF` (value: `"AmountOf"`)
+* `AMOUNT_OF` (value: `"AmountOf"`)
 
-* `ALLOF` (value: `"AllOf"`)
+* `ALL_OF` (value: `"AllOf"`)
 
-* `ANYOF` (value: `"AnyOf"`)
+* `ANY_OF` (value: `"AnyOf"`)
 
-* `COUNTOF` (value: `"CountOf"`)
+* `COUNT_OF` (value: `"CountOf"`)
 
 
 

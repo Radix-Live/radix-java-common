@@ -146,7 +146,7 @@ No authorization required
 
 Get Scenarios&#39; results.
 
-Get results of test-oriented \&quot;Genesis Scenarios\&quot; executed on this Network.
+Get results of test \&quot;Scenarios\&quot; executed on this Network. Note: these Scenarios are meant to only be executed on test Networks; on a production Node, the response is expected to be empty. 
 
 ### Example
 

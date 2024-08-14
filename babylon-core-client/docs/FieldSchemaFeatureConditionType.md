@@ -7,9 +7,9 @@
 
 * `ALWAYS` (value: `"Always"`)
 
-* `IFOWNFEATURE` (value: `"IfOwnFeature"`)
+* `IF_OWN_FEATURE` (value: `"IfOwnFeature"`)
 
-* `IFOUTEROBJECTFEATURE` (value: `"IfOuterObjectFeature"`)
+* `IF_OUTER_OBJECT_FEATURE` (value: `"IfOuterObjectFeature"`)
 
 
 

@@ -7,7 +7,7 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**executedScenarios** | [**List&lt;ExecutedGenesisScenario&gt;**](ExecutedGenesisScenario.md) | Scenarios executed as part of Genesis (in their execution order). |  |
+|**executedScenarios** | [**List&lt;ExecutedScenario&gt;**](ExecutedScenario.md) | Scenarios executed as part of Genesis and Protocol Updates, in their execution order.  |  |
 
 
 

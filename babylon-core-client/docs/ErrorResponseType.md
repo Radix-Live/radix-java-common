@@ -7,11 +7,13 @@
 
 * `BASIC` (value: `"Basic"`)
 
-* `TRANSACTIONSUBMIT` (value: `"TransactionSubmit"`)
+* `TRANSACTION_SUBMIT` (value: `"TransactionSubmit"`)
 
-* `LTSTRANSACTIONSUBMIT` (value: `"LtsTransactionSubmit"`)
+* `LTS_TRANSACTION_SUBMIT` (value: `"LtsTransactionSubmit"`)
 
-* `STREAMTRANSACTIONS` (value: `"StreamTransactions"`)
+* `STREAM_TRANSACTIONS` (value: `"StreamTransactions"`)
+
+* `STREAM_PROOFS` (value: `"StreamProofs"`)
 
 
 

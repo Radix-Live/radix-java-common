@@ -5,11 +5,11 @@
 ## Enum
 
 
-* `PROOFRULE` (value: `"ProofRule"`)
+* `PROOF_RULE` (value: `"ProofRule"`)
 
-* `ANYOF` (value: `"AnyOf"`)
+* `ANY_OF` (value: `"AnyOf"`)
 
-* `ALLOF` (value: `"AllOf"`)
+* `ALL_OF` (value: `"AllOf"`)
 
 
 

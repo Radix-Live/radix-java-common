@@ -5,47 +5,49 @@
 ## Enum
 
 
-* `GLOBALPACKAGE` (value: `"GlobalPackage"`)
+* `GLOBAL_PACKAGE` (value: `"GlobalPackage"`)
 
-* `GLOBALCONSENSUSMANAGER` (value: `"GlobalConsensusManager"`)
+* `GLOBAL_CONSENSUS_MANAGER` (value: `"GlobalConsensusManager"`)
 
-* `GLOBALVALIDATOR` (value: `"GlobalValidator"`)
+* `GLOBAL_VALIDATOR` (value: `"GlobalValidator"`)
 
-* `GLOBALGENERICCOMPONENT` (value: `"GlobalGenericComponent"`)
+* `GLOBAL_GENERIC_COMPONENT` (value: `"GlobalGenericComponent"`)
 
-* `GLOBALACCOUNT` (value: `"GlobalAccount"`)
+* `GLOBAL_ACCOUNT` (value: `"GlobalAccount"`)
 
-* `GLOBALIDENTITY` (value: `"GlobalIdentity"`)
+* `GLOBAL_IDENTITY` (value: `"GlobalIdentity"`)
 
-* `GLOBALACCESSCONTROLLER` (value: `"GlobalAccessController"`)
+* `GLOBAL_ACCESS_CONTROLLER` (value: `"GlobalAccessController"`)
 
-* `GLOBALVIRTUALSECP256K1ACCOUNT` (value: `"GlobalVirtualSecp256k1Account"`)
+* `GLOBAL_VIRTUAL_SECP256K1_ACCOUNT` (value: `"GlobalVirtualSecp256k1Account"`)
 
-* `GLOBALVIRTUALSECP256K1IDENTITY` (value: `"GlobalVirtualSecp256k1Identity"`)
+* `GLOBAL_VIRTUAL_SECP256K1_IDENTITY` (value: `"GlobalVirtualSecp256k1Identity"`)
 
-* `GLOBALVIRTUALED25519ACCOUNT` (value: `"GlobalVirtualEd25519Account"`)
+* `GLOBAL_VIRTUAL_ED25519_ACCOUNT` (value: `"GlobalVirtualEd25519Account"`)
 
-* `GLOBALVIRTUALED25519IDENTITY` (value: `"GlobalVirtualEd25519Identity"`)
+* `GLOBAL_VIRTUAL_ED25519_IDENTITY` (value: `"GlobalVirtualEd25519Identity"`)
 
-* `GLOBALFUNGIBLERESOURCE` (value: `"GlobalFungibleResource"`)
+* `GLOBAL_FUNGIBLE_RESOURCE` (value: `"GlobalFungibleResource"`)
 
-* `INTERNALFUNGIBLEVAULT` (value: `"InternalFungibleVault"`)
+* `INTERNAL_FUNGIBLE_VAULT` (value: `"InternalFungibleVault"`)
 
-* `GLOBALNONFUNGIBLERESOURCE` (value: `"GlobalNonFungibleResource"`)
+* `GLOBAL_NON_FUNGIBLE_RESOURCE` (value: `"GlobalNonFungibleResource"`)
 
-* `INTERNALNONFUNGIBLEVAULT` (value: `"InternalNonFungibleVault"`)
+* `INTERNAL_NON_FUNGIBLE_VAULT` (value: `"InternalNonFungibleVault"`)
 
-* `INTERNALGENERICCOMPONENT` (value: `"InternalGenericComponent"`)
+* `INTERNAL_GENERIC_COMPONENT` (value: `"InternalGenericComponent"`)
 
-* `INTERNALKEYVALUESTORE` (value: `"InternalKeyValueStore"`)
+* `INTERNAL_KEY_VALUE_STORE` (value: `"InternalKeyValueStore"`)
 
-* `GLOBALONERESOURCEPOOL` (value: `"GlobalOneResourcePool"`)
+* `GLOBAL_ONE_RESOURCE_POOL` (value: `"GlobalOneResourcePool"`)
 
-* `GLOBALTWORESOURCEPOOL` (value: `"GlobalTwoResourcePool"`)
+* `GLOBAL_TWO_RESOURCE_POOL` (value: `"GlobalTwoResourcePool"`)
 
-* `GLOBALMULTIRESOURCEPOOL` (value: `"GlobalMultiResourcePool"`)
+* `GLOBAL_MULTI_RESOURCE_POOL` (value: `"GlobalMultiResourcePool"`)
 
-* `GLOBALTRANSACTIONTRACKER` (value: `"GlobalTransactionTracker"`)
+* `GLOBAL_TRANSACTION_TRACKER` (value: `"GlobalTransactionTracker"`)
+
+* `GLOBAL_ACCOUNT_LOCKER` (value: `"GlobalAccountLocker"`)
 
 
 

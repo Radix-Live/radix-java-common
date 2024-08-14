@@ -5,9 +5,9 @@
 ## Enum
 
 
-* `COMMITTEDSUCCESS` (value: `"CommittedSuccess"`)
+* `COMMITTED_SUCCESS` (value: `"CommittedSuccess"`)
 
-* `COMMITTEDFAILURE` (value: `"CommittedFailure"`)
+* `COMMITTED_FAILURE` (value: `"CommittedFailure"`)
 
 * `CANCELLED` (value: `"Cancelled"`)
 

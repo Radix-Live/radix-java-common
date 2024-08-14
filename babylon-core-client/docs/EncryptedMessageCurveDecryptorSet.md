@@ -8,7 +8,7 @@ A decryptor set for a particular ECDSA curve type. The (128-bit) AES-GCM symmetr
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**dhEphemeralPublicKey** | [**PublicKey**](PublicKey.md) |  |  |
+|**dhEphemeralPublicKey** | [**PublicKey**](PublicKey.md) | The ephemeral Diffie-Helman public key for a particular ECDSA curve type (see its &#x60;key_type&#x60;). |  |
 |**decryptors** | [**List&lt;EncryptedMessageDecryptor&gt;**](EncryptedMessageDecryptor.md) |  |  |
 
 

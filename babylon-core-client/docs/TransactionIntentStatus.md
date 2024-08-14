@@ -5,19 +5,19 @@
 ## Enum
 
 
-* `COMMITTEDSUCCESS` (value: `"CommittedSuccess"`)
+* `COMMITTED_SUCCESS` (value: `"CommittedSuccess"`)
 
-* `COMMITTEDFAILURE` (value: `"CommittedFailure"`)
+* `COMMITTED_FAILURE` (value: `"CommittedFailure"`)
 
-* `PERMANENTREJECTION` (value: `"PermanentRejection"`)
+* `PERMANENT_REJECTION` (value: `"PermanentRejection"`)
 
-* `INMEMPOOL` (value: `"InMempool"`)
+* `IN_MEMPOOL` (value: `"InMempool"`)
 
-* `NOTSEEN` (value: `"NotSeen"`)
+* `NOT_SEEN` (value: `"NotSeen"`)
 
-* `FATEUNCERTAIN` (value: `"FateUncertain"`)
+* `FATE_UNCERTAIN` (value: `"FateUncertain"`)
 
-* `FATEUNCERTAINBUTLIKELYREJECTION` (value: `"FateUncertainButLikelyRejection"`)
+* `FATE_UNCERTAIN_BUT_LIKELY_REJECTION` (value: `"FateUncertainButLikelyRejection"`)
 
 
 

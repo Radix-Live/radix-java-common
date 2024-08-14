@@ -5,11 +5,11 @@
 ## Enum
 
 
-* `KEYVALUE` (value: `"KeyValue"`)
+* `KEY_VALUE` (value: `"KeyValue"`)
 
 * `INDEX` (value: `"Index"`)
 
-* `SORTEDINDEX` (value: `"SortedIndex"`)
+* `SORTED_INDEX` (value: `"SortedIndex"`)
 
 
 

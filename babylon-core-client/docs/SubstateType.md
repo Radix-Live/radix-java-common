@@ -5,105 +5,113 @@
 ## Enum
 
 
-* `TYPEINFOMODULEFIELDTYPEINFO` (value: `"TypeInfoModuleFieldTypeInfo"`)
+* `BOOT_LOADER_MODULE_FIELD_VM_BOOT` (value: `"BootLoaderModuleFieldVmBoot"`)
 
-* `ROLEASSIGNMENTMODULEFIELDOWNERROLE` (value: `"RoleAssignmentModuleFieldOwnerRole"`)
+* `TYPE_INFO_MODULE_FIELD_TYPE_INFO` (value: `"TypeInfoModuleFieldTypeInfo"`)
 
-* `ROLEASSIGNMENTMODULERULEENTRY` (value: `"RoleAssignmentModuleRuleEntry"`)
+* `ROLE_ASSIGNMENT_MODULE_FIELD_OWNER_ROLE` (value: `"RoleAssignmentModuleFieldOwnerRole"`)
 
-* `ROLEASSIGNMENTMODULEMUTABILITYENTRY` (value: `"RoleAssignmentModuleMutabilityEntry"`)
+* `ROLE_ASSIGNMENT_MODULE_RULE_ENTRY` (value: `"RoleAssignmentModuleRuleEntry"`)
 
-* `ROYALTYMODULEFIELDSTATE` (value: `"RoyaltyModuleFieldState"`)
+* `ROLE_ASSIGNMENT_MODULE_MUTABILITY_ENTRY` (value: `"RoleAssignmentModuleMutabilityEntry"`)
 
-* `ROYALTYMODULEMETHODROYALTYENTRY` (value: `"RoyaltyModuleMethodRoyaltyEntry"`)
+* `ROYALTY_MODULE_FIELD_STATE` (value: `"RoyaltyModuleFieldState"`)
 
-* `METADATAMODULEENTRY` (value: `"MetadataModuleEntry"`)
+* `ROYALTY_MODULE_METHOD_ROYALTY_ENTRY` (value: `"RoyaltyModuleMethodRoyaltyEntry"`)
 
-* `PACKAGEFIELDROYALTYACCUMULATOR` (value: `"PackageFieldRoyaltyAccumulator"`)
+* `METADATA_MODULE_ENTRY` (value: `"MetadataModuleEntry"`)
 
-* `PACKAGECODEVMTYPEENTRY` (value: `"PackageCodeVmTypeEntry"`)
+* `PACKAGE_FIELD_ROYALTY_ACCUMULATOR` (value: `"PackageFieldRoyaltyAccumulator"`)
 
-* `PACKAGECODEORIGINALCODEENTRY` (value: `"PackageCodeOriginalCodeEntry"`)
+* `PACKAGE_CODE_VM_TYPE_ENTRY` (value: `"PackageCodeVmTypeEntry"`)
 
-* `PACKAGECODEINSTRUMENTEDCODEENTRY` (value: `"PackageCodeInstrumentedCodeEntry"`)
+* `PACKAGE_CODE_ORIGINAL_CODE_ENTRY` (value: `"PackageCodeOriginalCodeEntry"`)
 
-* `SCHEMAENTRY` (value: `"SchemaEntry"`)
+* `PACKAGE_CODE_INSTRUMENTED_CODE_ENTRY` (value: `"PackageCodeInstrumentedCodeEntry"`)
 
-* `PACKAGEBLUEPRINTDEFINITIONENTRY` (value: `"PackageBlueprintDefinitionEntry"`)
+* `SCHEMA_ENTRY` (value: `"SchemaEntry"`)
 
-* `PACKAGEBLUEPRINTDEPENDENCIESENTRY` (value: `"PackageBlueprintDependenciesEntry"`)
+* `PACKAGE_BLUEPRINT_DEFINITION_ENTRY` (value: `"PackageBlueprintDefinitionEntry"`)
 
-* `PACKAGEBLUEPRINTROYALTYENTRY` (value: `"PackageBlueprintRoyaltyEntry"`)
+* `PACKAGE_BLUEPRINT_DEPENDENCIES_ENTRY` (value: `"PackageBlueprintDependenciesEntry"`)
 
-* `PACKAGEBLUEPRINTAUTHTEMPLATEENTRY` (value: `"PackageBlueprintAuthTemplateEntry"`)
+* `PACKAGE_BLUEPRINT_ROYALTY_ENTRY` (value: `"PackageBlueprintRoyaltyEntry"`)
 
-* `PACKAGEFIELDFUNCTIONACCESSRULES` (value: `"PackageFieldFunctionAccessRules"`)
+* `PACKAGE_BLUEPRINT_AUTH_TEMPLATE_ENTRY` (value: `"PackageBlueprintAuthTemplateEntry"`)
 
-* `FUNGIBLERESOURCEMANAGERFIELDDIVISIBILITY` (value: `"FungibleResourceManagerFieldDivisibility"`)
+* `PACKAGE_FIELD_FUNCTION_ACCESS_RULES` (value: `"PackageFieldFunctionAccessRules"`)
 
-* `FUNGIBLERESOURCEMANAGERFIELDTOTALSUPPLY` (value: `"FungibleResourceManagerFieldTotalSupply"`)
+* `FUNGIBLE_RESOURCE_MANAGER_FIELD_DIVISIBILITY` (value: `"FungibleResourceManagerFieldDivisibility"`)
 
-* `NONFUNGIBLERESOURCEMANAGERFIELDIDTYPE` (value: `"NonFungibleResourceManagerFieldIdType"`)
+* `FUNGIBLE_RESOURCE_MANAGER_FIELD_TOTAL_SUPPLY` (value: `"FungibleResourceManagerFieldTotalSupply"`)
 
-* `NONFUNGIBLERESOURCEMANAGERFIELDTOTALSUPPLY` (value: `"NonFungibleResourceManagerFieldTotalSupply"`)
+* `NON_FUNGIBLE_RESOURCE_MANAGER_FIELD_ID_TYPE` (value: `"NonFungibleResourceManagerFieldIdType"`)
 
-* `NONFUNGIBLERESOURCEMANAGERFIELDMUTABLEFIELDS` (value: `"NonFungibleResourceManagerFieldMutableFields"`)
+* `NON_FUNGIBLE_RESOURCE_MANAGER_FIELD_TOTAL_SUPPLY` (value: `"NonFungibleResourceManagerFieldTotalSupply"`)
 
-* `NONFUNGIBLERESOURCEMANAGERDATAENTRY` (value: `"NonFungibleResourceManagerDataEntry"`)
+* `NON_FUNGIBLE_RESOURCE_MANAGER_FIELD_MUTABLE_FIELDS` (value: `"NonFungibleResourceManagerFieldMutableFields"`)
 
-* `FUNGIBLEVAULTFIELDBALANCE` (value: `"FungibleVaultFieldBalance"`)
+* `NON_FUNGIBLE_RESOURCE_MANAGER_DATA_ENTRY` (value: `"NonFungibleResourceManagerDataEntry"`)
 
-* `FUNGIBLEVAULTFIELDFROZENSTATUS` (value: `"FungibleVaultFieldFrozenStatus"`)
+* `FUNGIBLE_VAULT_FIELD_BALANCE` (value: `"FungibleVaultFieldBalance"`)
 
-* `NONFUNGIBLEVAULTFIELDBALANCE` (value: `"NonFungibleVaultFieldBalance"`)
+* `FUNGIBLE_VAULT_FIELD_FROZEN_STATUS` (value: `"FungibleVaultFieldFrozenStatus"`)
 
-* `NONFUNGIBLEVAULTFIELDFROZENSTATUS` (value: `"NonFungibleVaultFieldFrozenStatus"`)
+* `NON_FUNGIBLE_VAULT_FIELD_BALANCE` (value: `"NonFungibleVaultFieldBalance"`)
 
-* `NONFUNGIBLEVAULTCONTENTSINDEXENTRY` (value: `"NonFungibleVaultContentsIndexEntry"`)
+* `NON_FUNGIBLE_VAULT_FIELD_FROZEN_STATUS` (value: `"NonFungibleVaultFieldFrozenStatus"`)
 
-* `CONSENSUSMANAGERFIELDCONFIG` (value: `"ConsensusManagerFieldConfig"`)
+* `NON_FUNGIBLE_VAULT_CONTENTS_INDEX_ENTRY` (value: `"NonFungibleVaultContentsIndexEntry"`)
 
-* `CONSENSUSMANAGERFIELDSTATE` (value: `"ConsensusManagerFieldState"`)
+* `CONSENSUS_MANAGER_FIELD_CONFIG` (value: `"ConsensusManagerFieldConfig"`)
 
-* `CONSENSUSMANAGERFIELDCURRENTVALIDATORSET` (value: `"ConsensusManagerFieldCurrentValidatorSet"`)
+* `CONSENSUS_MANAGER_FIELD_STATE` (value: `"ConsensusManagerFieldState"`)
 
-* `CONSENSUSMANAGERFIELDCURRENTPROPOSALSTATISTIC` (value: `"ConsensusManagerFieldCurrentProposalStatistic"`)
+* `CONSENSUS_MANAGER_FIELD_CURRENT_VALIDATOR_SET` (value: `"ConsensusManagerFieldCurrentValidatorSet"`)
 
-* `CONSENSUSMANAGERFIELDCURRENTTIMEROUNDEDTOMINUTES` (value: `"ConsensusManagerFieldCurrentTimeRoundedToMinutes"`)
+* `CONSENSUS_MANAGER_FIELD_CURRENT_PROPOSAL_STATISTIC` (value: `"ConsensusManagerFieldCurrentProposalStatistic"`)
 
-* `CONSENSUSMANAGERFIELDCURRENTTIME` (value: `"ConsensusManagerFieldCurrentTime"`)
+* `CONSENSUS_MANAGER_FIELD_CURRENT_TIME_ROUNDED_TO_MINUTES` (value: `"ConsensusManagerFieldCurrentTimeRoundedToMinutes"`)
 
-* `CONSENSUSMANAGERFIELDVALIDATORREWARDS` (value: `"ConsensusManagerFieldValidatorRewards"`)
+* `CONSENSUS_MANAGER_FIELD_CURRENT_TIME` (value: `"ConsensusManagerFieldCurrentTime"`)
 
-* `CONSENSUSMANAGERREGISTEREDVALIDATORSBYSTAKEINDEXENTRY` (value: `"ConsensusManagerRegisteredValidatorsByStakeIndexEntry"`)
+* `CONSENSUS_MANAGER_FIELD_VALIDATOR_REWARDS` (value: `"ConsensusManagerFieldValidatorRewards"`)
 
-* `VALIDATORFIELDSTATE` (value: `"ValidatorFieldState"`)
+* `CONSENSUS_MANAGER_REGISTERED_VALIDATORS_BY_STAKE_INDEX_ENTRY` (value: `"ConsensusManagerRegisteredValidatorsByStakeIndexEntry"`)
 
-* `VALIDATORFIELDPROTOCOLUPDATEREADINESSSIGNAL` (value: `"ValidatorFieldProtocolUpdateReadinessSignal"`)
+* `VALIDATOR_FIELD_STATE` (value: `"ValidatorFieldState"`)
 
-* `ACCOUNTFIELDSTATE` (value: `"AccountFieldState"`)
+* `VALIDATOR_FIELD_PROTOCOL_UPDATE_READINESS_SIGNAL` (value: `"ValidatorFieldProtocolUpdateReadinessSignal"`)
 
-* `ACCOUNTVAULTENTRY` (value: `"AccountVaultEntry"`)
+* `ACCOUNT_FIELD_STATE` (value: `"AccountFieldState"`)
 
-* `ACCOUNTRESOURCEPREFERENCEENTRY` (value: `"AccountResourcePreferenceEntry"`)
+* `ACCOUNT_VAULT_ENTRY` (value: `"AccountVaultEntry"`)
 
-* `ACCOUNTAUTHORIZEDDEPOSITORENTRY` (value: `"AccountAuthorizedDepositorEntry"`)
+* `ACCOUNT_RESOURCE_PREFERENCE_ENTRY` (value: `"AccountResourcePreferenceEntry"`)
 
-* `ACCESSCONTROLLERFIELDSTATE` (value: `"AccessControllerFieldState"`)
+* `ACCOUNT_AUTHORIZED_DEPOSITOR_ENTRY` (value: `"AccountAuthorizedDepositorEntry"`)
 
-* `GENERICSCRYPTOCOMPONENTFIELDSTATE` (value: `"GenericScryptoComponentFieldState"`)
+* `ACCESS_CONTROLLER_FIELD_STATE` (value: `"AccessControllerFieldState"`)
 
-* `GENERICKEYVALUESTOREENTRY` (value: `"GenericKeyValueStoreEntry"`)
+* `GENERIC_SCRYPTO_COMPONENT_FIELD_STATE` (value: `"GenericScryptoComponentFieldState"`)
 
-* `ONERESOURCEPOOLFIELDSTATE` (value: `"OneResourcePoolFieldState"`)
+* `GENERIC_KEY_VALUE_STORE_ENTRY` (value: `"GenericKeyValueStoreEntry"`)
 
-* `TWORESOURCEPOOLFIELDSTATE` (value: `"TwoResourcePoolFieldState"`)
+* `ONE_RESOURCE_POOL_FIELD_STATE` (value: `"OneResourcePoolFieldState"`)
 
-* `MULTIRESOURCEPOOLFIELDSTATE` (value: `"MultiResourcePoolFieldState"`)
+* `TWO_RESOURCE_POOL_FIELD_STATE` (value: `"TwoResourcePoolFieldState"`)
 
-* `TRANSACTIONTRACKERFIELDSTATE` (value: `"TransactionTrackerFieldState"`)
+* `MULTI_RESOURCE_POOL_FIELD_STATE` (value: `"MultiResourcePoolFieldState"`)
 
-* `TRANSACTIONTRACKERCOLLECTIONENTRY` (value: `"TransactionTrackerCollectionEntry"`)
+* `TRANSACTION_TRACKER_FIELD_STATE` (value: `"TransactionTrackerFieldState"`)
+
+* `TRANSACTION_TRACKER_COLLECTION_ENTRY` (value: `"TransactionTrackerCollectionEntry"`)
+
+* `ACCOUNT_LOCKER_ACCOUNT_CLAIMS_ENTRY` (value: `"AccountLockerAccountClaimsEntry"`)
+
+* `BOOT_LOADER_MODULE_FIELD_SYSTEM_BOOT` (value: `"BootLoaderModuleFieldSystemBoot"`)
+
+* `BOOT_LOADER_MODULE_FIELD_KERNEL_BOOT` (value: `"BootLoaderModuleFieldKernelBoot"`)
 
 
 

@@ -5,19 +5,19 @@
 ## Enum
 
 
-* `SYSTEMFIELD` (value: `"SystemField"`)
+* `SYSTEM_FIELD` (value: `"SystemField"`)
 
-* `SYSTEMSCHEMA` (value: `"SystemSchema"`)
+* `SYSTEM_SCHEMA` (value: `"SystemSchema"`)
 
-* `KEYVALUESTOREENTRY` (value: `"KeyValueStoreEntry"`)
+* `KEY_VALUE_STORE_ENTRY` (value: `"KeyValueStoreEntry"`)
 
-* `OBJECTFIELD` (value: `"ObjectField"`)
+* `OBJECT_FIELD` (value: `"ObjectField"`)
 
-* `OBJECTKEYVALUEPARTITIONENTRY` (value: `"ObjectKeyValuePartitionEntry"`)
+* `OBJECT_KEY_VALUE_PARTITION_ENTRY` (value: `"ObjectKeyValuePartitionEntry"`)
 
-* `OBJECTINDEXPARTITIONENTRY` (value: `"ObjectIndexPartitionEntry"`)
+* `OBJECT_INDEX_PARTITION_ENTRY` (value: `"ObjectIndexPartitionEntry"`)
 
-* `OBJECTSORTEDINDEXPARTITIONENTRY` (value: `"ObjectSortedIndexPartitionEntry"`)
+* `OBJECT_SORTED_INDEX_PARTITION_ENTRY` (value: `"ObjectSortedIndexPartitionEntry"`)
 
 
 

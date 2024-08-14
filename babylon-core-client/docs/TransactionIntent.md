@@ -12,7 +12,7 @@
 |**header** | [**TransactionHeader**](TransactionHeader.md) |  |  |
 |**instructions** | **String** | The decompiled transaction manifest instructions. Only returned if enabled in &#x60;TransactionFormatOptions&#x60; on your request. |  [optional] |
 |**blobsHex** | **Map&lt;String, String&gt;** | A map of the hex-encoded blob hash, to hex-encoded blob content. Only returned if enabled in &#x60;TransactionFormatOptions&#x60; on your request. |  [optional] |
-|**message** | [**TransactionMessage**](TransactionMessage.md) |  |  [optional] |
+|**message** | [**TransactionMessage**](TransactionMessage.md) | The optional transaction message. Only returned if present and enabled in &#x60;TransactionFormatOptions&#x60; on your request. |  [optional] |
 
 
 

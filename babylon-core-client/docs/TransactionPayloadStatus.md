@@ -5,17 +5,17 @@
 ## Enum
 
 
-* `COMMITTEDSUCCESS` (value: `"CommittedSuccess"`)
+* `COMMITTED_SUCCESS` (value: `"CommittedSuccess"`)
 
-* `COMMITTEDFAILURE` (value: `"CommittedFailure"`)
+* `COMMITTED_FAILURE` (value: `"CommittedFailure"`)
 
-* `PERMANENTLYREJECTED` (value: `"PermanentlyRejected"`)
+* `PERMANENTLY_REJECTED` (value: `"PermanentlyRejected"`)
 
-* `TRANSIENTLYREJECTED` (value: `"TransientlyRejected"`)
+* `TRANSIENTLY_REJECTED` (value: `"TransientlyRejected"`)
 
-* `INMEMPOOL` (value: `"InMempool"`)
+* `IN_MEMPOOL` (value: `"InMempool"`)
 
-* `NOTINMEMPOOL` (value: `"NotInMempool"`)
+* `NOT_IN_MEMPOOL` (value: `"NotInMempool"`)
 
 
 

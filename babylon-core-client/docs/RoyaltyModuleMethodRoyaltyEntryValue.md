@@ -8,7 +8,7 @@ If missing, it represents a free method.
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**royaltyAmount** | [**RoyaltyAmount**](RoyaltyAmount.md) |  |  [optional] |
+|**royaltyAmount** | [**RoyaltyAmount**](RoyaltyAmount.md) | The component royalty. If missing, it represents a free method. |  [optional] |
 
 
 

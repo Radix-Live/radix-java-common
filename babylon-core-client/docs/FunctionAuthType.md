@@ -5,11 +5,11 @@
 ## Enum
 
 
-* `ALLOWALL` (value: `"AllowAll"`)
+* `ALLOW_ALL` (value: `"AllowAll"`)
 
-* `FUNCTIONACCESSRULES` (value: `"FunctionAccessRules"`)
+* `FUNCTION_ACCESS_RULES` (value: `"FunctionAccessRules"`)
 
-* `ROOTONLY` (value: `"RootOnly"`)
+* `ROOT_ONLY` (value: `"RootOnly"`)
 
 
 

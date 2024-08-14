@@ -16,8 +16,8 @@
 
 | Name | Value |
 |---- | -----|
-| SELFREF | &quot;SelfRef&quot; |
-| SELFREFMUT | &quot;SelfRefMut&quot; |
+| SELF_REF | &quot;SelfRef&quot; |
+| SELF_REF_MUT | &quot;SelfRefMut&quot; |
 
 
 

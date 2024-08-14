@@ -7,9 +7,9 @@
 
 * `PROTECTED` (value: `"Protected"`)
 
-* `ALLOWALL` (value: `"AllowAll"`)
+* `ALLOW_ALL` (value: `"AllowAll"`)
 
-* `DENYALL` (value: `"DenyAll"`)
+* `DENY_ALL` (value: `"DenyAll"`)
 
 
 

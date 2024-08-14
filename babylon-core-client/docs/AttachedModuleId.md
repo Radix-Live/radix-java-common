@@ -9,7 +9,7 @@
 
 * `ROYALTY` (value: `"Royalty"`)
 
-* `ROLEASSIGNMENT` (value: `"RoleAssignment"`)
+* `ROLE_ASSIGNMENT` (value: `"RoleAssignment"`)
 
 
 

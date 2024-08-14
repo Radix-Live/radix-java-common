@@ -5,9 +5,9 @@
 ## Enum
 
 
-* `ALLOWALL` (value: `"AllowAll"`)
+* `ALLOW_ALL` (value: `"AllowAll"`)
 
-* `STATICROLEDEFINITION` (value: `"StaticRoleDefinition"`)
+* `STATIC_ROLE_DEFINITION` (value: `"StaticRoleDefinition"`)
 
 
 

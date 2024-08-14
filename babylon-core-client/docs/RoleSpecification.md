@@ -7,7 +7,7 @@
 
 * `NORMAL` (value: `"Normal"`)
 
-* `USEOUTER` (value: `"UseOuter"`)
+* `USE_OUTER` (value: `"UseOuter"`)
 
 
 

@@ -7,7 +7,7 @@
 
 * `FUNGIBLE` (value: `"Fungible"`)
 
-* `NONFUNGIBLE` (value: `"NonFungible"`)
+* `NON_FUNGIBLE` (value: `"NonFungible"`)
 
 
 

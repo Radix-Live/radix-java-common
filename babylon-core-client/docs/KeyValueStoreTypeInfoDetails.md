@@ -7,7 +7,7 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**keyValueStoreInfo** | [**KeyValueStoreInfo**](KeyValueStoreInfo.md) |  |  |
+|**keyValueStoreInfo** | [**KeyValueStoreInfo**](KeyValueStoreInfo.md) | The SBOR schema of the KeyValueStore |  |
 
 
 

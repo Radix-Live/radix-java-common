@@ -7,11 +7,11 @@
 
 * `PUBLIC` (value: `"Public"`)
 
-* `OUTEROBJECTONLY` (value: `"OuterObjectOnly"`)
+* `OUTER_OBJECT_ONLY` (value: `"OuterObjectOnly"`)
 
-* `ROLEPROTECTED` (value: `"RoleProtected"`)
+* `ROLE_PROTECTED` (value: `"RoleProtected"`)
 
-* `OWNPACKAGEONLY` (value: `"OwnPackageOnly"`)
+* `OWN_PACKAGE_ONLY` (value: `"OwnPackageOnly"`)
 
 
 

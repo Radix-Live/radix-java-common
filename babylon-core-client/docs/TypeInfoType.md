@@ -7,7 +7,7 @@
 
 * `OBJECT` (value: `"Object"`)
 
-* `KEYVALUESTORE` (value: `"KeyValueStore"`)
+* `KEY_VALUE_STORE` (value: `"KeyValueStore"`)
 
 
 

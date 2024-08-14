@@ -7,7 +7,7 @@
 
 * `RESOURCE` (value: `"Resource"`)
 
-* `NONFUNGIBLE` (value: `"NonFungible"`)
+* `NON_FUNGIBLE` (value: `"NonFungible"`)
 
 
 

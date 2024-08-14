@@ -5,13 +5,13 @@
 ## Enum
 
 
-* `NOTARIZEDTRANSACTION` (value: `"NotarizedTransaction"`)
+* `NOTARIZED_TRANSACTION` (value: `"NotarizedTransaction"`)
 
-* `SIGNEDTRANSACTIONINTENT` (value: `"SignedTransactionIntent"`)
+* `SIGNED_TRANSACTION_INTENT` (value: `"SignedTransactionIntent"`)
 
-* `TRANSACTIONINTENT` (value: `"TransactionIntent"`)
+* `TRANSACTION_INTENT` (value: `"TransactionIntent"`)
 
-* `LEDGERTRANSACTION` (value: `"LedgerTransaction"`)
+* `LEDGER_TRANSACTION` (value: `"LedgerTransaction"`)
 
 
 

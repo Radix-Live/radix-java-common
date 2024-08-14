@@ -9,7 +9,7 @@ Various representations of an SBOR payload. Some endpoints may allow opting in/o
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
 |**hex** | **String** | The hex-encoded, raw SBOR-encoded data |  [optional] |
-|**programmaticJson** | **Object** | The (untyped) unannotated programmatic SBOR JSON |  [optional] |
+|**programmaticJson** | **Object** |  |  [optional] |
 
 
 

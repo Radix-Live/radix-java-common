@@ -5,9 +5,9 @@
 ## Enum
 
 
-* `PRIORITYTHRESHOLDNOTMET` (value: `"PriorityThresholdNotMet"`)
+* `PRIORITY_THRESHOLD_NOT_MET` (value: `"PriorityThresholdNotMet"`)
 
-* `INTENTALREADYCOMMITTED` (value: `"IntentAlreadyCommitted"`)
+* `INTENT_ALREADY_COMMITTED` (value: `"IntentAlreadyCommitted"`)
 
 * `REJECTED` (value: `"Rejected"`)
 

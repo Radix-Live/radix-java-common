@@ -5,11 +5,11 @@
 ## Enum
 
 
-* `ONVIRTUALIZE` (value: `"OnVirtualize"`)
+* `ON_VIRTUALIZE` (value: `"OnVirtualize"`)
 
-* `ONMOVE` (value: `"OnMove"`)
+* `ON_MOVE` (value: `"OnMove"`)
 
-* `ONDROP` (value: `"OnDrop"`)
+* `ON_DROP` (value: `"OnDrop"`)
 
 
 

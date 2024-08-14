@@ -6,7 +6,7 @@ apply plugin: 'signing'
 
 
 group = 'live.radix'
-version = '0.3.0-SNAPSHOT'
+version = '0.4.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -19,7 +19,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.spring.gradle:dependency-management-plugin:1.0.15.RELEASE'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.1.5'
     }
 }
 
@@ -47,9 +47,9 @@ allprojects {
 }
 
 ext {
-    jackson_version = '2.13.3'
-    jackson_databind_version = '2.13.3'
-    junit_version = '4.13.2'
+    jackson_version = '2.17.1'
+    jackson_databind_version = '2.17.1'
+    junit_version = '5.11.0'
 }
 
 subprojects {

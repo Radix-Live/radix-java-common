@@ -9,7 +9,7 @@
 
 * `REJECT` (value: `"Reject"`)
 
-* `ALLOWEXISTING` (value: `"AllowExisting"`)
+* `ALLOW_EXISTING` (value: `"AllowExisting"`)
 
 
 

@@ -7,7 +7,7 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**atLedgerState** | [**LedgerStateSummary**](LedgerStateSummary.md) |  |  |
+|**atLedgerState** | [**LedgerStateSummary**](LedgerStateSummary.md) | A summarized state of the ledger at which the query was performed. |  |
 |**info** | [**Substate**](Substate.md) |  |  |
 |**state** | [**Substate**](Substate.md) |  |  |
 |**royaltyAccumulator** | [**Substate**](Substate.md) |  |  [optional] |

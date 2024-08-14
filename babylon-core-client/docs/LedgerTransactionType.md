@@ -9,7 +9,9 @@
 
 * `USER` (value: `"User"`)
 
-* `ROUNDUPDATE` (value: `"RoundUpdate"`)
+* `ROUND_UPDATE` (value: `"RoundUpdate"`)
+
+* `FLASH` (value: `"Flash"`)
 
 
 

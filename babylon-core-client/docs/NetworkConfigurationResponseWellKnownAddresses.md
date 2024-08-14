@@ -31,9 +31,11 @@ Key addresses for this network.
 |**genesisHelperPackage** | **String** |  |  |
 |**faucetPackage** | **String** |  |  |
 |**poolPackage** | **String** |  |  |
+|**lockerPackage** | **String** |  |  [optional] |
 |**consensusManager** | **String** |  |  |
 |**genesisHelper** | **String** |  |  |
 |**faucet** | **String** |  |  |
+|**transactionTracker** | **String** |  |  |
 
 
 
