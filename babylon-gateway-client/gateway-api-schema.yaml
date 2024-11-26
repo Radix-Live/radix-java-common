@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
-  version: v1.6.3
+  version: v1.9.0-L
   title: Radix Gateway API - Babylon
   license:
     name: The Radix License, Version 1.0
@@ -43,8 +43,8 @@ info:
     The Gateway DB schema is not subject to any compatibility guarantees, and may be changed at any release. DB changes
     will be flagged in the release notes so clients doing custom DB integrations can prepare.
 servers:
-  - url: https://mainnet.radixdlt.com
-  - url: https://stokenet.radixdlt.com
+  - url: https://gateway.radix.live
+  - url: https://stokenet-gateway.radix.live
 x-tagGroups:
   - name: Overview
     tags:
@@ -59,6 +59,7 @@ x-tagGroups:
       - Stream
       - State
       - Statistics
+      - Extensions
 tags:
   - name: SubAPIs
     x-displayName: Sub-APIs
@@ -70,6 +71,7 @@ tags:
       - **Stream** (`/transaction/*`) - For reading committed transactions.
       - **State** (`/state/*`) - For reading the current or past ledger state of the network.
       - **Statistics** (`/statistics/*`) - For calculating particular statistics against the current or past ledger state of the network.
+      - **Extensions** (`/Extensions/*`) - For endpoints that do not fit into other categories, for example, they may not support historic state.
   - name: Concepts
     x-displayName: Concepts
     x-traitTag: true # Don't display endpoints under this tag
@@ -611,25 +613,27 @@ tags:
 
       The currently supported filters are:
 
-      * `kind_filter` - one of `User`, `EpochChange`, `All`. You can use that filter to query for certain kinds of transactions. Defaults to `User`.
+      * `kind_filter` - One of `User`, `EpochChange`, `All`. You can use that filter to query for certain kinds of transactions. Defaults to `User`.
 
-      * `manifest_accounts_withdrawn_from_filter` - allows specifying an array of account addresses. If specified, the response will contain only transactions with a manifest containing withdrawals from the given accounts.
+      * `manifest_accounts_withdrawn_from_filter` - Allows specifying an array of account addresses. If specified, the response will contain only transactions with a manifest containing withdrawals from the given accounts.
 
-      * `manifest_accounts_deposited_into_filter` - similar to withdrawn, but will return only transactions with a manifest containing deposits to the given accounts.
+      * `manifest_accounts_deposited_into_filter` - Similar to withdrawn, but will return only transactions with a manifest containing deposits to the given accounts.
 
-      * `manifest_resources_filter` - allows specifying array of resource addresses. If specified, the response will contain only transactions containing the given resources in the manifest (regardless of their usage).
+      * `manifest_resources_filter` - Allows specifying array of resource addresses. If specified, the response will contain only transactions containing the given resources in the manifest (regardless of their usage).
 
-      * `manifest_badges_presented_filter` - allows specifying array of badge resource addresses. If specified, the response will contain only transactions where the given badges were presented.
+      * `manifest_badges_presented_filter` - Allows specifying array of badge resource addresses. If specified, the response will contain only transactions where the given badges were presented.
 
-      * `accounts_with_manifest_owner_method_calls` - allows specifying an array of account addresses. If specified, the response will contain only transactions that, for all specified accounts, contain manifest method calls to that account which require the owner role. See the [account docs](https://docs.radixdlt.com/docs/account) for more information.
+      * `accounts_with_manifest_owner_method_calls` - Allows specifying an array of account addresses. If specified, the response will contain only transactions that, for all specified accounts, contain manifest method calls to that account which require the owner role. See the [account docs](https://docs.radixdlt.com/docs/account) for more information.
 
-      * `accounts_without_manifest_owner_method_calls` - allows specifying an array of account addresses. If specified, the response will contain only transactions that, for all specified accounts, do NOT contain manifest method calls to that account which require owner role. See the [account docs](https://docs.radixdlt.com/docs/account) for more information.
+      * `accounts_without_manifest_owner_method_calls` - Allows specifying an array of account addresses. If specified, the response will contain only transactions that, for all specified accounts, do NOT contain manifest method calls to that account which require owner role. See the [account docs](https://docs.radixdlt.com/docs/account) for more information.
 
-      * `manifest_class_filter` - allows filtering to transactions which match the given manifest classification. If specified, the response will contain only transactions which have a class that matches the filter. If `match_only_most_specific` set to true, only transactions where the queried class is most specific will be returned. See the [docs on manifest classification](https://docs.radixdlt.com/docs/conforming-transaction-manifest-types) for more information.
+      * `manifest_class_filter` - Allows filtering to transactions which match the given manifest classification. If specified, the response will contain only transactions which have a class that matches the filter. If `match_only_most_specific` set to true, only transactions where the queried class is most specific will be returned. See the [docs on manifest classification](https://docs.radixdlt.com/docs/conforming-transaction-manifest-types) for more information.
 
-      * `affected_global_entities_filter` - allows specifying an array of global addresses. If specified, the response will contain transactions that affected all of the given global entities. A global entity is marked as "affected" by a transaction if any of its state (or its descendents' state) was modified as a result of the transaction.
+      * `affected_global_entities_filter` - Allows specifying an array of global addresses. If specified, the response will contain transactions that affected all of the given global entities. A global entity is marked as "affected" by a transaction if any of its state (or its descendents' state) was modified as a result of the transaction. For performance reasons consensus manager and transaction tracker are excluded from that filter.
 
-      * `events_filter` - filters the transaction stream to transactions which emitted at least one event matching each filter (each filter can be satisfied by a different event). Currently *only* deposit and withdrawal events emitted by an internal vault entity are tracked. For the purpose of filtering, the emitter address is replaced by the global ancestor of the emitter, for example, the top-level account / component which contains the vault which emitted the event.
+      * `event_global_emitters_filter` - Allows specifying an array of global addresses. If specified, the response will contain transactions in which all entities emitted events. If an event was published by an internal entity, it is going to be indexed as it is a global ancestor. For performance reasons events published by consensus manager and native XRD resource are excluded from that filter.
+
+      * `events_filter` - Filters the transaction stream to transactions which emitted at least one event matching each filter (each filter can be satisfied by a different event). Currently *only* deposit and withdrawal events emitted by an internal vault entity are tracked. For the purpose of filtering, the emitter address is replaced by the global ancestor of the emitter, for example, the top-level account / component which contains the vault which emitted the event.
 
       Each filter is a complex object where you can specify:
       - `event` (required) - the event tag. Currently only the following tags are supported:
@@ -1193,6 +1197,9 @@ tags:
   - name: Statistics
     x-displayName: Statistics Endpoints
     description: Calculate particular statistics based on current or historic ledger state.
+  - name: Extensions
+    x-displayName: Extensions Endpoints
+    description: Endpoints that do not fit into other categories, for example, those which provide custom aggregation or indexing, or don't support historic state.
 
 paths:
   "/status/gateway-status":
@@ -1247,8 +1254,12 @@ paths:
       operationId: TransactionPreview
       summary: Preview Transaction
       description: |
-        Previews transaction against the network.
-        This endpoint is effectively a proxy towards the Core API `/v0/transaction/preview` endpoint. See the Core API documentation for more details.
+        Preview a transaction against the latest network state, and returns the preview receipt.
+        If the node has enabled it, you may be able to also preview against recent network state.
+
+        For V2 transactions (and beyond) the `/preview-v2` endpoint should be used instead.
+
+        This endpoint is effectively a proxy towards the Core API `/transaction/preview` endpoint. See the Core API documentation for more details.
       tags:
         - Transaction
       requestBody:
@@ -1266,6 +1277,37 @@ paths:
                 $ref: "#/components/schemas/TransactionPreviewResponse"
         "4XX":
           $ref: "#/components/responses/ErrorResponse"
+
+  "/transaction/preview-v2":
+    post:
+      operationId: TransactionPreviewV2
+      summary: Preview Transaction V2
+      description: |
+        Previews a transaction against the latest network state, and returns the preview receipt.
+        If the node has enabled it, you may be able to also preview against recent network state.
+
+        This endpoint supports V2 transactions (and beyond). If you still need to preview V1
+        transactions, you should use the `/preview` endpoint instead.
+
+        This endpoint is effectively a proxy towards the Core API `/transaction/preview-v2` endpoint. See the Core API documentation for more details.
+      tags:
+        - Transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionPreviewV2Request"
+      responses:
+        "200":
+          description: Successful Preview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionPreviewV2Response"
+        "4XX":
+          $ref: "#/components/responses/ErrorResponse"
+
   "/transaction/submit":
     post:
       operationId: TransactionSubmit
@@ -1334,6 +1376,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TransactionStatusResponse"
+        "4XX":
+          $ref: "#/components/responses/ErrorResponse"
+  "/transaction/subintent-status":
+    post:
+      operationId: TransactionSubintentStatus
+      summary: Get Subintent Status
+      description: |
+        Returns if the given subintent has been finalized.
+      tags:
+        - Transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionSubintentStatusRequest"
+      responses:
+        "200":
+          description: Transaction Status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionSubintentStatusResponse"
         "4XX":
           $ref: "#/components/responses/ErrorResponse"
 
@@ -1898,6 +1963,35 @@ paths:
         "4XX":
           $ref: "#/components/responses/ErrorResponse"
 
+  /extensions/resource-holders/page:
+    post:
+      operationId: ResourceHoldersPage
+      summary: Get Resource Holders Page
+      description: |
+        A paginated endpoint to discover which global entities hold the most of a given resource.
+        More specifically, it returns a page of global entities which hold the given resource, ordered descending by the total fungible balance / total count of non-fungibles stored in vaults in the state tree of that entity (excluding unclaimed royalty balances).
+        This endpoint operates only at the **current state version**, it is not possible to browse historical data.
+        Because of that, it is not possible to offer stable pagination as data constantly changes. Balances might change between pages being read, which might result in gaps or some entries being returned twice.
+        Under default Gateway configuration, up to 100 entries are returned per response. This can be increased up to 1000 entries per page with the `limit_per_page` parameter.
+      tags:
+        - Extensions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceHoldersRequest"
+      responses:
+        "200":
+          description: Resource holders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceHoldersResponse"
+        "4XX":
+          $ref: "#/components/responses/ErrorResponse"
+
+
 components:
   responses:
     ErrorResponse:
@@ -2278,6 +2372,52 @@ components:
           properties:
             typed:
               $ref: "#/components/schemas/MetadataTypedValue"
+
+    TwoWayLinkedDappsCollection:
+      description: A collection of two-way linked (resolved & verified) dApps linked to the entity defining this collection.
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TwoWayLinkedDappsCollectionItem"
+    TwoWayLinkedDappsCollectionItem:
+      type: object
+      required:
+        - dapp_address
+      properties:
+        dapp_address:
+          $ref: "#/components/schemas/Address"
+
+    TwoWayLinkedEntitiesCollection:
+      description: A collection of two-way linked (resolved & verified) entities linked to the entity defining this collection.
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TwoWayLinkedEntitiesCollectionItem"
+    TwoWayLinkedEntitiesCollectionItem:
+      type: object
+      required:
+        - entity_address
+      properties:
+        entity_address:
+          $ref: "#/components/schemas/Address"
+
+    TwoWayLinkedDappOnLedgerDetails:
+      type: object
+      properties:
+        dapps:
+          $ref: "#/components/schemas/TwoWayLinkedDappsCollection"
+        entities:
+          $ref: "#/components/schemas/TwoWayLinkedEntitiesCollection"
+        primary_locker:
+          $ref: "#/components/schemas/Address"
 
     AccountLockerVaultCollection:
       description: Account Locker Account Resources Collection
@@ -2891,15 +3031,14 @@ components:
         manifest_instructions:
           description: |
             A text-representation of a transaction manifest.
-            This field will be present only for user transactions and when explicitly opted-in using `manifest_instructions` flag.
+            This field will be present only for user transactions and when explicitly opted-in using the `manifest_instructions` flag.
           type: string
-          nullable: true
         manifest_classes:
           description: |
             A collection of zero or more manifest classes ordered from the most specific class to the least specific one.
             This field will be present only for user transactions.
+            For user transactions with subintents only the root transaction intent is currently used to determine the manifest classes.
           type: array
-          nullable: true
           items:
             $ref: "#/components/schemas/ManifestClass"
         message:
@@ -2909,6 +3048,20 @@ components:
             This type is defined in the Core API as `TransactionMessage`. See the Core API documentation for more details.
         balance_changes:
           $ref: "#/components/schemas/TransactionBalanceChanges"
+        subintent_details:
+          description: |
+            Subintent details.
+            Please note that it is returned regardless of whether the transaction was committed successfully or failed, and it can be returned in multiple transactions.
+          type: array
+          items:
+            $ref: "#/components/schemas/TransactionSubintentDetails"
+        child_subintent_hashes:
+          description: |
+            The child subintent hashes of the root transaction intent.
+            Please note that it is returned regardless of whether the transaction was committed successfully or failed, and it can be returned in multiple transactions.
+          type: array
+          items:
+            $ref: "#/components/schemas/HashBech32mString"
 
     TransactionStatus:
       type: string
@@ -2921,6 +3074,15 @@ components:
         - CommittedFailure
         - Pending
         - Rejected
+
+    SubintentStatus:
+      type: string
+      description: |
+        The finalization status of this subintent. Each subintent can only be *successfully* committed once,
+        but unlike a transaction intent, could be committed as a failure zero or more times first.
+      enum:
+        - Unknown
+        - CommittedSuccess
 
     TransactionIntentStatus:
       type: string
@@ -3062,6 +3224,67 @@ components:
           description: number of epochs validator was active in.
           type: integer
           format: int64
+
+    ResourceHoldersCollection:
+      allOf:
+        - $ref: "#/components/schemas/ResultSetCursorMixin"
+        - type: object
+          required:
+            - items
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/ResourceHoldersCollectionItem"
+
+    ResourceHoldersResourceType:
+      type: string
+      enum:
+        - FungibleResource
+        - NonFungibleResource
+    ResourceHoldersCollectionItem:
+      type: object
+      required:
+        - type
+        - holder_address
+        - last_updated_at_state_version
+      properties:
+        type:
+          $ref: "#/components/schemas/ResourceHoldersResourceType"
+        holder_address:
+          $ref: "#/components/schemas/Address"
+        last_updated_at_state_version:
+          type: integer
+          format: int64
+      discriminator:
+        propertyName: type
+        mapping:
+          # Must match ResourceHoldersResourceType
+          FungibleResource: "#/components/schemas/ResourceHoldersCollectionFungibleResourceItem"
+          NonFungibleResource: "#/components/schemas/ResourceHoldersCollectionNonFungibleResourceItem"
+
+    ResourceHoldersCollectionFungibleResourceItem:
+      allOf:
+        - $ref: "#/components/schemas/ResourceHoldersCollectionItem"
+        - type: object
+          required:
+            - amount
+          properties:
+            amount:
+              $ref: "#/components/schemas/BigDecimal"
+
+
+    ResourceHoldersCollectionNonFungibleResourceItem:
+      allOf:
+        - $ref: "#/components/schemas/ResourceHoldersCollectionItem"
+        - type: object
+          required:
+            - non_fungible_ids_count
+          properties:
+            non_fungible_ids_count:
+              type: integer
+              format: int64
+
 
     ValidatorCollection:
       allOf:
@@ -3254,6 +3477,10 @@ components:
               $ref: "#/components/schemas/Address"
             transaction_tracker:
               $ref: "#/components/schemas/Address"
+            transaction_tracker_package:
+              $ref: "#/components/schemas/Address"
+            test_utils_package:
+              $ref: "#/components/schemas/Address"
 
     GatewayStatusResponse:
       allOf:
@@ -3304,18 +3531,14 @@ components:
       type: object
       required:
         - manifest
-        - start_epoch_inclusive
-        - end_epoch_exclusive
-        - tip_percentage
-        - nonce
-        - signer_public_keys
-        - flags
       properties:
+        opt_ins:
+          $ref: "#/components/schemas/TransactionPreviewOptIns"
         manifest:
           description: A text-representation of a transaction manifest
           type: string
         blobs_hex:
-          description: An array of hex-encoded blob data (optional)
+          description: An array of hex-encoded blob data, if referenced by the manifest.
           type: array
           items:
             type: string
@@ -3324,48 +3547,130 @@ components:
           format: int64
           minimum: 0
           maximum: 10000000000
-          description: An integer between `0` and `10^10`, marking the epoch at which the transaction starts being valid
+          description: |
+            An integer between `0` and `10^10`, marking the epoch at which the transaction startsbeing valid.
+            If omitted, the current epoch will be used.
         end_epoch_exclusive:
           type: integer
           format: int64
           minimum: 0
           maximum: 10000000000
-          description: An integer between `0` and `10^10`, marking the epoch at which the transaction is no longer valid
+          description: |
+            An integer between `0` and `10^10`, marking the epoch at which the transaction is no
+            longer valid. If omitted, a maximum epoch (relative to the `start_epoch_inclusive`) will be used.
         notary_public_key:
           $ref: "#/components/schemas/PublicKey"
-          description: The notary public key to use (optional)
+          description: |
+            The notary public key to use.
+            If not provided, this defaults to a fixed public key.
         notary_is_signatory:
           type: boolean
-          description: Whether the notary should count as a signatory (optional, default false)
+          description: |
+            Whether the notary should be used as a signer (optional).
+            If not provided, this defaults to false.
         tip_percentage:
           type: integer
           format: int32
           minimum: 0
           maximum: 65535
-          description: An integer between `0` and `65535`, giving the validator tip as a percentage amount. A value of `1` corresponds to 1% of the fee.
+          description: |
+            An integer between `0` and `65535`, giving the validator tip as a percentage amount.
+            A value of `1` corresponds to a 1% fee.
+            If not provided, this defaults to 0.
         nonce:
           type: integer
           format: int64
           minimum: 0
-          description: A decimal-string-encoded integer between `0` and `2^32 - 1`, used to ensure the transaction intent is unique.
+          description: |
+            An integer between `0` and `2^32 - 1`, chosen to allow a unique intent to be created
+            (to enable submitting an otherwise identical/duplicate intent).
+            If not provided, this defaults to 0.
         signer_public_keys:
           type: array
           items:
             $ref: "#/components/schemas/PublicKey"
-          description: A list of public keys to be used as transaction signers
-        flags:
+          description: |
+            A list of public keys to be used as transaction signers.
+            If not provided, this defaults to an empty array.
+        message:
           type: object
-          required:
-            - use_free_credit
-            - assume_all_signature_proofs
-            - skip_epoch_check
-          properties:
-            use_free_credit:
-              type: boolean
-            assume_all_signature_proofs:
-              type: boolean
-            skip_epoch_check:
-              type: boolean
+          description: |
+            An optional transaction message. Only affects the costing.
+            This type is defined in the Core API as `TransactionMessage`. See the Core API documentation for more details.
+        flags:
+          $ref: "#/components/schemas/PreviewFlags"
+
+    PreviewFlags:
+      type: object
+      properties:
+        use_free_credit:
+          description: |
+            If enabled, a large simulated pool of XRD is marked as locked.
+
+            This mode can be used to estimate fees. To get a reliable estimate, we recommend that your
+            transaction is as close as possible to the real transaction. For example:
+            - You should still use a lock fee command, but you can set it to lock a fee of 0.
+            - You should include the public keys that will sign the transaction, so the cost of
+              signature verification and payload size can be accounted for.
+          type: boolean
+          default: false
+        assume_all_signature_proofs:
+          description: |
+            If enabled, each manifest processor's auth zone will be given a simulated proof of
+            every signature, which can be used to pass signature access rules.
+
+            This can be used to preview transactions even if the required signatures are not
+            known ahead of time.
+
+            See the documentation on
+            [advanced access rules](https://docs.radixdlt.com/docs/advanced-accessrules#signature-requirements)
+            for more information.
+          type: boolean
+          default: false
+        skip_epoch_check:
+          description: |
+            If enabled, the various runtime epoch-related verifications are skipped:
+            - The `start_epoch_inclusive` and `end_epoch_exclusive` parameters, if specified, are ignored.
+            - The duplicate intent checks (which rely on the expiry epoch) are also ignored.
+
+            However, if the start and end epoch are provided, they must still be statically valid.
+            We recommend using a value of `start_epoch_inclusive = 1` and `end_epoch_exclusive = 2` in this
+            case.
+          type: boolean
+          default: false
+        disable_auth_checks:
+          description: |
+            If enabled, all authorization checks are skipped during execution.
+
+            This could be used to e.g.:
+            * Preview protocol update style transactions.
+            * Mint resources for previewing trades with resources you don't own.
+              If doing this, be warned: only resources which were potentially mintable/burnable
+              at creation time will be mintable/burnable, due to feature flags on the resource.
+
+            Warning: this mode of operation is quite a departure from normal operation:
+            * Calculated fees will likely be lower than a standard execution.
+            * This mode can subtly break invariants some dApp code might rely on, or result in unexpected
+              behaviour, so the execution result might not be valid for your needs. For example,
+              if this flag was used to mint pool units to preview a redemption (or some dApp interaction which
+              behind the scenes redeemed them), they'd redeem for less than they're currently worth,
+              because the blueprint code relies on the total supply of the pool units to calculate their
+              redemption worth, and you've just inflated the total supply through the mint operation.
+          type: boolean
+          default: false
+
+    TransactionPreviewOptIns:
+      type: object
+      description: A set of flags to configure the response of the transaction preview.
+      properties:
+        radix_engine_toolkit_receipt:
+          type: boolean
+          default: false
+          description: |
+            This flag controls whether the preview response will include a Radix Engine Toolkit serializable
+            receipt or not. If not provided, this defaults to `false` and no toolkit receipt is provided in
+            the response.
+
     TransactionPreviewResponse:
       type: object
       required:
@@ -3375,7 +3680,28 @@ components:
         - logs
       properties:
         encoded_receipt:
+          description: |
+            The hex-sbor-encoded receipt.
+
+            This field is deprecated and will be removed from the API with the release of the next
+            protocol update, cuttlefish. This field was provided primarily for use with the Radix
+            Engine Toolkit and its execution summary functionality. If you still wish to use this
+            functionality update your Radix Engine Toolkit and use the receipt provided in the
+            `radix_engine_toolkit_receipt` field of this response.
+          deprecated: true
           $ref: "#/components/schemas/HexString"
+        radix_engine_toolkit_receipt:
+          type: object
+          description: |
+            An optional field which is only provided if the `radix_engine_toolkit_receipt`
+            flag is set to true when requesting a transaction preview from the API.
+
+            This receipt is primarily intended for use with the toolkit and may contain information
+            that is already available in the receipt provided in the `receipt` field of this response.
+
+            A typical client of this API is not expected to use this receipt. The primary clients
+            this receipt is intended for is the Radix wallet or any client that needs to perform
+            execution summaries on their transactions.
         receipt:
           type: object
           description: |
@@ -3388,6 +3714,151 @@ components:
               This type is defined in the Core API as `InstructionResourceChanges`. See the Core API documentation for more details.
         logs:
           type: array
+          items:
+            type: object
+            required:
+              - level
+              - message
+            properties:
+              level:
+                type: string
+              message:
+                type: string
+
+    TransactionPreviewV2Request:
+      type: object
+      required:
+        - preview_transaction
+      properties:
+        preview_transaction:
+          $ref: "#/components/schemas/PreviewTransaction"
+        flags:
+          $ref: "#/components/schemas/PreviewFlags"
+        opt_ins:
+          $ref: "#/components/schemas/TransactionPreviewV2OptIns"
+      example:
+        preview_transaction:
+          type: "Compiled"
+          preview_transaction_hex: "<sample-preview-transaction-hex>"
+        flags:
+          use_free_credit: true
+          assume_all_signature_proofs: true
+          skip_epoch_check: true
+          disable_auth_checks: true
+        opt_ins:
+          core_api_receipt: true
+          radix_engine_toolkit_receipt: true
+          logs: true
+
+    TransactionPreviewV2OptIns:
+      type: object
+      description: A set of flags to configure the response of the transaction preview v2 endpoint.
+      properties:
+        core_api_receipt:
+          type: boolean
+          default: false
+          description: |
+            This flag controls whether the preview response will include a Core API receipt or not.
+            If not provided, this defaults to `false` and no core api receipt is provided in
+            the response.
+        radix_engine_toolkit_receipt:
+          type: boolean
+          default: false
+          description: |
+            This flag controls whether the preview response will include a Radix Engine Toolkit serializable
+            receipt or not. If not provided, this defaults to `false` and no toolkit receipt is provided in
+            the response.
+        logs:
+          type: boolean
+          default: false
+          description: |
+            This flag controls whether the preview response will include execution logs.
+            If not provided, this defaults to `false` and no logs will be provided in the response.
+
+    PreviewTransactionType:
+      type: string
+      enum:
+        - Compiled
+    PreviewTransaction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          $ref: "#/components/schemas/PreviewTransactionType"
+      discriminator:
+        propertyName: type
+        mapping:
+          # NOTE: These need to match PreviewTransactionType
+          Compiled: '#/components/schemas/CompiledPreviewTransaction'
+    CompiledPreviewTransaction:
+      allOf:
+        - $ref: "#/components/schemas/PreviewTransaction"
+        - type: object
+          required:
+            - preview_transaction_hex
+          properties:
+            preview_transaction_hex:
+              description: |
+                A hex-encoded, compiled `RawPreviewTransaction`.
+
+                As of Cuttlefish, only `PreviewTransactionV2` is supported.
+
+                A `PreviewTransactionV2` can be created with a v2 transaction builder:
+                * If using Rust, it can be created with a `TransactionV2Builder` using `build_preview_transaction()`
+                  and then converted to hex with `preview_transaction.to_raw().unwrap().to_hex()`
+                * If using the toolkit, you can create this using the v2 transaction builder.
+
+                Some subtleties:
+                * Partial transactions can't be previewed. Instead, they must be wrapped inside a
+                  transaction wrapper, so that the engine knows how to yield to them appropriately.
+                * Currently the builder assumes that the signed partial transactions have real signatures.
+                  This isn't strictly required, and we may create a builder in future which allows providing
+                  public keys when building partial transactions for use in preview.
+                * If you don't have signatures to hand, you can simply not sign the partial transactions,
+                  and then use the `assume_all_signature_proofs` preview flag, although be advised that
+                  this may result in the fee estimate being slightly lower during preview.
+                * We may create more ergonomic builders for PreviewTransactions which allow use of
+                  public keys to denote the signers of subintents. Let us know if this is important
+                  for your use case.
+              type: string
+
+    TransactionPreviewV2Response:
+      type: object
+      required:
+        - at_ledger_state_version
+      properties:
+        at_ledger_state_version:
+          description: A summarized state of the ledger on top of which the preview was performed.
+          type: integer
+          format: int64
+        receipt:
+          type: object
+          description: |
+            This is provided unless the `core_api_receipt` flag is set to false in the `opt_ins `
+            property of the request.
+
+            This type is defined in the Core API as `TransactionReceipt`. See the Core API documentation for more details.
+        radix_engine_toolkit_receipt:
+          type: object
+          description: |
+            An optional field which is only provided if the `radix_engine_toolkit_receipt`
+            flag is set to true in the `opt_ins` property of the request.
+
+            This receipt is primarily intended for use with the toolkit and may contain information
+            that is already available in the receipt provided in the `receipt` field of this
+            response.
+
+            A typical client of this API is not expected to use this receipt. The primary clients
+            this receipt is intended for is the Radix wallet or any client that needs to perform
+            execution summaries on their transactions.
+        logs:
+          type: array
+          description: |
+            An optional field which is only provided if the `logs` flag is set to true in the
+            `opt_ins` property of the request.
+
+            If present, it gives the emitted logs from the transaction execution.
           items:
             type: object
             required:
@@ -3432,7 +3903,7 @@ components:
               $ref: "#/components/schemas/TransactionAccountDepositPreValidationAuthorizedDepositorBadge"
           example:
             account_address: "<account-address>"
-            resource_addresses: ["<resource-address>"]
+            resource_addresses: [ "<resource-address>" ]
 
     AccountDepositPreValidationResponse:
       allOf:
@@ -3452,6 +3923,40 @@ components:
                 $ref: "#/components/schemas/AccountDepositPreValidationResourceSpecificBehaviourItem"
             deciding_factors:
               $ref: "#/components/schemas/AccountDepositPreValidationDecidingFactors"
+
+    TransactionSubintentStatusRequest:
+      type: object
+      required:
+        - subintent_hash
+      properties:
+        subintent_hash:
+          $ref: "#/components/schemas/HashBech32mString"
+      example:
+        subintent_hash: "<transaction-subintent-hash>"
+    TransactionSubintentStatusResponse:
+      allOf:
+        - $ref: "#/components/schemas/LedgerStateMixin"
+        - type: object
+          required:
+            - subintent_status
+            - subintent_status_description
+          properties:
+            subintent_status:
+              $ref: "#/components/schemas/SubintentStatus"
+            subintent_status_description:
+              description: |
+                An additional description to clarify the `subintent_status`.
+              type: string
+            finalized_at_state_version:
+              description: |
+                The state version when the subintent was finalized (committed as a success). This field is only present if the status is `CommittedSuccess`.
+              type: integer
+              format: int64
+              nullable: true
+            finalized_at_transaction_intent_hash:
+              description: |
+                The transaction intent hash of the transaction in which the subintent was finalized (committed as a success). This field is only present if the status is `CommittedSuccess`.
+              $ref: "#/components/schemas/HashBech32mString"
 
     TransactionStatusRequest:
       allOf:
@@ -3633,6 +4138,29 @@ components:
             transaction:
               $ref: "#/components/schemas/CommittedTransactionInfo"
 
+    TransactionSubintentDetails:
+      type: object
+      required:
+        - subintent_hash
+      properties:
+        subintent_hash:
+          $ref: "#/components/schemas/HashBech32mString"
+        manifest_instructions:
+          description: |
+            A text-representation of a subintent manifest.
+            This field will be present only for user transactions and when explicitly opted-in using the `manifest_instructions` flag.
+          type: string
+        message:
+          type: object
+          description: |
+            The optional subintent message.
+            This type is defined in the Core API as `TransactionMessage`. See the Core API documentation for more details.
+        child_subintent_hashes:
+          description: The subintent hash of each child of the subintent.
+          type: array
+          items:
+            $ref: "#/components/schemas/HashBech32mString"
+
     TransactionBalanceChanges:
       type: object
       nullable: true # TODO make non-nullable once we eliminate CoreAPI-based implementation
@@ -3747,38 +4275,54 @@ components:
                 - EpochChange
                 - All
             manifest_accounts_withdrawn_from_filter:
+              description: Allows specifying an array of account addresses. If specified, the response will contain only transactions with a manifest containing withdrawals from the given accounts.
               type: array
               items:
                 $ref: "#/components/schemas/Address"
             manifest_accounts_deposited_into_filter:
+              description: Similar to `manifest_accounts_withdrawn_from_filter`, but will return only transactions with a manifest containing deposits to the given accounts.
               type: array
               items:
                 $ref: "#/components/schemas/Address"
             manifest_badges_presented_filter:
+              description: Allows specifying array of badge resource addresses. If specified, the response will contain only transactions where the given badges were presented.
               type: array
               items:
                 $ref: "#/components/schemas/Address"
             manifest_resources_filter:
+              description: Allows specifying array of resource addresses. If specified, the response will contain only transactions containing the given resources in the manifest (regardless of their usage).
               type: array
               items:
                 $ref: "#/components/schemas/Address"
             affected_global_entities_filter:
+              description: Allows specifying an array of global addresses. If specified, the response will contain transactions that affected all of the given global entities. A global entity is marked as "affected" by a transaction if any of its state (or its descendents' state) was modified as a result of the transaction. For performance reasons consensus manager and transaction tracker are excluded from that filter.
               type: array
               items:
                 $ref: "#/components/schemas/Address"
+            affected_global_entities_filter_type:
+              description: Whether the filter should require all addresses (AND) or any of them (OR) to be present in the transaction. Default - "And".
+              type: string
+              enum:
+                - And
+                - Or
+              default: "And"
             events_filter:
+              description: Filters the transaction stream to transactions which emitted at least one event matching each filter (each filter can be satisfied by a different event). Currently *only* deposit and withdrawal events emitted by an internal vault entity are tracked. For the purpose of filtering, the emitter address is replaced by the global ancestor of the emitter, for example, the top-level account / component which contains the vault which emitted the event.
               type: array
               items:
                 $ref: "#/components/schemas/StreamTransactionsRequestEventFilterItem"
             accounts_with_manifest_owner_method_calls:
+              description: Allows specifying an array of account addresses. If specified, the response will contain only transactions that, for all specified accounts, contain manifest method calls to that account which require the owner role. See the [account docs](https://docs.radixdlt.com/docs/account) for more information.
               type: array
               items:
                 $ref: "#/components/schemas/Address"
             accounts_without_manifest_owner_method_calls:
+              description: Allows specifying an array of account addresses. If specified, the response will contain only transactions that, for all specified accounts, do NOT contain manifest method calls to that account which require owner role. See the [account docs](https://docs.radixdlt.com/docs/account) for more information.
               type: array
               items:
                 $ref: "#/components/schemas/Address"
             manifest_class_filter:
+              description: Allows filtering to transactions which match the given manifest classification. If specified, the response will contain only transactions which have a class that matches the filter. If `match_only_most_specific` set to true, only transactions where the queried class is most specific will be returned. See the [docs on manifest classification](https://docs.radixdlt.com/docs/conforming-transaction-manifest-types) for more information.
               type: object
               required:
                 - class
@@ -3788,6 +4332,11 @@ components:
                 match_only_most_specific:
                   type: boolean
                   default: false
+            event_global_emitters_filter:
+              description: Allows specifying an array of global addresses. If specified, the response will contain transactions in which all entities emitted events. If an event was published by an internal entity, it is going to be indexed as it is a global ancestor. For performance reasons events published by consensus manager and native XRD resource are excluded from that filter.
+              type: array
+              items:
+                $ref: "#/components/schemas/Address"
             order:
               description: Configures the order of returned result set. Defaults to `desc`.
               type: string
@@ -3815,11 +4364,14 @@ components:
     StreamTransactionsResponse:
       allOf:
         - $ref: "#/components/schemas/LedgerStateMixin"
-        - $ref: "#/components/schemas/ResultSetCursorMixin"
         - type: object
           required:
             - items
           properties:
+            next_cursor:
+              description: If specified, contains a cursor to query next page of the `items` collection.
+              type: string
+              nullable: true
             items:
               description: The page of user transactions.
               type: array
@@ -3841,7 +4393,7 @@ components:
               $ref: "#/components/schemas/StateEntityDetailsOptIns"
             addresses:
               type: array
-              description: limited to max 100 items.
+              description: limited to max 20 items.
               items:
                 $ref: "#/components/schemas/Address"
             aggregation_level:
@@ -3856,6 +4408,8 @@ components:
           component_royalty_vault_balance: true
           package_royalty_vault_balance: true
           non_fungible_include_nfids: true
+          dapp_two_way_links: true
+          native_resource_details: true
           explicit_metadata:
             - name
             - description
@@ -3888,6 +4442,14 @@ components:
           type: array
           items:
             type: string
+        dapp_two_way_links:
+          description: if set to `true`, on-ledger dApp two-way links (resolved & verified) are returned. See https://docs.radixdlt.com/docs/metadata-for-verification for more details.
+          type: boolean
+          default: false
+        native_resource_details:
+          description: if set to `true`, additional details for the Network native resources are returned.
+          type: boolean
+          default: false
     StateEntityDetailsResponse:
       allOf:
         - $ref: "#/components/schemas/LedgerStateMixin"
@@ -3976,6 +4538,10 @@ components:
               $ref: "#/components/schemas/BigDecimal"
             total_burned:
               $ref: "#/components/schemas/BigDecimal"
+            two_way_linked_dapps:
+              $ref: "#/components/schemas/TwoWayLinkedDappsCollection"
+            native_resource_details:
+              $ref: "#/components/schemas/NativeResourceDetails"
     StateEntityDetailsResponseNonFungibleResourceDetails:
       allOf:
         - $ref: "#/components/schemas/StateEntityDetailsResponseItemDetails"
@@ -3986,6 +4552,7 @@ components:
             - total_supply
             - total_minted
             - total_burned
+            - non_fungible_data_mutable_fields
           properties:
             role_assignments:
               $ref: "#/components/schemas/ComponentEntityRoleAssignments"
@@ -3997,6 +4564,14 @@ components:
               $ref: "#/components/schemas/BigDecimal"
             total_burned:
               $ref: "#/components/schemas/BigDecimal"
+            non_fungible_data_mutable_fields:
+              type: array
+              items:
+                type: string
+            two_way_linked_dapps:
+              $ref: "#/components/schemas/TwoWayLinkedDappsCollection"
+            native_resource_details:
+              $ref: "#/components/schemas/NativeResourceDetails"
     StateEntityDetailsResponseFungibleVaultDetails:
       allOf:
         - $ref: "#/components/schemas/StateEntityDetailsResponseItemDetails"
@@ -4055,6 +4630,9 @@ components:
               $ref: "#/components/schemas/EntitySchemaCollection"
             role_assignments:
               $ref: "#/components/schemas/ComponentEntityRoleAssignments"
+            two_way_linked_dapp_address:
+              description: Two-way linked (resolved & verified) dApp address, if any.
+              $ref: "#/components/schemas/Address"
     StateEntityDetailsResponseComponentDetails:
       allOf:
         - $ref: "#/components/schemas/StateEntityDetailsResponseItemDetails"
@@ -4082,6 +4660,14 @@ components:
               $ref: "#/components/schemas/BigDecimal"
             royalty_config:
               $ref: "#/components/schemas/ComponentRoyaltyConfig"
+            two_way_linked_dapp_address:
+              description: Two-way linked (resolved & verified) dApp address, if any. Applicable to non-Account dApp components only.
+              $ref: "#/components/schemas/Address"
+            two_way_linked_dapp_details:
+              description: Two-way linked (resolved & verified) dApp details. Applicable to dApp definition accounts only and limited to on-ledger information only.
+              $ref: "#/components/schemas/TwoWayLinkedDappOnLedgerDetails"
+            native_resource_details:
+              $ref: "#/components/schemas/NativeResourceDetails"
 
     StateAccountResourcePreferencesPageRequest:
       allOf:
@@ -4611,6 +5197,7 @@ components:
                 - kind: "U32"
                   value: "1"
     StateKeyValueStoreDataRequestKeyItem:
+      description: Provide either `key_hex` or `key_json`. If both are provided, `key_hex` is used and `key_json` is ignored.
       type: object
       properties:
         key_hex:
@@ -4748,6 +5335,22 @@ components:
             validators:
               $ref: "#/components/schemas/ValidatorUptimeCollection"
 
+    ResourceHoldersRequest:
+      allOf:
+        - $ref: "#/components/schemas/CursorLimitMixin"
+        - type: object
+          properties:
+            resource_address:
+              $ref: "#/components/schemas/Address"
+      example:
+        limit_per_page: 100
+        resource_address: "<resource-address>"
+
+    ResourceHoldersResponse:
+      allOf:
+        - $ref: "#/components/schemas/ResourceHoldersCollection"
+
+
     #
     # Errors
     #
@@ -4881,6 +5484,188 @@ components:
           type: array
           items:
             type: string
+
+    #
+    # Native Resources
+    #
+
+    NativeResourceUnitRedemptionValue:
+      type: array
+      items:
+        $ref: "#/components/schemas/NativeResourceRedemptionValueItem"
+    NativeResourceRedemptionValueItem:
+      type: object
+      required:
+        - resource_address
+      properties:
+        resource_address:
+          $ref: "#/components/schemas/Address"
+        amount:
+          $ref: "#/components/schemas/BigDecimal"
+
+    NativeResourceKind:
+      type: string
+      enum:
+        - Xrd
+        - PackageOwnerBadge
+        - AccountOwnerBadge
+        - IdentityOwnerBadge
+        - ValidatorOwnerBadge
+        - Secp256k1SignatureResource
+        - Ed25519SignatureResource
+        - GlobalCallerResource
+        - PackageOfDirectCallerResource
+        - SystemExecutionResource
+        - ValidatorLiquidStakeUnit
+        - ValidatorClaimNft
+        - OneResourcePoolUnit
+        - TwoResourcePoolUnit
+        - MultiResourcePoolUnit
+        - AccessControllerRecoveryBadge
+    NativeResourceDetails:
+      type: object
+      discriminator:
+        propertyName: kind
+        mapping:
+          Xrd: "#/components/schemas/NativeResourceXrdValue"
+          PackageOwnerBadge: "#/components/schemas/NativeResourcePackageOwnerBadgeValue"
+          AccountOwnerBadge: "#/components/schemas/NativeResourceAccountOwnerBadgeValue"
+          IdentityOwnerBadge: "#/components/schemas/NativeResourceIdentityOwnerBadgeValue"
+          ValidatorOwnerBadge: "#/components/schemas/NativeResourceValidatorOwnerBadgeValue"
+          Secp256k1SignatureResource: "#/components/schemas/NativeResourceSecp256k1SignatureResourceValue"
+          Ed25519SignatureResource: "#/components/schemas/NativeResourceEd25519SignatureResourceValue"
+          GlobalCallerResource: "#/components/schemas/NativeResourceGlobalCallerResourceValue"
+          PackageOfDirectCallerResource: "#/components/schemas/NativeResourcePackageOfDirectCallerResourceValue"
+          SystemExecutionResource: "#/components/schemas/NativeResourceSystemExecutionResourceValue"
+          ValidatorLiquidStakeUnit: "#/components/schemas/NativeResourceValidatorLiquidStakeUnitValue"
+          ValidatorClaimNft: "#/components/schemas/NativeResourceValidatorClaimNftValue"
+          OneResourcePoolUnit: "#/components/schemas/NativeResourceOneResourcePoolUnitValue"
+          TwoResourcePoolUnit: "#/components/schemas/NativeResourceTwoResourcePoolUnitValue"
+          MultiResourcePoolUnit: "#/components/schemas/NativeResourceMultiResourcePoolUnitValue"
+          AccessControllerRecoveryBadge: "#/components/schemas/NativeResourceAccessControllerRecoveryBadgeValue"
+      required:
+        - kind
+      properties:
+        kind:
+          $ref: "#/components/schemas/NativeResourceKind"
+    NativeResourceXrdValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+    NativeResourcePackageOwnerBadgeValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+    NativeResourceAccountOwnerBadgeValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+    NativeResourceIdentityOwnerBadgeValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+    NativeResourceValidatorOwnerBadgeValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+    NativeResourceSecp256k1SignatureResourceValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+    NativeResourceEd25519SignatureResourceValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+    NativeResourceGlobalCallerResourceValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+    NativeResourcePackageOfDirectCallerResourceValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+    NativeResourceSystemExecutionResourceValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+    NativeResourceValidatorLiquidStakeUnitValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+          required:
+            - validator_address
+            - redemption_resource_count
+            - unit_redemption_value
+          properties:
+            validator_address:
+              $ref: "#/components/schemas/Address"
+            redemption_resource_count:
+              type: integer
+            unit_redemption_value:
+              $ref: "#/components/schemas/NativeResourceUnitRedemptionValue"
+    NativeResourceValidatorClaimNftValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+          required:
+            - validator_address
+          properties:
+            validator_address:
+              $ref: "#/components/schemas/Address"
+    NativeResourceOneResourcePoolUnitValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+          required:
+            - pool_address
+            - redemption_resource_count
+            - unit_redemption_value
+          properties:
+            pool_address:
+              $ref: "#/components/schemas/Address"
+            redemption_resource_count:
+              type: integer
+            unit_redemption_value:
+              $ref: "#/components/schemas/NativeResourceUnitRedemptionValue"
+    NativeResourceTwoResourcePoolUnitValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+          required:
+            - pool_address
+            - redemption_resource_count
+            - unit_redemption_value
+          properties:
+            pool_address:
+              $ref: "#/components/schemas/Address"
+            redemption_resource_count:
+              type: integer
+            unit_redemption_value:
+              $ref: "#/components/schemas/NativeResourceUnitRedemptionValue"
+    NativeResourceMultiResourcePoolUnitValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+          required:
+            - pool_address
+            - redemption_resource_count
+            - unit_redemption_value
+          properties:
+            pool_address:
+              $ref: "#/components/schemas/Address"
+            redemption_resource_count:
+              type: integer
+            unit_redemption_value:
+              $ref: "#/components/schemas/NativeResourceUnitRedemptionValue"
+    NativeResourceAccessControllerRecoveryBadgeValue:
+      allOf:
+        - $ref: "#/components/schemas/NativeResourceDetails"
+        - type: object
+          required:
+            - access_controller_address
+          properties:
+            access_controller_address:
+              $ref: "#/components/schemas/Address"
 
     #
     # Metadata Typed Value
@@ -5538,9 +6323,7 @@ components:
             - fields
           properties:
             variant_id:
-              type: integer
-              minimum: 0
-              maximum: 255
+              type: string
             variant_name:
               type: string
             fields:
@@ -5569,7 +6352,6 @@ components:
         - type: object
           required:
             - element_kind
-            - elements
             - hex
           properties:
             element_kind:
@@ -5628,7 +6410,7 @@ components:
             - value
           properties:
             value:
-              type: string
+              $ref: "#/components/schemas/Address"
     ProgrammaticScryptoSborValueOwn:
       allOf:
         - $ref: "#/components/schemas/ProgrammaticScryptoSborValue"
@@ -5637,7 +6419,7 @@ components:
             - value
           properties:
             value:
-              type: string
+              $ref: "#/components/schemas/Address"
     ProgrammaticScryptoSborValueDecimal:
       allOf:
         - $ref: "#/components/schemas/ProgrammaticScryptoSborValue"
