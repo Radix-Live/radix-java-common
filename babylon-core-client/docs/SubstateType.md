@@ -5,7 +5,15 @@
 ## Enum
 
 
+* `BOOT_LOADER_MODULE_FIELD_SYSTEM_BOOT` (value: `"BootLoaderModuleFieldSystemBoot"`)
+
+* `BOOT_LOADER_MODULE_FIELD_KERNEL_BOOT` (value: `"BootLoaderModuleFieldKernelBoot"`)
+
 * `BOOT_LOADER_MODULE_FIELD_VM_BOOT` (value: `"BootLoaderModuleFieldVmBoot"`)
+
+* `BOOT_LOADER_MODULE_FIELD_TRANSACTION_VALIDATION_CONFIGURATION` (value: `"BootLoaderModuleFieldTransactionValidationConfiguration"`)
+
+* `PROTOCOL_UPDATE_STATUS_MODULE_FIELD_SUMMARY` (value: `"ProtocolUpdateStatusModuleFieldSummary"`)
 
 * `TYPE_INFO_MODULE_FIELD_TYPE_INFO` (value: `"TypeInfoModuleFieldTypeInfo"`)
 
@@ -108,10 +116,6 @@
 * `TRANSACTION_TRACKER_COLLECTION_ENTRY` (value: `"TransactionTrackerCollectionEntry"`)
 
 * `ACCOUNT_LOCKER_ACCOUNT_CLAIMS_ENTRY` (value: `"AccountLockerAccountClaimsEntry"`)
-
-* `BOOT_LOADER_MODULE_FIELD_SYSTEM_BOOT` (value: `"BootLoaderModuleFieldSystemBoot"`)
-
-* `BOOT_LOADER_MODULE_FIELD_KERNEL_BOOT` (value: `"BootLoaderModuleFieldKernelBoot"`)
 
 
 

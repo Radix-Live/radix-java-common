@@ -7,7 +7,7 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**value** | **Object** |  |  |
+|**value** | [**BootLoaderModuleFieldKernelBootValue**](BootLoaderModuleFieldKernelBootValue.md) |  |  |
 
 
 

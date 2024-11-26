@@ -7,7 +7,7 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**accessRule** | [**AccessRuleNode**](AccessRuleNode.md) |  |  |
+|**accessRule** | [**CompositeRequirement**](CompositeRequirement.md) |  |  |
 
 
 

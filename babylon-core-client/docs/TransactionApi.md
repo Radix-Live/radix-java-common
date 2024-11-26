@@ -6,7 +6,8 @@ All URIs are relative to *http://localhost:3333/core*
 |------------- | ------------- | -------------|
 | [**transactionCallPreviewPost**](TransactionApi.md#transactionCallPreviewPost) | **POST** /transaction/call-preview | Scrypto Call Preview |
 | [**transactionParsePost**](TransactionApi.md#transactionParsePost) | **POST** /transaction/parse | Parse Transaction Payload |
-| [**transactionPreviewPost**](TransactionApi.md#transactionPreviewPost) | **POST** /transaction/preview | Transaction Preview |
+| [**transactionPreviewPost**](TransactionApi.md#transactionPreviewPost) | **POST** /transaction/preview | Transaction Preview V1 |
+| [**transactionPreviewV2Post**](TransactionApi.md#transactionPreviewV2Post) | **POST** /transaction/preview-v2 | Transaction Preview V2 |
 | [**transactionReceiptPost**](TransactionApi.md#transactionReceiptPost) | **POST** /transaction/receipt | Get Transaction Receipt |
 | [**transactionStatusPost**](TransactionApi.md#transactionStatusPost) | **POST** /transaction/status | Get Transaction Status |
 | [**transactionSubmitPost**](TransactionApi.md#transactionSubmitPost) | **POST** /transaction/submit | Transaction Submit |
@@ -153,9 +154,9 @@ No authorization required
 
 > TransactionPreviewResponse transactionPreviewPost(transactionPreviewRequest)
 
-Transaction Preview
+Transaction Preview V1
 
-Preview a transaction against the latest network state, and returns the preview receipt. 
+Preview a transaction against the latest network state, and returns the preview receipt. If the node has enabled it, you may be able to also preview against recent network state.  For V2 transactions (and beyond) the &#x60;/preview-v2&#x60; endpoint should be used instead. 
 
 ### Example
 
@@ -198,6 +199,74 @@ public class Example {
 ### Return type
 
 [**TransactionPreviewResponse**](TransactionPreviewResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Transaction preview response |  -  |
+| **400** | Client error |  -  |
+| **500** | Server error |  -  |
+
+
+## transactionPreviewV2Post
+
+> TransactionPreviewV2Response transactionPreviewV2Post(transactionPreviewV2Request)
+
+Transaction Preview V2
+
+Previews a transaction against the latest network state, and returns the preview receipt. If the node has enabled it, you may be able to also preview against recent network state.  This endpoint supports V2 transactions (and beyond). If you still need to preview V1 transactions, you should use the &#x60;/preview&#x60; endpoint instead. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.core.ApiClient;
+import live.radix.core.ApiException;
+import live.radix.core.Configuration;
+import live.radix.core.models.*;
+import live.radix.core.client.TransactionApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost:3333/core");
+
+        TransactionApi apiInstance = new TransactionApi(defaultClient);
+        TransactionPreviewV2Request transactionPreviewV2Request = new TransactionPreviewV2Request(); // TransactionPreviewV2Request | 
+        try {
+            TransactionPreviewV2Response result = apiInstance.transactionPreviewV2Post(transactionPreviewV2Request);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling TransactionApi#transactionPreviewV2Post");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **transactionPreviewV2Request** | [**TransactionPreviewV2Request**](TransactionPreviewV2Request.md)|  | |
+
+### Return type
+
+[**TransactionPreviewV2Response**](TransactionPreviewV2Response.md)
 
 ### Authorization
 

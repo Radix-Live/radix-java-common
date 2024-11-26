@@ -19,5 +19,7 @@
 
 * `BOOT_LOADER` (value: `"BootLoader"`)
 
+* `PROTOCOL_UPDATE_STATUS` (value: `"ProtocolUpdateStatus"`)
+
 
 

@@ -1,10 +1,10 @@
 # babylon-core-client
 
-Radix Core API - Babylon (Bottlenose)
+Radix Core API
 
-- API version: v1.2.1
+- API version: v1.3.0
 
-- Build date: 2024-08-14T23:48:58.387759700+03:00[Europe/Kiev]
+- Build date: 2024-11-26T13:05:03.171643800+02:00[Europe/Kiev]
 
 - Generator version: 7.7.0
 
@@ -71,7 +71,7 @@ Add this dependency to your project's POM:
 <dependency>
   <groupId>live.radix</groupId>
   <artifactId>babylon-core-client</artifactId>
-  <version>v1.2.1</version>
+  <version>v1.3.0</version>
   <scope>compile</scope>
 </dependency>
 ```
@@ -81,7 +81,7 @@ Add this dependency to your project's POM:
 Add this dependency to your project's build file:
 
 ```groovy
-compile "live.radix:babylon-core-client:v1.2.1"
+compile "live.radix:babylon-core-client:v1.3.0"
 ```
 
 ### Others
@@ -94,7 +94,7 @@ mvn clean package
 
 Then manually install the following JARs:
 
-- `target/babylon-core-client-v1.2.1.jar`
+- `target/babylon-core-client-v1.3.0.jar`
 - `target/lib/*.jar`
 
 ## Getting Started
@@ -162,7 +162,8 @@ Class | Method | HTTP request | Description
 *StreamApi* | [**streamTransactionsPost**](docs/StreamApi.md#streamTransactionsPost) | **POST** /stream/transactions | Get Committed Transactions
 *TransactionApi* | [**transactionCallPreviewPost**](docs/TransactionApi.md#transactionCallPreviewPost) | **POST** /transaction/call-preview | Scrypto Call Preview
 *TransactionApi* | [**transactionParsePost**](docs/TransactionApi.md#transactionParsePost) | **POST** /transaction/parse | Parse Transaction Payload
-*TransactionApi* | [**transactionPreviewPost**](docs/TransactionApi.md#transactionPreviewPost) | **POST** /transaction/preview | Transaction Preview
+*TransactionApi* | [**transactionPreviewPost**](docs/TransactionApi.md#transactionPreviewPost) | **POST** /transaction/preview | Transaction Preview V1
+*TransactionApi* | [**transactionPreviewV2Post**](docs/TransactionApi.md#transactionPreviewV2Post) | **POST** /transaction/preview-v2 | Transaction Preview V2
 *TransactionApi* | [**transactionReceiptPost**](docs/TransactionApi.md#transactionReceiptPost) | **POST** /transaction/receipt | Get Transaction Receipt
 *TransactionApi* | [**transactionStatusPost**](docs/TransactionApi.md#transactionStatusPost) | **POST** /transaction/status | Get Transaction Status
 *TransactionApi* | [**transactionSubmitPost**](docs/TransactionApi.md#transactionSubmitPost) | **POST** /transaction/submit | Transaction Submit
@@ -173,8 +174,6 @@ Class | Method | HTTP request | Description
  - [AccessControllerFieldStateSubstate](docs/AccessControllerFieldStateSubstate.md)
  - [AccessControllerFieldStateValue](docs/AccessControllerFieldStateValue.md)
  - [AccessRule](docs/AccessRule.md)
- - [AccessRuleNode](docs/AccessRuleNode.md)
- - [AccessRuleNodeType](docs/AccessRuleNodeType.md)
  - [AccessRuleType](docs/AccessRuleType.md)
  - [AccountAddressKey](docs/AccountAddressKey.md)
  - [AccountAuthorizedDepositorEntrySubstate](docs/AccountAuthorizedDepositorEntrySubstate.md)
@@ -191,18 +190,21 @@ Class | Method | HTTP request | Description
  - [ActiveValidatorIndex](docs/ActiveValidatorIndex.md)
  - [ActiveValidatorKey](docs/ActiveValidatorKey.md)
  - [AddressType](docs/AddressType.md)
- - [AllOfAccessRuleNode](docs/AllOfAccessRuleNode.md)
- - [AllOfProofRule](docs/AllOfProofRule.md)
+ - [AllOfBasicRequirement](docs/AllOfBasicRequirement.md)
+ - [AllOfCompositeRequirement](docs/AllOfCompositeRequirement.md)
  - [AllowAllAccessRule](docs/AllowAllAccessRule.md)
- - [AmountOfProofRule](docs/AmountOfProofRule.md)
- - [AnyOfAccessRuleNode](docs/AnyOfAccessRuleNode.md)
- - [AnyOfProofRule](docs/AnyOfProofRule.md)
+ - [AlwaysVisibleGlobalNodesVersion](docs/AlwaysVisibleGlobalNodesVersion.md)
+ - [AmountOfBasicRequirement](docs/AmountOfBasicRequirement.md)
+ - [AnyOfBasicRequirement](docs/AnyOfBasicRequirement.md)
+ - [AnyOfCompositeRequirement](docs/AnyOfCompositeRequirement.md)
  - [AttachedModuleId](docs/AttachedModuleId.md)
  - [AuthConfig](docs/AuthConfig.md)
  - [AuthorizedDepositorBadge](docs/AuthorizedDepositorBadge.md)
  - [AuthorizedDepositorBadgeType](docs/AuthorizedDepositorBadgeType.md)
  - [AuthorizedDepositorKey](docs/AuthorizedDepositorKey.md)
  - [BasicErrorResponse](docs/BasicErrorResponse.md)
+ - [BasicRequirement](docs/BasicRequirement.md)
+ - [BasicRequirementType](docs/BasicRequirementType.md)
  - [BinaryPlaintextMessageContent](docs/BinaryPlaintextMessageContent.md)
  - [BlueprintCollectionSchema](docs/BlueprintCollectionSchema.md)
  - [BlueprintCollectionSchemaType](docs/BlueprintCollectionSchemaType.md)
@@ -223,15 +225,21 @@ Class | Method | HTTP request | Description
  - [BlueprintTypeReferenceKind](docs/BlueprintTypeReferenceKind.md)
  - [BlueprintVersionKey](docs/BlueprintVersionKey.md)
  - [BootLoaderModuleFieldKernelBootSubstate](docs/BootLoaderModuleFieldKernelBootSubstate.md)
+ - [BootLoaderModuleFieldKernelBootValue](docs/BootLoaderModuleFieldKernelBootValue.md)
  - [BootLoaderModuleFieldSystemBootSubstate](docs/BootLoaderModuleFieldSystemBootSubstate.md)
  - [BootLoaderModuleFieldSystemBootValue](docs/BootLoaderModuleFieldSystemBootValue.md)
+ - [BootLoaderModuleFieldTransactionValidationConfigurationSubstate](docs/BootLoaderModuleFieldTransactionValidationConfigurationSubstate.md)
  - [BootLoaderModuleFieldVmBootSubstate](docs/BootLoaderModuleFieldVmBootSubstate.md)
  - [BootLoaderModuleFieldVmBootValue](docs/BootLoaderModuleFieldVmBootValue.md)
  - [CommittedIntentMetadata](docs/CommittedIntentMetadata.md)
  - [CommittedStateIdentifier](docs/CommittedStateIdentifier.md)
  - [CommittedTransaction](docs/CommittedTransaction.md)
  - [CommittedTransactionBalanceChanges](docs/CommittedTransactionBalanceChanges.md)
+ - [CompiledPreviewTransaction](docs/CompiledPreviewTransaction.md)
+ - [CompleteProtocolUpdateStatus](docs/CompleteProtocolUpdateStatus.md)
  - [ComponentMethodTargetIdentifier](docs/ComponentMethodTargetIdentifier.md)
+ - [CompositeRequirement](docs/CompositeRequirement.md)
+ - [CompositeRequirementType](docs/CompositeRequirementType.md)
  - [ConsensusLedgerProofOrigin](docs/ConsensusLedgerProofOrigin.md)
  - [ConsensusManagerFieldConfigSubstate](docs/ConsensusManagerFieldConfigSubstate.md)
  - [ConsensusManagerFieldConfigValue](docs/ConsensusManagerFieldConfigValue.md)
@@ -251,7 +259,7 @@ Class | Method | HTTP request | Description
  - [ConsensusManagerRegisteredValidatorsByStakeIndexEntryValue](docs/ConsensusManagerRegisteredValidatorsByStakeIndexEntryValue.md)
  - [CostingModuleConfig](docs/CostingModuleConfig.md)
  - [CostingParameters](docs/CostingParameters.md)
- - [CountOfProofRule](docs/CountOfProofRule.md)
+ - [CountOfBasicRequirement](docs/CountOfBasicRequirement.md)
  - [CreatedSubstate](docs/CreatedSubstate.md)
  - [DataStruct](docs/DataStruct.md)
  - [DefaultDepositRule](docs/DefaultDepositRule.md)
@@ -320,11 +328,16 @@ Class | Method | HTTP request | Description
  - [GenesisLedgerProofOrigin](docs/GenesisLedgerProofOrigin.md)
  - [GenesisLedgerTransaction](docs/GenesisLedgerTransaction.md)
  - [HookExport](docs/HookExport.md)
+ - [InProgressProtocolUpdateStatus](docs/InProgressProtocolUpdateStatus.md)
  - [IndexBlueprintCollectionSchema](docs/IndexBlueprintCollectionSchema.md)
  - [IndexedStateSchema](docs/IndexedStateSchema.md)
  - [InstanceSchemaBlueprintTypeReference](docs/InstanceSchemaBlueprintTypeReference.md)
  - [InstantMs](docs/InstantMs.md)
  - [InstructionResourceChanges](docs/InstructionResourceChanges.md)
+ - [IntentCoreV2](docs/IntentCoreV2.md)
+ - [IntentHeaderV2](docs/IntentHeaderV2.md)
+ - [IntentSignatures](docs/IntentSignatures.md)
+ - [InvalidTransactionPreviewV2ErrorDetails](docs/InvalidTransactionPreviewV2ErrorDetails.md)
  - [KeyValueBasedStructure](docs/KeyValueBasedStructure.md)
  - [KeyValueBlueprintCollectionSchema](docs/KeyValueBlueprintCollectionSchema.md)
  - [KeyValueStoreEntryStructure](docs/KeyValueStoreEntryStructure.md)
@@ -382,6 +395,7 @@ Class | Method | HTTP request | Description
  - [LtsTransactionSubmitRequest](docs/LtsTransactionSubmitRequest.md)
  - [LtsTransactionSubmitResponse](docs/LtsTransactionSubmitResponse.md)
  - [MainMethodKey](docs/MainMethodKey.md)
+ - [ManifestValidationRuleset](docs/ManifestValidationRuleset.md)
  - [MapSubstateKey](docs/MapSubstateKey.md)
  - [MempoolListRequest](docs/MempoolListRequest.md)
  - [MempoolListResponse](docs/MempoolListResponse.md)
@@ -389,6 +403,7 @@ Class | Method | HTTP request | Description
  - [MempoolTransactionRequest](docs/MempoolTransactionRequest.md)
  - [MempoolTransactionResponse](docs/MempoolTransactionResponse.md)
  - [MempoolTransactionResponsePayloadsInner](docs/MempoolTransactionResponsePayloadsInner.md)
+ - [MessageValidationConfig](docs/MessageValidationConfig.md)
  - [MetadataKey](docs/MetadataKey.md)
  - [MetadataModuleEntrySubstate](docs/MetadataModuleEntrySubstate.md)
  - [MetadataModuleEntryValue](docs/MetadataModuleEntryValue.md)
@@ -430,6 +445,7 @@ Class | Method | HTTP request | Description
  - [NonFungibleVaultFieldFrozenStatusSubstate](docs/NonFungibleVaultFieldFrozenStatusSubstate.md)
  - [NonFungibleVaultFieldFrozenStatusValue](docs/NonFungibleVaultFieldFrozenStatusValue.md)
  - [NotarizedTransaction](docs/NotarizedTransaction.md)
+ - [NotarizedTransactionV2](docs/NotarizedTransactionV2.md)
  - [ObjectFieldStructure](docs/ObjectFieldStructure.md)
  - [ObjectHook](docs/ObjectHook.md)
  - [ObjectIndexPartitionEntryStructure](docs/ObjectIndexPartitionEntryStructure.md)
@@ -471,6 +487,7 @@ Class | Method | HTTP request | Description
  - [ParsedNotarizedTransaction](docs/ParsedNotarizedTransaction.md)
  - [ParsedNotarizedTransactionAllOfValidationError](docs/ParsedNotarizedTransactionAllOfValidationError.md)
  - [ParsedNotarizedTransactionIdentifiers](docs/ParsedNotarizedTransactionIdentifiers.md)
+ - [ParsedNotarizedTransactionV2](docs/ParsedNotarizedTransactionV2.md)
  - [ParsedSignedTransactionIntent](docs/ParsedSignedTransactionIntent.md)
  - [ParsedSignedTransactionIntentIdentifiers](docs/ParsedSignedTransactionIntentIdentifiers.md)
  - [ParsedTransaction](docs/ParsedTransaction.md)
@@ -488,15 +505,21 @@ Class | Method | HTTP request | Description
  - [PlaintextMessageContentType](docs/PlaintextMessageContentType.md)
  - [PlaintextTransactionMessage](docs/PlaintextTransactionMessage.md)
  - [PoolVault](docs/PoolVault.md)
+ - [PreparationSettings](docs/PreparationSettings.md)
  - [PresentedBadge](docs/PresentedBadge.md)
  - [PresentedBadgeType](docs/PresentedBadgeType.md)
+ - [PreviewFlags](docs/PreviewFlags.md)
+ - [PreviewTransaction](docs/PreviewTransaction.md)
+ - [PreviewTransactionType](docs/PreviewTransactionType.md)
  - [PrimaryRoleRecoveryAttempt](docs/PrimaryRoleRecoveryAttempt.md)
- - [ProofAccessRuleNode](docs/ProofAccessRuleNode.md)
- - [ProofRule](docs/ProofRule.md)
- - [ProofRuleType](docs/ProofRuleType.md)
+ - [ProofRuleCompositeRequirement](docs/ProofRuleCompositeRequirement.md)
  - [ProposerReward](docs/ProposerReward.md)
  - [ProtectedAccessRule](docs/ProtectedAccessRule.md)
  - [ProtocolUpdateLedgerProofOrigin](docs/ProtocolUpdateLedgerProofOrigin.md)
+ - [ProtocolUpdateStatus](docs/ProtocolUpdateStatus.md)
+ - [ProtocolUpdateStatusLatestCommit](docs/ProtocolUpdateStatusLatestCommit.md)
+ - [ProtocolUpdateStatusModuleFieldSummarySubstate](docs/ProtocolUpdateStatusModuleFieldSummarySubstate.md)
+ - [ProtocolUpdateStatusType](docs/ProtocolUpdateStatusType.md)
  - [ProtocolVersionReadiness](docs/ProtocolVersionReadiness.md)
  - [PublicKey](docs/PublicKey.md)
  - [PublicKeyType](docs/PublicKeyType.md)
@@ -507,7 +530,7 @@ Class | Method | HTTP request | Description
  - [ReferenceType](docs/ReferenceType.md)
  - [RemoteGenericSubstitution](docs/RemoteGenericSubstitution.md)
  - [RequestedStateVersionOutOfBoundsErrorDetails](docs/RequestedStateVersionOutOfBoundsErrorDetails.md)
- - [RequireProofRule](docs/RequireProofRule.md)
+ - [RequireBasicRequirement](docs/RequireBasicRequirement.md)
  - [Requirement](docs/Requirement.md)
  - [RequirementType](docs/RequirementType.md)
  - [ResourceAmount](docs/ResourceAmount.md)
@@ -547,6 +570,7 @@ Class | Method | HTTP request | Description
  - [Signature](docs/Signature.md)
  - [SignatureWithPublicKey](docs/SignatureWithPublicKey.md)
  - [SignedTransactionIntent](docs/SignedTransactionIntent.md)
+ - [SignedTransactionIntentV2](docs/SignedTransactionIntentV2.md)
  - [SignificantProtocolUpdateReadinessEntry](docs/SignificantProtocolUpdateReadinessEntry.md)
  - [SortedIndexBlueprintCollectionSchema](docs/SortedIndexBlueprintCollectionSchema.md)
  - [SortedSubstateKey](docs/SortedSubstateKey.md)
@@ -592,6 +616,7 @@ Class | Method | HTTP request | Description
  - [StreamTransactionsRequest](docs/StreamTransactionsRequest.md)
  - [StreamTransactionsResponse](docs/StreamTransactionsResponse.md)
  - [StringPlaintextMessageContent](docs/StringPlaintextMessageContent.md)
+ - [SubintentV2](docs/SubintentV2.md)
  - [Substate](docs/Substate.md)
  - [SubstateFormatOptions](docs/SubstateFormatOptions.md)
  - [SubstateId](docs/SubstateId.md)
@@ -607,6 +632,7 @@ Class | Method | HTTP request | Description
  - [SystemParameters](docs/SystemParameters.md)
  - [SystemSchemaStructure](docs/SystemSchemaStructure.md)
  - [SystemTransaction](docs/SystemTransaction.md)
+ - [SystemVersion](docs/SystemVersion.md)
  - [TargetIdentifier](docs/TargetIdentifier.md)
  - [TargetIdentifierType](docs/TargetIdentifierType.md)
  - [TimestampedValidatorSignature](docs/TimestampedValidatorSignature.md)
@@ -614,10 +640,12 @@ Class | Method | HTTP request | Description
  - [TransactionCallPreviewResponse](docs/TransactionCallPreviewResponse.md)
  - [TransactionFormatOptions](docs/TransactionFormatOptions.md)
  - [TransactionHeader](docs/TransactionHeader.md)
+ - [TransactionHeaderV2](docs/TransactionHeaderV2.md)
  - [TransactionIdKey](docs/TransactionIdKey.md)
  - [TransactionIdentifiers](docs/TransactionIdentifiers.md)
  - [TransactionIntent](docs/TransactionIntent.md)
  - [TransactionIntentStatus](docs/TransactionIntentStatus.md)
+ - [TransactionIntentV2](docs/TransactionIntentV2.md)
  - [TransactionMessage](docs/TransactionMessage.md)
  - [TransactionMessageType](docs/TransactionMessageType.md)
  - [TransactionParseRequest](docs/TransactionParseRequest.md)
@@ -625,9 +653,15 @@ Class | Method | HTTP request | Description
  - [TransactionPayloadDetails](docs/TransactionPayloadDetails.md)
  - [TransactionPayloadStatus](docs/TransactionPayloadStatus.md)
  - [TransactionPreviewRequest](docs/TransactionPreviewRequest.md)
- - [TransactionPreviewRequestFlags](docs/TransactionPreviewRequestFlags.md)
  - [TransactionPreviewResponse](docs/TransactionPreviewResponse.md)
  - [TransactionPreviewResponseLogsInner](docs/TransactionPreviewResponseLogsInner.md)
+ - [TransactionPreviewResponseOptions](docs/TransactionPreviewResponseOptions.md)
+ - [TransactionPreviewV2ErrorDetails](docs/TransactionPreviewV2ErrorDetails.md)
+ - [TransactionPreviewV2ErrorDetailsType](docs/TransactionPreviewV2ErrorDetailsType.md)
+ - [TransactionPreviewV2ErrorResponse](docs/TransactionPreviewV2ErrorResponse.md)
+ - [TransactionPreviewV2Request](docs/TransactionPreviewV2Request.md)
+ - [TransactionPreviewV2Response](docs/TransactionPreviewV2Response.md)
+ - [TransactionPreviewV2ResponseOptions](docs/TransactionPreviewV2ResponseOptions.md)
  - [TransactionReceipt](docs/TransactionReceipt.md)
  - [TransactionReceiptRequest](docs/TransactionReceiptRequest.md)
  - [TransactionReceiptResponse](docs/TransactionReceiptResponse.md)
@@ -647,6 +681,7 @@ Class | Method | HTTP request | Description
  - [TransactionTrackerFieldStateSubstate](docs/TransactionTrackerFieldStateSubstate.md)
  - [TransactionTrackerFieldStateValue](docs/TransactionTrackerFieldStateValue.md)
  - [TransactionTrackerTransactionStatus](docs/TransactionTrackerTransactionStatus.md)
+ - [TransactionValidationConfig](docs/TransactionValidationConfig.md)
  - [TwoResourcePoolFieldStateSubstate](docs/TwoResourcePoolFieldStateSubstate.md)
  - [TwoResourcePoolFieldStateValue](docs/TwoResourcePoolFieldStateValue.md)
  - [TypeInfoDetails](docs/TypeInfoDetails.md)
@@ -655,6 +690,7 @@ Class | Method | HTTP request | Description
  - [TypeInfoType](docs/TypeInfoType.md)
  - [UpdatedSubstate](docs/UpdatedSubstate.md)
  - [UserLedgerTransaction](docs/UserLedgerTransaction.md)
+ - [UserLedgerTransactionV2](docs/UserLedgerTransactionV2.md)
  - [ValidatorFeeChangeRequest](docs/ValidatorFeeChangeRequest.md)
  - [ValidatorFieldProtocolUpdateReadinessSignalSubstate](docs/ValidatorFieldProtocolUpdateReadinessSignalSubstate.md)
  - [ValidatorFieldProtocolUpdateReadinessSignalValue](docs/ValidatorFieldProtocolUpdateReadinessSignalValue.md)

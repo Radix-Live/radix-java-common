@@ -2,6 +2,7 @@
 
 # Requirement
 
+This is called `ResourceOrNonFungible` in the engine.
 
 ## Properties
 

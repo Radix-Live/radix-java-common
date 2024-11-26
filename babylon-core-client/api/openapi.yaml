@@ -31,8 +31,8 @@ info:
   license:
     name: "The Radix License, Version 1.0"
     url: https://www.radixfoundation.org/licenses/license-v1
-  title: Radix Core API - Babylon (Bottlenose)
-  version: v1.2.1
+  title: Radix Core API
+  version: v1.3.0
   x-logo:
     url: https://cdn.document360.io/50e78792-5410-4ac9-aa43-4612b4d33953/Images/Documentation/radix-logo-banner.png
     href: https://docs.radixdlt.com
@@ -73,7 +73,7 @@ tags:
     Once submitted, a transaction payload can end up being either rejected or committed.\
     \ Transactions get rejected if they fail to pass certain criteria at the given\
     \ time.\nA transaction payload can be marked as a:\n- **Permanent Rejection**\
-    \ if it is never possible for it to be committed (eg it's statically invalid,\
+    \ if it is never possible for it to be committed (e.g. it's statically invalid,\
     \ or only valid up until epoch 100 and it's now epoch 101)\n- **Temporary Rejection**\
     \ if it still may be possible that the transaction payload could be committed\n\
     \nA given intent typically is only part of one submitted notarized payload, but\
@@ -745,6 +745,9 @@ paths:
     post:
       description: |
         Preview a transaction against the latest network state, and returns the preview receipt.
+        If the node has enabled it, you may be able to also preview against recent network state.
+
+        For V2 transactions (and beyond) the `/preview-v2` endpoint should be used instead.
       requestBody:
         content:
           application/json:
@@ -770,7 +773,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Server error
-      summary: Transaction Preview
+      summary: Transaction Preview V1
+      tags:
+      - Transaction
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /transaction/preview-v2:
+    post:
+      description: |
+        Previews a transaction against the latest network state, and returns the preview receipt.
+        If the node has enabled it, you may be able to also preview against recent network state.
+
+        This endpoint supports V2 transactions (and beyond). If you still need to preview V1
+        transactions, you should use the `/preview` endpoint instead.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionPreviewV2Request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionPreviewV2Response'
+          description: Transaction preview response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionPreviewV2ErrorResponse'
+          description: Client error
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionPreviewV2ErrorResponse'
+          description: Server error
+      summary: Transaction Preview V2
       tags:
       - Transaction
       x-content-type: application/json
@@ -1310,6 +1352,7 @@ components:
       - Basic
       - TransactionSubmit
       - LtsTransactionSubmit
+      - TransactionPreviewV2
       - StreamTransactions
       - StreamProofs
       type: string
@@ -1319,6 +1362,7 @@ components:
           Basic: '#/components/schemas/BasicErrorResponse'
           TransactionSubmit: '#/components/schemas/TransactionSubmitErrorResponse'
           LtsTransactionSubmit: '#/components/schemas/LtsTransactionSubmitErrorResponse'
+          TransactionPreviewV2: '#/components/schemas/TransactionPreviewV2ErrorResponse'
           StreamTransactions: '#/components/schemas/StreamTransactionsErrorResponse'
           StreamProofs: '#/components/schemas/StreamProofsErrorResponse'
         propertyName: error_type
@@ -1360,296 +1404,6 @@ components:
         A string-encoded fixed-precision decimal to 18 decimal places.
         A decimal is formed of some signed integer `m` of attos (`10^(-18)`) units, where `-2^(192 - 1) <= m < 2^(192 - 1)`.
       type: string
-    TransactionStatus:
-      description: The status of the transaction
-      enum:
-      - Succeeded
-      - Failed
-      - Rejected
-      type: string
-    TransactionReceipt:
-      description: The transaction execution receipt
-      example:
-        output:
-        - programmatic_json: ""
-          hex: hex
-        - programmatic_json: ""
-          hex: hex
-        error_message: error_message
-        fee_summary:
-          xrd_total_storage_cost: xrd_total_storage_cost
-          xrd_total_execution_cost: xrd_total_execution_cost
-          execution_cost_units_consumed: 343953088
-          xrd_total_finalization_cost: xrd_total_finalization_cost
-          finalization_cost_units_consumed: 2588772717
-          xrd_total_royalty_cost: xrd_total_royalty_cost
-          xrd_total_tipping_cost: xrd_total_tipping_cost
-        next_epoch:
-          significant_protocol_update_readiness:
-          - signalled_stake: signalled_stake
-            readiness_signal_name: readiness_signal_name
-          - signalled_stake: signalled_stake
-            readiness_signal_name: readiness_signal_name
-          validators:
-          - stake: stake
-            address: address
-            key:
-              key_hex: key_hex
-              key_type: EcdsaSecp256k1
-          - stake: stake
-            address: address
-            key:
-              key_hex: key_hex
-              key_type: EcdsaSecp256k1
-          epoch: 2027123023
-        fee_destination:
-          to_burn: to_burn
-          to_validator_set: to_validator_set
-          to_proposer: to_proposer
-          to_royalty_recipients:
-          - royalty_recipient:
-              entity_type: GlobalPackage
-              entity_address: entity_address
-              is_global: true
-            xrd_amount: xrd_amount
-          - royalty_recipient:
-              entity_type: GlobalPackage
-              entity_address: entity_address
-              is_global: true
-            xrd_amount: xrd_amount
-        costing_parameters:
-          finalization_cost_unit_price: finalization_cost_unit_price
-          execution_cost_unit_loan: 2560717018
-          finalization_cost_unit_limit: 2421234836
-          execution_cost_unit_price: execution_cost_unit_price
-          xrd_storage_price: xrd_storage_price
-          xrd_usd_price: xrd_usd_price
-          execution_cost_unit_limit: 629561881
-          xrd_archive_storage_price: xrd_archive_storage_price
-          tip_percentage: 15087
-        state_updates:
-          deleted_substates:
-          - system_structure:
-              type: SystemField
-            previous_value:
-              substate_data_hash: substate_data_hash
-              substate_data:
-                substate_type: null
-                is_locked: true
-              substate_hex: substate_hex
-            substate_id:
-              substate_type: BootLoaderModuleFieldVmBoot
-              substate_key:
-                key_type: Field
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 237
-              entity_address: entity_address
-              entity_module: null
-          - system_structure:
-              type: SystemField
-            previous_value:
-              substate_data_hash: substate_data_hash
-              substate_data:
-                substate_type: null
-                is_locked: true
-              substate_hex: substate_hex
-            substate_id:
-              substate_type: BootLoaderModuleFieldVmBoot
-              substate_key:
-                key_type: Field
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 237
-              entity_address: entity_address
-              entity_module: null
-          deleted_partitions:
-          - entity_type: null
-            partition_kind: Field
-            partition_number: 180
-            entity_address: entity_address
-            entity_module: TypeInfo
-          - entity_type: null
-            partition_kind: Field
-            partition_number: 180
-            entity_address: entity_address
-            entity_module: TypeInfo
-          created_substates:
-          - system_structure:
-              type: SystemField
-            substate_id:
-              substate_type: BootLoaderModuleFieldVmBoot
-              substate_key:
-                key_type: Field
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 237
-              entity_address: entity_address
-              entity_module: null
-            value:
-              substate_data_hash: substate_data_hash
-              substate_data:
-                substate_type: null
-                is_locked: true
-              substate_hex: substate_hex
-          - system_structure:
-              type: SystemField
-            substate_id:
-              substate_type: BootLoaderModuleFieldVmBoot
-              substate_key:
-                key_type: Field
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 237
-              entity_address: entity_address
-              entity_module: null
-            value:
-              substate_data_hash: substate_data_hash
-              substate_data:
-                substate_type: null
-                is_locked: true
-              substate_hex: substate_hex
-          updated_substates:
-          - system_structure:
-              type: SystemField
-            previous_value:
-              substate_data_hash: substate_data_hash
-              substate_data:
-                substate_type: null
-                is_locked: true
-              substate_hex: substate_hex
-            substate_id:
-              substate_type: BootLoaderModuleFieldVmBoot
-              substate_key:
-                key_type: Field
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 237
-              entity_address: entity_address
-              entity_module: null
-            new_value:
-              substate_data_hash: substate_data_hash
-              substate_data:
-                substate_type: null
-                is_locked: true
-              substate_hex: substate_hex
-          - system_structure:
-              type: SystemField
-            previous_value:
-              substate_data_hash: substate_data_hash
-              substate_data:
-                substate_type: null
-                is_locked: true
-              substate_hex: substate_hex
-            substate_id:
-              substate_type: BootLoaderModuleFieldVmBoot
-              substate_key:
-                key_type: Field
-                db_sort_key_hex: db_sort_key_hex
-              entity_type: null
-              partition_kind: null
-              partition_number: 237
-              entity_address: entity_address
-              entity_module: null
-            new_value:
-              substate_data_hash: substate_data_hash
-              substate_data:
-                substate_type: null
-                is_locked: true
-              substate_hex: substate_hex
-          new_global_entities:
-          - entity_type: GlobalPackage
-            entity_address: entity_address
-            is_global: true
-          - entity_type: GlobalPackage
-            entity_address: entity_address
-            is_global: true
-        fee_source:
-          from_vaults:
-          - xrd_amount: xrd_amount
-            vault_entity:
-              entity_type: GlobalPackage
-              entity_address: entity_address
-              is_global: true
-          - xrd_amount: xrd_amount
-            vault_entity:
-              entity_type: GlobalPackage
-              entity_address: entity_address
-              is_global: true
-        events:
-        - data:
-            programmatic_json: ""
-            hex: hex
-          type:
-            name: name
-            type_reference:
-              full_type_id:
-                schema_hash: schema_hash
-                entity_address: entity_address
-                local_type_id:
-                  as_sbor:
-                    programmatic_json: ""
-                    hex: hex
-                  kind: WellKnown
-                  id: 1553093137
-            emitter:
-              type: Function
-        - data:
-            programmatic_json: ""
-            hex: hex
-          type:
-            name: name
-            type_reference:
-              full_type_id:
-                schema_hash: schema_hash
-                entity_address: entity_address
-                local_type_id:
-                  as_sbor:
-                    programmatic_json: ""
-                    hex: hex
-                  kind: WellKnown
-                  id: 1553093137
-            emitter:
-              type: Function
-        status: Succeeded
-      properties:
-        status:
-          $ref: '#/components/schemas/TransactionStatus'
-        fee_summary:
-          $ref: '#/components/schemas/FeeSummary'
-        costing_parameters:
-          $ref: '#/components/schemas/CostingParameters'
-        fee_source:
-          $ref: '#/components/schemas/FeeSource'
-        fee_destination:
-          $ref: '#/components/schemas/FeeDestination'
-        state_updates:
-          $ref: '#/components/schemas/StateUpdates'
-        events:
-          items:
-            $ref: '#/components/schemas/Event'
-          type: array
-        next_epoch:
-          $ref: '#/components/schemas/NextEpoch'
-        output:
-          description: The manifest line-by-line engine return data (only present
-            if `status` is `Succeeded`)
-          items:
-            $ref: '#/components/schemas/SborData'
-          type: array
-        error_message:
-          description: Error message (only present if status is `Failed` or `Rejected`)
-          type: string
-      required:
-      - costing_parameters
-      - fee_summary
-      - state_updates
-      - status
     NotarizedTransaction:
       properties:
         hash:
@@ -1682,12 +1436,12 @@ components:
           description: |
             The hex-encoded signed intent hash for a user transaction.
             This hash identifies the transaction intent, plus additional signatures.
-            This hash is signed by the notary, to create the submittable NotarizedTransaction.
+            This hash is signed by the notary, to create the submittable `NotarizedTransaction`.
           maxLength: 64
           minLength: 64
           type: string
         hash_bech32m:
-          description: The Bech32m-encoded human readable `SignedIntentHash`.
+          description: The Bech32m-encoded human readable `SignedTransactionIntentHash`.
           type: string
         intent:
           $ref: '#/components/schemas/TransactionIntent'
@@ -1704,14 +1458,14 @@ components:
       properties:
         hash:
           description: |
-            The hex-encoded intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
           maxLength: 64
           minLength: 64
           type: string
         hash_bech32m:
-          description: The Bech32m-encoded human readable `IntentHash`.
+          description: The Bech32m-encoded human readable `TransactionIntentHash`.
           type: string
         header:
           $ref: '#/components/schemas/TransactionHeader'
@@ -1846,8 +1600,11 @@ components:
           type: string
         aes_wrapped_key_hex:
           description: |
-            The hex-encoded wrapped key bytes from applying RFC 3394 (256-bit) AES-KeyWrap to the 128-bit message ephemeral public key, with the secret KEK provided by static Diffie-Helman between the decryptor public key, and the `dh_ephemeral_public_key` for that curve type.
-            The bytes are serialized (according to RFC 3394) as the concatenation `IV (first 8 bytes) || Cipher (wrapped 128-bit key, encoded as two 64-bit blocks)`.
+            The hex-encoded wrapped key bytes from applying RFC 3394 (256-bit) AES-KeyWrap to the message ephemeral public key, with the secret KEK provided by static Diffie-Helman between the decryptor public key, and the `dh_ephemeral_public_key` for that curve type.
+            The bytes are serialized (according to RFC 3394) as the concatenation `IV (first 8 bytes) || Cipher`.
+
+            The message ephemeral public key is 128-bit in V1 transactions, but 256-bit in V2 transactions.
+            The Cipher is the wrapped ephemeral public key, and is encoded as two 64-bit blocks in V1, and four 64-bit blocks in V2.
           type: string
       required:
       - aes_wrapped_key_hex
@@ -1879,6 +1636,8 @@ components:
         nonce:
           description: |
             An integer between `0` and `2^32 - 1`, chosen to allow a unique intent to be created (to enable submitting an otherwise identical/duplicate intent).
+
+            As of Cuttlefish and V2 transaction models, this is now referred to in documentation as the `intent_discriminator`.
           format: int64
           maximum: 4294967295
           minimum: 0
@@ -1910,6 +1669,207 @@ components:
       maximum: 255
       minimum: 0
       type: integer
+    NotarizedTransactionV2:
+      properties:
+        hash:
+          description: |
+            The hex-encoded notarized transaction hash for a user transaction.
+            This hash identifies the full submittable notarized transaction - ie the signed intent, plus the notary signature.
+          maxLength: 64
+          minLength: 64
+          type: string
+        hash_bech32m:
+          description: The Bech32m-encoded human readable `NotarizedTransactionHash`.
+          type: string
+        payload_hex:
+          description: The hex-encoded full notarized transaction payload. Returning
+            this can be disabled in TransactionFormatOptions on your request (default
+            true).
+          type: string
+        signed_transaction_intent:
+          $ref: '#/components/schemas/SignedTransactionIntentV2'
+        notary_signature:
+          $ref: '#/components/schemas/Signature'
+      required:
+      - hash
+      - hash_bech32m
+      - notary_signature
+      - signed_transaction_intent
+    SignedTransactionIntentV2:
+      properties:
+        hash:
+          description: |
+            The hex-encoded signed intent hash for a user transaction.
+            This hash identifies the transaction intent, plus additional signatures.
+            This hash is signed by the notary, to create the submittable `NotarizedTransaction`.
+          maxLength: 64
+          minLength: 64
+          type: string
+        hash_bech32m:
+          description: The Bech32m-encoded human readable `SignedTransactionIntentHash`.
+          type: string
+        transaction_intent:
+          $ref: '#/components/schemas/TransactionIntentV2'
+        transaction_intent_signatures:
+          $ref: '#/components/schemas/IntentSignatures'
+        non_root_subintent_signatures:
+          description: |
+            This gives the signatures for each subintent in `non_root_subintents` in `TransactionIntentV2`.
+            For committed transactions, these arrays are of equal length and correspond one-to-one in order.
+          items:
+            $ref: '#/components/schemas/IntentSignatures'
+          type: array
+      required:
+      - hash
+      - hash_bech32m
+      - non_root_subintent_signatures
+      - transaction_intent
+      - transaction_intent_signatures
+    IntentSignatures:
+      description: Signatures against the given intent.
+      properties:
+        signatures:
+          items:
+            $ref: '#/components/schemas/SignatureWithPublicKey'
+          type: array
+      required:
+      - signatures
+    TransactionIntentV2:
+      properties:
+        hash:
+          description: |
+            The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
+            This hash gets signed by any signatories on the transaction, to create the signed intent.
+          maxLength: 64
+          minLength: 64
+          type: string
+        hash_bech32m:
+          description: The Bech32m-encoded human readable `TransactionIntentHash`.
+          type: string
+        transaction_header:
+          $ref: '#/components/schemas/TransactionHeaderV2'
+        root_intent_core:
+          $ref: '#/components/schemas/IntentCoreV2'
+        non_root_subintents:
+          items:
+            $ref: '#/components/schemas/SubintentV2'
+          type: array
+      required:
+      - hash
+      - hash_bech32m
+      - non_root_subintents
+      - root_intent_core
+      - transaction_header
+    TransactionHeaderV2:
+      properties:
+        notary_public_key:
+          $ref: '#/components/schemas/PublicKey'
+        notary_is_signatory:
+          description: Specifies whether the notary public key should be included
+            in the transaction signers list
+          type: boolean
+        tip_basis_points:
+          description: |
+            An integer between `0` and `2^32 - 1 = 4294967295`, giving the validator tip as a basis points amount.
+            That is, a value of `1` corresponds to an additional tip on 0.01% of the base fee.
+          format: int64
+          maximum: 4294967295
+          minimum: 0
+          type: integer
+      required:
+      - notary_is_signatory
+      - notary_public_key
+      - tip_basis_points
+    SubintentV2:
+      properties:
+        hash:
+          description: |
+            The hex-encoded subintent hash for a subintent, also known as the partial transaction id.
+            This hash identifies the subintent. Each subintent can only be *successfully* committed once,
+            but unlike a transaction intent, could be committed as a failure zero or more times first.
+            This hash gets signed by any signatories on subintent.
+          maxLength: 64
+          minLength: 64
+          type: string
+        hash_bech32m:
+          description: The Bech32m-encoded human readable `SubintentHash`.
+          type: string
+        intent_core:
+          $ref: '#/components/schemas/IntentCoreV2'
+      required:
+      - hash
+      - hash_bech32m
+      - intent_core
+    IntentCoreV2:
+      properties:
+        intent_header:
+          $ref: '#/components/schemas/IntentHeaderV2'
+        children_specifiers:
+          items:
+            $ref: '#/components/schemas/SubintentHashBech32m'
+          type: array
+        blobs_hex:
+          additionalProperties:
+            description: The hex-encoded blob content
+            type: string
+          description: "A map of the hex-encoded blob hash, to hex-encoded blob content.\
+            \ Only returned if enabled in `TransactionFormatOptions` on your request."
+        message:
+          $ref: '#/components/schemas/TransactionMessage'
+        instructions:
+          description: The decompiled transaction manifest instructions. Only returned
+            if enabled in `TransactionFormatOptions` on your request.
+          type: string
+      required:
+      - children_specifiers
+      - intent_header
+    IntentHeaderV2:
+      description: |
+        The metadata common to both transaction intents and subintents.
+
+        The `min_proposer_timestamp_inclusive` and `max_proposer_timestamp_exclusive` are both optional.
+      properties:
+        network_id:
+          description: The logical id of the network
+          format: int32
+          maximum: 255
+          minimum: 0
+          type: integer
+        start_epoch_inclusive:
+          description: |
+            An integer between `0` and `10^10`, marking the epoch from which the transaction can be submitted.
+            In the case of uncommitted transactions, a value of `10^10` indicates that the epoch was >= `10^10`.
+          format: int64
+          maximum: 10000000000
+          minimum: 0
+          type: integer
+        end_epoch_exclusive:
+          description: |
+            An integer between `0` and `10^10`, marking the epoch from which the transaction will no longer be valid, and be rejected.
+            In the case of uncommitted transactions, a value of `10^10` indicates that the epoch was >= `10^10`.
+          format: int64
+          maximum: 10000000000
+          minimum: 0
+          type: integer
+        min_proposer_timestamp_inclusive:
+          $ref: '#/components/schemas/ScryptoInstant'
+        max_proposer_timestamp_exclusive:
+          $ref: '#/components/schemas/ScryptoInstant'
+        intent_discriminator:
+          description: |
+            The string representation of an integer between `0` and `2^64 - 1`, which can be chosen to ensure that
+            a unique intent can be created. It only needs to be unique for a particular intent content and epoch/timestamp,
+            and can be safely selected randomly to very high probability.
+
+            This field was called `nonce` in the V1 models, but was a misleading name, as it got confused with a
+            cryptographic nonce or an Ethereum-style nonce, and it is neither.
+          type: string
+      required:
+      - end_epoch_exclusive
+      - intent_discriminator
+      - network_id
+      - start_epoch_inclusive
     LedgerStateSummary:
       example:
         state_version: 8008281904611
@@ -2002,25 +1962,25 @@ components:
       properties:
         intent_hash:
           description: |
-            The hex-encoded intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
           maxLength: 64
           minLength: 64
           type: string
         intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `IntentHash`.
+          description: The Bech32m-encoded human readable `TransactionIntentHash`.
           type: string
         signed_intent_hash:
           description: |
             The hex-encoded signed intent hash for a user transaction.
             This hash identifies the transaction intent, plus additional signatures.
-            This hash is signed by the notary, to create the submittable NotarizedTransaction.
+            This hash is signed by the notary, to create the submittable `NotarizedTransaction`.
           maxLength: 64
           minLength: 64
           type: string
         signed_intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `SignedIntentHash`.
+          description: The Bech32m-encoded human readable `SignedTransactionIntentHash`.
           type: string
         payload_hash:
           description: |
@@ -2039,34 +1999,46 @@ components:
       - payload_hash_bech32m
       - signed_intent_hash
       - signed_intent_hash_bech32m
-    IntentHashInput:
+    TransactionIntentHashInput:
       description: |
-        The intent hash for a user transaction, also known as the transaction id.
-        This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+        The transaction intent hash for a user transaction, also known as the transaction id.
+        This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
         This hash gets signed by any signatories on the transaction, to create the signed intent.
         Either hex or Bech32m-encoded strings are supported.
       type: string
-    IntentHash:
+    TransactionIntentHash:
       description: |
-        The hex-encoded intent hash for a user transaction, also known as the transaction id.
-        This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+        The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+        This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
         This hash gets signed by any signatories on the transaction, to create the signed intent.
       maxLength: 64
       minLength: 64
       type: string
-    IntentHashBech32m:
-      description: The Bech32m-encoded human readable `IntentHash`.
+    TransactionIntentHashBech32m:
+      description: The Bech32m-encoded human readable `TransactionIntentHash`.
       type: string
-    SignedIntentHash:
+    SubintentHash:
       description: |
-        The hex-encoded signed intent hash for a user transaction.
-        This hash identifies the transaction intent, plus additional signatures.
-        This hash is signed by the notary, to create the submittable NotarizedTransaction.
+        The hex-encoded subintent hash for a subintent, also known as the partial transaction id.
+        This hash identifies the subintent. Each subintent can only be *successfully* committed once,
+        but unlike a transaction intent, could be committed as a failure zero or more times first.
+        This hash gets signed by any signatories on subintent.
       maxLength: 64
       minLength: 64
       type: string
-    SignedIntentHashBech32m:
-      description: The Bech32m-encoded human readable `SignedIntentHash`.
+    SubintentHashBech32m:
+      description: The Bech32m-encoded human readable `SubintentHash`.
+      type: string
+    SignedTransactionIntentHash:
+      description: |
+        The hex-encoded signed intent hash for a user transaction.
+        This hash identifies the transaction intent, plus additional signatures.
+        This hash is signed by the notary, to create the submittable `NotarizedTransaction`.
+      maxLength: 64
+      minLength: 64
+      type: string
+    SignedTransactionIntentHashBech32m:
+      description: The Bech32m-encoded human readable `SignedTransactionIntentHash`.
       type: string
     NotarizedTransactionHashInput:
       description: |
@@ -2121,6 +2093,299 @@ components:
       - payload_hash
       - payload_hash_bech32m
       - state_version
+    TransactionStatus:
+      description: The status of the transaction
+      enum:
+      - Succeeded
+      - Failed
+      - Rejected
+      type: string
+    TransactionReceipt:
+      description: The transaction execution receipt
+      example:
+        output:
+        - programmatic_json: ""
+          hex: hex
+        - programmatic_json: ""
+          hex: hex
+        error_message: error_message
+        fee_summary:
+          xrd_total_storage_cost: xrd_total_storage_cost
+          xrd_total_execution_cost: xrd_total_execution_cost
+          execution_cost_units_consumed: 343953088
+          xrd_total_finalization_cost: xrd_total_finalization_cost
+          finalization_cost_units_consumed: 2588772717
+          xrd_total_royalty_cost: xrd_total_royalty_cost
+          xrd_total_tipping_cost: xrd_total_tipping_cost
+        next_epoch:
+          significant_protocol_update_readiness:
+          - signalled_stake: signalled_stake
+            readiness_signal_name: readiness_signal_name
+          - signalled_stake: signalled_stake
+            readiness_signal_name: readiness_signal_name
+          validators:
+          - stake: stake
+            address: address
+            key:
+              key_hex: key_hex
+              key_type: EcdsaSecp256k1
+          - stake: stake
+            address: address
+            key:
+              key_hex: key_hex
+              key_type: EcdsaSecp256k1
+          epoch: 2027123023
+        fee_destination:
+          to_burn: to_burn
+          to_validator_set: to_validator_set
+          to_proposer: to_proposer
+          to_royalty_recipients:
+          - royalty_recipient:
+              entity_type: GlobalPackage
+              entity_address: entity_address
+              is_global: true
+            xrd_amount: xrd_amount
+          - royalty_recipient:
+              entity_type: GlobalPackage
+              entity_address: entity_address
+              is_global: true
+            xrd_amount: xrd_amount
+        costing_parameters:
+          finalization_cost_unit_price: finalization_cost_unit_price
+          execution_cost_unit_loan: 2560717018
+          finalization_cost_unit_limit: 2421234836
+          execution_cost_unit_price: execution_cost_unit_price
+          xrd_storage_price: xrd_storage_price
+          xrd_usd_price: xrd_usd_price
+          execution_cost_unit_limit: 629561881
+          xrd_archive_storage_price: xrd_archive_storage_price
+          tip_percentage: 15087
+          tip_proportion: tip_proportion
+        state_updates:
+          deleted_substates:
+          - system_structure:
+              type: SystemField
+            previous_value:
+              substate_data_hash: substate_data_hash
+              substate_data:
+                substate_type: null
+                is_locked: true
+              substate_hex: substate_hex
+            substate_id:
+              substate_type: BootLoaderModuleFieldSystemBoot
+              substate_key:
+                key_type: Field
+                db_sort_key_hex: db_sort_key_hex
+              entity_type: null
+              partition_kind: null
+              partition_number: 237
+              entity_address: entity_address
+              entity_module: null
+          - system_structure:
+              type: SystemField
+            previous_value:
+              substate_data_hash: substate_data_hash
+              substate_data:
+                substate_type: null
+                is_locked: true
+              substate_hex: substate_hex
+            substate_id:
+              substate_type: BootLoaderModuleFieldSystemBoot
+              substate_key:
+                key_type: Field
+                db_sort_key_hex: db_sort_key_hex
+              entity_type: null
+              partition_kind: null
+              partition_number: 237
+              entity_address: entity_address
+              entity_module: null
+          deleted_partitions:
+          - entity_type: null
+            partition_kind: Field
+            partition_number: 180
+            entity_address: entity_address
+            entity_module: TypeInfo
+          - entity_type: null
+            partition_kind: Field
+            partition_number: 180
+            entity_address: entity_address
+            entity_module: TypeInfo
+          created_substates:
+          - system_structure:
+              type: SystemField
+            substate_id:
+              substate_type: BootLoaderModuleFieldSystemBoot
+              substate_key:
+                key_type: Field
+                db_sort_key_hex: db_sort_key_hex
+              entity_type: null
+              partition_kind: null
+              partition_number: 237
+              entity_address: entity_address
+              entity_module: null
+            value:
+              substate_data_hash: substate_data_hash
+              substate_data:
+                substate_type: null
+                is_locked: true
+              substate_hex: substate_hex
+          - system_structure:
+              type: SystemField
+            substate_id:
+              substate_type: BootLoaderModuleFieldSystemBoot
+              substate_key:
+                key_type: Field
+                db_sort_key_hex: db_sort_key_hex
+              entity_type: null
+              partition_kind: null
+              partition_number: 237
+              entity_address: entity_address
+              entity_module: null
+            value:
+              substate_data_hash: substate_data_hash
+              substate_data:
+                substate_type: null
+                is_locked: true
+              substate_hex: substate_hex
+          updated_substates:
+          - system_structure:
+              type: SystemField
+            previous_value:
+              substate_data_hash: substate_data_hash
+              substate_data:
+                substate_type: null
+                is_locked: true
+              substate_hex: substate_hex
+            substate_id:
+              substate_type: BootLoaderModuleFieldSystemBoot
+              substate_key:
+                key_type: Field
+                db_sort_key_hex: db_sort_key_hex
+              entity_type: null
+              partition_kind: null
+              partition_number: 237
+              entity_address: entity_address
+              entity_module: null
+            new_value:
+              substate_data_hash: substate_data_hash
+              substate_data:
+                substate_type: null
+                is_locked: true
+              substate_hex: substate_hex
+          - system_structure:
+              type: SystemField
+            previous_value:
+              substate_data_hash: substate_data_hash
+              substate_data:
+                substate_type: null
+                is_locked: true
+              substate_hex: substate_hex
+            substate_id:
+              substate_type: BootLoaderModuleFieldSystemBoot
+              substate_key:
+                key_type: Field
+                db_sort_key_hex: db_sort_key_hex
+              entity_type: null
+              partition_kind: null
+              partition_number: 237
+              entity_address: entity_address
+              entity_module: null
+            new_value:
+              substate_data_hash: substate_data_hash
+              substate_data:
+                substate_type: null
+                is_locked: true
+              substate_hex: substate_hex
+          new_global_entities:
+          - entity_type: GlobalPackage
+            entity_address: entity_address
+            is_global: true
+          - entity_type: GlobalPackage
+            entity_address: entity_address
+            is_global: true
+        fee_source:
+          from_vaults:
+          - xrd_amount: xrd_amount
+            vault_entity:
+              entity_type: GlobalPackage
+              entity_address: entity_address
+              is_global: true
+          - xrd_amount: xrd_amount
+            vault_entity:
+              entity_type: GlobalPackage
+              entity_address: entity_address
+              is_global: true
+        events:
+        - data:
+            programmatic_json: ""
+            hex: hex
+          type:
+            name: name
+            type_reference:
+              full_type_id:
+                schema_hash: schema_hash
+                entity_address: entity_address
+                local_type_id:
+                  as_sbor:
+                    programmatic_json: ""
+                    hex: hex
+                  kind: WellKnown
+                  id: 1553093137
+            emitter:
+              type: Function
+        - data:
+            programmatic_json: ""
+            hex: hex
+          type:
+            name: name
+            type_reference:
+              full_type_id:
+                schema_hash: schema_hash
+                entity_address: entity_address
+                local_type_id:
+                  as_sbor:
+                    programmatic_json: ""
+                    hex: hex
+                  kind: WellKnown
+                  id: 1553093137
+            emitter:
+              type: Function
+        status: Succeeded
+      properties:
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        fee_summary:
+          $ref: '#/components/schemas/FeeSummary'
+        costing_parameters:
+          $ref: '#/components/schemas/CostingParameters'
+        fee_source:
+          $ref: '#/components/schemas/FeeSource'
+        fee_destination:
+          $ref: '#/components/schemas/FeeDestination'
+        state_updates:
+          $ref: '#/components/schemas/StateUpdates'
+        events:
+          items:
+            $ref: '#/components/schemas/Event'
+          type: array
+        next_epoch:
+          $ref: '#/components/schemas/NextEpoch'
+        output:
+          description: |
+            The return data for each line of the transaction intent's manifest.
+            This property is only present if the `status` is `Succeeded`.
+          items:
+            $ref: '#/components/schemas/SborData'
+          type: array
+        error_message:
+          description: |
+            The error message. This property is only present if the status is `Failed` or `Rejected`.
+          type: string
+      required:
+      - costing_parameters
+      - fee_summary
+      - state_updates
+      - status
     FeeSummary:
       example:
         xrd_total_storage_cost: xrd_total_storage_cost
@@ -2189,6 +2454,7 @@ components:
         execution_cost_unit_limit: 629561881
         xrd_archive_storage_price: xrd_archive_storage_price
         tip_percentage: 15087
+        tip_proportion: tip_proportion
       properties:
         execution_cost_unit_price:
           description: |
@@ -2238,12 +2504,24 @@ components:
             A decimal is formed of some signed integer `m` of attos (`10^(-18)`) units, where `-2^(192 - 1) <= m < 2^(192 - 1)`.
           type: string
         tip_percentage:
-          description: "An integer between `0` and `65535`, giving the validator tip\
-            \ as a percentage amount. A value of `1` corresponds to 1% of the fee."
+          deprecated: true
+          description: |
+            NOTE: V2 transactions specify the tip in basis points, which gets rounded down for this `tip_percentage` field.
+            It is recommended to instead use the `tip_proportion` field to get a fully accurate value.
+
+            An integer between `0` and `65535`, giving the validator tip as a percentage amount. A value of `1` corresponds to 1% of the fee.
           format: int32
           maximum: 65535
           minimum: 0
           type: integer
+        tip_proportion:
+          description: |
+            A string-encoded decimal, giving the validator tip as a proportional amount.
+            A value of `"0.01"` corresponds to 1% of the fee being paid as a tip.
+
+            NOTE: This field is not marked as required for Cuttlefish launch, to permit cuttlefish clients to talk to pre-cuttlefish nodes.
+            This can be changed after Cuttlefish enactment once all nodes are on Cuttlefish.
+          type: string
       required:
       - execution_cost_unit_limit
       - execution_cost_unit_loan
@@ -2380,7 +2658,7 @@ components:
               is_locked: true
             substate_hex: substate_hex
           substate_id:
-            substate_type: BootLoaderModuleFieldVmBoot
+            substate_type: BootLoaderModuleFieldSystemBoot
             substate_key:
               key_type: Field
               db_sort_key_hex: db_sort_key_hex
@@ -2398,7 +2676,7 @@ components:
               is_locked: true
             substate_hex: substate_hex
           substate_id:
-            substate_type: BootLoaderModuleFieldVmBoot
+            substate_type: BootLoaderModuleFieldSystemBoot
             substate_key:
               key_type: Field
               db_sort_key_hex: db_sort_key_hex
@@ -2422,7 +2700,7 @@ components:
         - system_structure:
             type: SystemField
           substate_id:
-            substate_type: BootLoaderModuleFieldVmBoot
+            substate_type: BootLoaderModuleFieldSystemBoot
             substate_key:
               key_type: Field
               db_sort_key_hex: db_sort_key_hex
@@ -2440,7 +2718,7 @@ components:
         - system_structure:
             type: SystemField
           substate_id:
-            substate_type: BootLoaderModuleFieldVmBoot
+            substate_type: BootLoaderModuleFieldSystemBoot
             substate_key:
               key_type: Field
               db_sort_key_hex: db_sort_key_hex
@@ -2465,7 +2743,7 @@ components:
               is_locked: true
             substate_hex: substate_hex
           substate_id:
-            substate_type: BootLoaderModuleFieldVmBoot
+            substate_type: BootLoaderModuleFieldSystemBoot
             substate_key:
               key_type: Field
               db_sort_key_hex: db_sort_key_hex
@@ -2489,7 +2767,7 @@ components:
               is_locked: true
             substate_hex: substate_hex
           substate_id:
-            substate_type: BootLoaderModuleFieldVmBoot
+            substate_type: BootLoaderModuleFieldSystemBoot
             substate_key:
               key_type: Field
               db_sort_key_hex: db_sort_key_hex
@@ -2593,7 +2871,7 @@ components:
         system_structure:
           type: SystemField
         substate_id:
-          substate_type: BootLoaderModuleFieldVmBoot
+          substate_type: BootLoaderModuleFieldSystemBoot
           substate_key:
             key_type: Field
             db_sort_key_hex: db_sort_key_hex
@@ -2630,7 +2908,7 @@ components:
             is_locked: true
           substate_hex: substate_hex
         substate_id:
-          substate_type: BootLoaderModuleFieldVmBoot
+          substate_type: BootLoaderModuleFieldSystemBoot
           substate_key:
             key_type: Field
             db_sort_key_hex: db_sort_key_hex
@@ -2688,7 +2966,7 @@ components:
             is_locked: true
           substate_hex: substate_hex
         substate_id:
-          substate_type: BootLoaderModuleFieldVmBoot
+          substate_type: BootLoaderModuleFieldSystemBoot
           substate_key:
             key_type: Field
             db_sort_key_hex: db_sort_key_hex
@@ -2766,7 +3044,7 @@ components:
         - substate_key
         - substate_type
       example:
-        substate_type: BootLoaderModuleFieldVmBoot
+        substate_type: BootLoaderModuleFieldSystemBoot
         substate_key:
           key_type: Field
           db_sort_key_hex: db_sort_key_hex
@@ -2784,6 +3062,7 @@ components:
       - Main
       - Schema
       - BootLoader
+      - ProtocolUpdateStatus
       type: string
     PartitionKind:
       description: |
@@ -3337,6 +3616,13 @@ components:
       - DenyAll
       type: string
     AccessRule:
+      description: |
+        A representation of an access rule in the Radix Engine.
+
+        Note that some of the field and discriminator names use an older naming schema,
+        for backwards compatibility.
+
+        See the [advanced access rules](https://docs.radixdlt.com/docs/advanced-accessrules) docs for more information.
       discriminator:
         mapping:
           Protected: '#/components/schemas/ProtectedAccessRule'
@@ -3353,7 +3639,7 @@ components:
       - $ref: '#/components/schemas/AccessRule'
       - properties:
           access_rule:
-            $ref: '#/components/schemas/AccessRuleNode'
+            $ref: '#/components/schemas/CompositeRequirement'
         required:
         - access_rule
     AllowAllAccessRule:
@@ -3364,53 +3650,57 @@ components:
       allOf:
       - $ref: '#/components/schemas/AccessRule'
       - type: object
-    AccessRuleNodeType:
+    CompositeRequirementType:
+      description: |
+        `ProofRule` is now called `BasicRequirement`.
       enum:
       - ProofRule
       - AnyOf
       - AllOf
       type: string
-    AccessRuleNode:
+    CompositeRequirement:
+      description: |
+        This type was historically called `AccessRuleNode`.
       discriminator:
         mapping:
-          ProofRule: '#/components/schemas/ProofAccessRuleNode'
-          AnyOf: '#/components/schemas/AnyOfAccessRuleNode'
-          AllOf: '#/components/schemas/AllOfAccessRuleNode'
+          ProofRule: '#/components/schemas/ProofRuleCompositeRequirement'
+          AnyOf: '#/components/schemas/AnyOfCompositeRequirement'
+          AllOf: '#/components/schemas/AllOfCompositeRequirement'
         propertyName: type
       properties:
         type:
-          $ref: '#/components/schemas/AccessRuleNodeType'
+          $ref: '#/components/schemas/CompositeRequirementType'
       required:
       - type
-    ProofAccessRuleNode:
+    ProofRuleCompositeRequirement:
       allOf:
-      - $ref: '#/components/schemas/AccessRuleNode'
+      - $ref: '#/components/schemas/CompositeRequirement'
       - properties:
           proof_rule:
-            $ref: '#/components/schemas/ProofRule'
+            $ref: '#/components/schemas/BasicRequirement'
         required:
         - proof_rule
-    AnyOfAccessRuleNode:
+    AnyOfCompositeRequirement:
       allOf:
-      - $ref: '#/components/schemas/AccessRuleNode'
+      - $ref: '#/components/schemas/CompositeRequirement'
       - properties:
           access_rules:
             items:
-              $ref: '#/components/schemas/AccessRuleNode'
+              $ref: '#/components/schemas/CompositeRequirement'
             type: array
         required:
         - access_rules
-    AllOfAccessRuleNode:
+    AllOfCompositeRequirement:
       allOf:
-      - $ref: '#/components/schemas/AccessRuleNode'
+      - $ref: '#/components/schemas/CompositeRequirement'
       - properties:
           access_rules:
             items:
-              $ref: '#/components/schemas/AccessRuleNode'
+              $ref: '#/components/schemas/CompositeRequirement'
             type: array
         required:
         - access_rules
-    ProofRuleType:
+    BasicRequirementType:
       enum:
       - Require
       - AmountOf
@@ -3418,31 +3708,31 @@ components:
       - AnyOf
       - CountOf
       type: string
-    ProofRule:
+    BasicRequirement:
       discriminator:
         mapping:
-          Require: '#/components/schemas/RequireProofRule'
-          AmountOf: '#/components/schemas/AmountOfProofRule'
-          AllOf: '#/components/schemas/AllOfProofRule'
-          AnyOf: '#/components/schemas/AnyOfProofRule'
-          CountOf: '#/components/schemas/CountOfProofRule'
+          Require: '#/components/schemas/RequireBasicRequirement'
+          AmountOf: '#/components/schemas/AmountOfBasicRequirement'
+          AllOf: '#/components/schemas/AllOfBasicRequirement'
+          AnyOf: '#/components/schemas/AnyOfBasicRequirement'
+          CountOf: '#/components/schemas/CountOfBasicRequirement'
         propertyName: type
       properties:
         type:
-          $ref: '#/components/schemas/ProofRuleType'
+          $ref: '#/components/schemas/BasicRequirementType'
       required:
       - type
-    RequireProofRule:
+    RequireBasicRequirement:
       allOf:
-      - $ref: '#/components/schemas/ProofRule'
+      - $ref: '#/components/schemas/BasicRequirement'
       - properties:
           requirement:
             $ref: '#/components/schemas/Requirement'
         required:
         - requirement
-    AmountOfProofRule:
+    AmountOfBasicRequirement:
       allOf:
-      - $ref: '#/components/schemas/ProofRule'
+      - $ref: '#/components/schemas/BasicRequirement'
       - properties:
           amount:
             type: string
@@ -3451,9 +3741,9 @@ components:
         required:
         - amount
         - resource
-    AllOfProofRule:
+    AllOfBasicRequirement:
       allOf:
-      - $ref: '#/components/schemas/ProofRule'
+      - $ref: '#/components/schemas/BasicRequirement'
       - properties:
           list:
             items:
@@ -3461,9 +3751,9 @@ components:
             type: array
         required:
         - list
-    AnyOfProofRule:
+    AnyOfBasicRequirement:
       allOf:
-      - $ref: '#/components/schemas/ProofRule'
+      - $ref: '#/components/schemas/BasicRequirement'
       - properties:
           list:
             items:
@@ -3471,9 +3761,9 @@ components:
             type: array
         required:
         - list
-    CountOfProofRule:
+    CountOfBasicRequirement:
       allOf:
-      - $ref: '#/components/schemas/ProofRule'
+      - $ref: '#/components/schemas/BasicRequirement'
       - properties:
           count:
             type: integer
@@ -3485,6 +3775,7 @@ components:
         - count
         - list
     Requirement:
+      description: This is called `ResourceOrNonFungible` in the engine.
       discriminator:
         mapping:
           Resource: '#/components/schemas/ResourceRequirement'
@@ -3959,6 +4250,8 @@ components:
       - TypeInfo
       - SystemBoot
       - KernelBoot
+      - TransactionValidationConfiguration
+      - ProtocolUpdateStatusSummary
       type: string
     ObjectSubstateTypeReferenceType:
       enum:
@@ -4386,6 +4679,16 @@ components:
       - normal
       - raw_bits
     EntityType:
+      description: |
+        To improve clarity, some `EntityType` names have been updated at Cuttlefish.
+
+        But, due to backwards compatibility, the old names continue to be used here.
+
+        Notably:
+        * `GlobalVirtualSecp256k1Account` is now `GlobalPreallocatedSecp256k1Account` elsewhere
+        * `GlobalVirtualSecp256k1Identity` is now `GlobalPreallocatedSecp256k1Identity` elsewhere
+        * `GlobalVirtualEd25519Account` is now `GlobalPreallocatedEd25519Account` elsewhere
+        * `GlobalVirtualEd25519Identity` is now `GlobalPreallocatedEd25519Identity` elsewhere
       enum:
       - GlobalPackage
       - GlobalConsensusManager
@@ -4430,9 +4733,11 @@ components:
     Substate:
       discriminator:
         mapping:
+          BootLoaderModuleFieldKernelBoot: '#/components/schemas/BootLoaderModuleFieldKernelBootSubstate'
           BootLoaderModuleFieldSystemBoot: '#/components/schemas/BootLoaderModuleFieldSystemBootSubstate'
           BootLoaderModuleFieldVmBoot: '#/components/schemas/BootLoaderModuleFieldVmBootSubstate'
-          BootLoaderModuleFieldKernelBoot: '#/components/schemas/BootLoaderModuleFieldKernelBootSubstate'
+          BootLoaderModuleFieldTransactionValidationConfiguration: '#/components/schemas/BootLoaderModuleFieldTransactionValidationConfigurationSubstate'
+          ProtocolUpdateStatusModuleFieldSummary: '#/components/schemas/ProtocolUpdateStatusModuleFieldSummarySubstate'
           TypeInfoModuleFieldTypeInfo: '#/components/schemas/TypeInfoModuleFieldTypeInfoSubstate'
           RoleAssignmentModuleFieldOwnerRole: '#/components/schemas/RoleAssignmentModuleFieldOwnerRoleSubstate'
           RoleAssignmentModuleRuleEntry: '#/components/schemas/RoleAssignmentModuleRuleEntrySubstate'
@@ -4496,7 +4801,11 @@ components:
       - substate_type
     SubstateType:
       enum:
+      - BootLoaderModuleFieldSystemBoot
+      - BootLoaderModuleFieldKernelBoot
       - BootLoaderModuleFieldVmBoot
+      - BootLoaderModuleFieldTransactionValidationConfiguration
+      - ProtocolUpdateStatusModuleFieldSummary
       - TypeInfoModuleFieldTypeInfo
       - RoleAssignmentModuleFieldOwnerRole
       - RoleAssignmentModuleRuleEntry
@@ -4548,8 +4857,6 @@ components:
       - TransactionTrackerFieldState
       - TransactionTrackerCollectionEntry
       - AccountLockerAccountClaimsEntry
-      - BootLoaderModuleFieldSystemBoot
-      - BootLoaderModuleFieldKernelBoot
       type: string
     ObjectRoleKey:
       properties:
@@ -4676,14 +4983,14 @@ components:
       properties:
         intent_hash:
           description: |
-            The hex-encoded intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
           maxLength: 64
           minLength: 64
           type: string
         intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `IntentHash`.
+          description: The Bech32m-encoded human readable `TransactionIntentHash`.
           type: string
       required:
       - intent_hash
@@ -4710,10 +5017,20 @@ components:
         - value
     BootLoaderModuleFieldSystemBootValue:
       properties:
+        system_version:
+          $ref: '#/components/schemas/SystemVersion'
         system_parameters:
           $ref: '#/components/schemas/SystemParameters'
       required:
       - system_parameters
+    SystemVersion:
+      description: The SystemVersion was added at Cuttlefish. Before that it can be
+        assumed to be V1.
+      enum:
+      - V1
+      - V2
+      - V3
+      type: string
     SystemParameters:
       properties:
         network_definition:
@@ -4918,7 +5235,186 @@ components:
         required:
         - value
     BootLoaderModuleFieldKernelBootValue:
-      type: object
+      properties:
+        always_visible_nodes_version:
+          $ref: '#/components/schemas/AlwaysVisibleGlobalNodesVersion'
+    AlwaysVisibleGlobalNodesVersion:
+      description: |
+        This was added in Cuttlefish. Before that, this value was missing, but can be assumed to be V1.
+      enum:
+      - V1
+      - V2
+      type: string
+    BootLoaderModuleFieldTransactionValidationConfigurationSubstate:
+      allOf:
+      - $ref: '#/components/schemas/Substate'
+      - properties:
+          config:
+            $ref: '#/components/schemas/TransactionValidationConfig'
+        required:
+        - config
+    TransactionValidationConfig:
+      properties:
+        max_signer_signatures_per_intent:
+          type: string
+        max_references_per_intent:
+          type: string
+        min_tip_percentage:
+          description: Only applies to V1 transactions
+          format: int32
+          maximum: 65535
+          minimum: 0
+          type: integer
+        max_tip_percentage:
+          description: Only applies to V1 transactions
+          format: int32
+          maximum: 65535
+          minimum: 0
+          type: integer
+        max_epoch_range:
+          type: string
+        max_instructions:
+          type: string
+        message_validation:
+          $ref: '#/components/schemas/MessageValidationConfig'
+        v1_transactions_allow_notary_to_duplicate_signer:
+          type: boolean
+        preparation_settings:
+          $ref: '#/components/schemas/PreparationSettings'
+        manifest_validation:
+          $ref: '#/components/schemas/ManifestValidationRuleset'
+        v2_transactions_allowed:
+          type: boolean
+        min_tip_basis_points:
+          format: int64
+          maximum: 4294967295
+          minimum: 0
+          type: integer
+        max_tip_basis_points:
+          format: int64
+          maximum: 4294967295
+          minimum: 0
+          type: integer
+        max_subintent_depth:
+          type: string
+        max_total_signature_validations:
+          type: string
+        max_total_references:
+          type: string
+      required:
+      - manifest_validation
+      - max_epoch_range
+      - max_instructions
+      - max_references_per_intent
+      - max_signer_signatures_per_intent
+      - max_subintent_depth
+      - max_tip_basis_points
+      - max_tip_percentage
+      - max_total_references
+      - max_total_signature_validations
+      - message_validation
+      - min_tip_basis_points
+      - min_tip_percentage
+      - preparation_settings
+      - v1_transactions_allow_notary_to_duplicate_signer
+      - v2_transactions_allowed
+    MessageValidationConfig:
+      properties:
+        max_plaintext_message_length:
+          type: string
+        max_encrypted_message_length:
+          type: string
+        max_mime_type_length:
+          type: string
+        max_decryptors:
+          type: string
+      required:
+      - max_decryptors
+      - max_encrypted_message_length
+      - max_mime_type_length
+      - max_plaintext_message_length
+    PreparationSettings:
+      properties:
+        v2_transactions_permitted:
+          type: boolean
+        max_user_payload_length:
+          type: string
+        max_ledger_payload_length:
+          type: string
+        max_child_subintents_per_intent:
+          type: string
+        max_subintents_per_transaction:
+          type: string
+        max_blobs:
+          type: string
+      required:
+      - max_blobs
+      - max_child_subintents_per_intent
+      - max_ledger_payload_length
+      - max_subintents_per_transaction
+      - max_user_payload_length
+      - v2_transactions_permitted
+    ManifestValidationRuleset:
+      enum:
+      - Basic
+      - Cuttlefish
+      type: string
+    ProtocolUpdateStatusModuleFieldSummarySubstate:
+      allOf:
+      - $ref: '#/components/schemas/Substate'
+      - properties:
+          protocol_version:
+            type: string
+          update_status:
+            $ref: '#/components/schemas/ProtocolUpdateStatus'
+        required:
+        - protocol_version
+        - update_status
+    ProtocolUpdateStatusType:
+      enum:
+      - InProgress
+      - Complete
+      type: string
+    ProtocolUpdateStatus:
+      discriminator:
+        mapping:
+          InProgress: '#/components/schemas/InProgressProtocolUpdateStatus'
+          Complete: '#/components/schemas/CompleteProtocolUpdateStatus'
+        propertyName: type
+      properties:
+        type:
+          $ref: '#/components/schemas/ProtocolUpdateStatusType'
+      required:
+      - type
+    InProgressProtocolUpdateStatus:
+      allOf:
+      - $ref: '#/components/schemas/ProtocolUpdateStatus'
+      - properties:
+          latest_commit:
+            $ref: '#/components/schemas/ProtocolUpdateStatusLatestCommit'
+        required:
+        - latest_commit
+    ProtocolUpdateStatusLatestCommit:
+      properties:
+        batch_group_index:
+          format: int64
+          type: integer
+        batch_group_name:
+          type: string
+        batch_index:
+          format: int64
+          type: integer
+        batch_name:
+          type: string
+      required:
+      - batch_group_index
+      - batch_group_name
+      - batch_index
+      - batch_name
+    CompleteProtocolUpdateStatus:
+      allOf:
+      - $ref: '#/components/schemas/ProtocolUpdateStatus'
+      - type: object
     TypeInfoModuleFieldTypeInfoSubstate:
       allOf:
       - $ref: '#/components/schemas/Substate'
@@ -6271,8 +6767,8 @@ components:
           type: string
         intent_hash:
           description: |
-            The intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
             Either hex or Bech32m-encoded strings are supported.
           type: string
@@ -6449,20 +6945,39 @@ components:
       - $ref: '#/components/schemas/LtsTransactionSubmitErrorDetails'
       - properties:
           tip_percentage:
+            deprecated: true
             description: |
-              Tip percentage of the submitted (and rejected) transaction.
+              NOTE: This is kept for backwards compatibility, but we recommend using `tip_proportion` instead.
+
+              Tip percentage of the submitted (and rejected) transaction. For V2 transactions specifying basis point tips,
+              the amount is rounded down.
             format: int32
             maximum: 65535
             minimum: 0
             type: integer
           min_tip_percentage_required:
+            deprecated: true
             description: |
+              NOTE: This is kept for backwards compatibility, but we recommend using `min_tip_proportion_required` instead.
+
               A lower bound for tip percentage at current mempool state. Anything lower than this will very likely result in a mempool rejection.
               A missing value means there is no tip that can guarantee submission.
             format: int32
             maximum: 65535
             minimum: 0
             type: integer
+          tip_proportion:
+            description: |
+              The string-encoded decimal tip proportion of the submitted (and rejected) transaction.
+
+              This field will always be present on Cuttlefish nodes, but is marked as not-required for Cuttlefish launch,
+              to avoid a dependency on clients to update after the node is updated.
+            type: string
+          min_tip_proportion_required:
+            description: |
+              A lower bound for tip proportion at current mempool state. Anything lower than this will very likely result in a mempool rejection.
+              A missing value means there is no tip that can guarantee submission.
+            type: string
         required:
         - tip_percentage
     LtsTransactionSubmitIntentAlreadyCommitted:
@@ -7527,10 +8042,12 @@ components:
           faucet_package: faucet_package
           xrd: xrd
           validator_owner_badge: validator_owner_badge
+          transaction_tracker_package: transaction_tracker_package
           royalty_module_package: royalty_module_package
           pool_package: pool_package
           identity_package: identity_package
           package_of_direct_caller_virtual_badge: package_of_direct_caller_virtual_badge
+          test_utils_package: test_utils_package
           genesis_helper: genesis_helper
           identity_owner_badge: identity_owner_badge
         address_types:
@@ -7666,6 +8183,7 @@ components:
           type: string
       required:
       - current_protocol_version
+      - current_state_identifier
       - pre_genesis_state_identifier
     EpochRound:
       example:
@@ -7806,14 +8324,14 @@ components:
           type: integer
         intent_hash:
           description: |
-            The hex-encoded intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
           maxLength: 64
           minLength: 64
           type: string
         intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `IntentHash`.
+          description: The Bech32m-encoded human readable `TransactionIntentHash`.
           type: string
       required:
       - intent_hash
@@ -7861,14 +8379,14 @@ components:
       properties:
         intent_hash:
           description: |
-            The hex-encoded intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
           maxLength: 64
           minLength: 64
           type: string
         intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `IntentHash`.
+          description: The Bech32m-encoded human readable `TransactionIntentHash`.
           type: string
         payload_hash:
           description: |
@@ -8007,6 +8525,7 @@ components:
       description: The type of the parsed (partial) transaction payload
       enum:
       - NotarizedTransaction
+      - NotarizedTransactionV2
       - SignedTransactionIntent
       - TransactionIntent
       - LedgerTransaction
@@ -8015,6 +8534,7 @@ components:
       discriminator:
         mapping:
           NotarizedTransaction: '#/components/schemas/ParsedNotarizedTransaction'
+          NotarizedTransactionV2: '#/components/schemas/ParsedNotarizedTransactionV2'
           SignedTransactionIntent: '#/components/schemas/ParsedSignedTransactionIntent'
           TransactionIntent: '#/components/schemas/ParsedTransactionIntent'
           LedgerTransaction: '#/components/schemas/ParsedLedgerTransaction'
@@ -8038,29 +8558,41 @@ components:
             $ref: '#/components/schemas/ParsedNotarizedTransaction_allOf_validation_error'
         required:
         - identifiers
+    ParsedNotarizedTransactionV2:
+      allOf:
+      - $ref: '#/components/schemas/ParsedTransaction'
+      - properties:
+          notarized_transaction:
+            $ref: '#/components/schemas/NotarizedTransactionV2'
+          identifiers:
+            $ref: '#/components/schemas/ParsedNotarizedTransactionIdentifiers'
+          validation_error:
+            $ref: '#/components/schemas/ParsedNotarizedTransaction_allOf_validation_error'
+        required:
+        - identifiers
     ParsedNotarizedTransactionIdentifiers:
       properties:
         intent_hash:
           description: |
-            The hex-encoded intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
           maxLength: 64
           minLength: 64
           type: string
         intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `IntentHash`.
+          description: The Bech32m-encoded human readable `TransactionIntentHash`.
           type: string
         signed_intent_hash:
           description: |
             The hex-encoded signed intent hash for a user transaction.
             This hash identifies the transaction intent, plus additional signatures.
-            This hash is signed by the notary, to create the submittable NotarizedTransaction.
+            This hash is signed by the notary, to create the submittable `NotarizedTransaction`.
           maxLength: 64
           minLength: 64
           type: string
         signed_intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `SignedIntentHash`.
+          description: The Bech32m-encoded human readable `SignedTransactionIntentHash`.
           type: string
         payload_hash:
           description: |
@@ -8105,25 +8637,25 @@ components:
       properties:
         intent_hash:
           description: |
-            The hex-encoded intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
           maxLength: 64
           minLength: 64
           type: string
         intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `IntentHash`.
+          description: The Bech32m-encoded human readable `TransactionIntentHash`.
           type: string
         signed_intent_hash:
           description: |
             The hex-encoded signed intent hash for a user transaction.
             This hash identifies the transaction intent, plus additional signatures.
-            This hash is signed by the notary, to create the submittable NotarizedTransaction.
+            This hash is signed by the notary, to create the submittable `NotarizedTransaction`.
           maxLength: 64
           minLength: 64
           type: string
         signed_intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `SignedIntentHash`.
+          description: The Bech32m-encoded human readable `SignedTransactionIntentHash`.
           type: string
       required:
       - intent_hash
@@ -8144,14 +8676,14 @@ components:
       properties:
         intent_hash:
           description: |
-            The hex-encoded intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
           maxLength: 64
           minLength: 64
           type: string
         intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `IntentHash`.
+          description: The Bech32m-encoded human readable `TransactionIntentHash`.
           type: string
       required:
       - intent_hash
@@ -8170,25 +8702,25 @@ components:
       properties:
         intent_hash:
           description: |
-            The hex-encoded intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The hex-encoded transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
           maxLength: 64
           minLength: 64
           type: string
         intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `IntentHash`.
+          description: The Bech32m-encoded human readable `TransactionIntentHash`.
           type: string
         signed_intent_hash:
           description: |
             The hex-encoded signed intent hash for a user transaction.
             This hash identifies the transaction intent, plus additional signatures.
-            This hash is signed by the notary, to create the submittable NotarizedTransaction.
+            This hash is signed by the notary, to create the submittable `NotarizedTransaction`.
           maxLength: 64
           minLength: 64
           type: string
         signed_intent_hash_bech32m:
-          description: The Bech32m-encoded human readable `SignedIntentHash`.
+          description: The Bech32m-encoded human readable `SignedTransactionIntentHash`.
           type: string
         payload_hash:
           description: |
@@ -8281,20 +8813,39 @@ components:
       - $ref: '#/components/schemas/TransactionSubmitErrorDetails'
       - properties:
           tip_percentage:
+            deprecated: true
             description: |
-              Tip percentage of the submitted (and rejected) transaction.
+              NOTE: This is kept for backwards compatibility, but we recommend using `tip_proportion` instead.
+
+              Tip percentage of the submitted (and rejected) transaction. For V2 transactions specifying basis point tips,
+              the amount is rounded down.
             format: int32
             maximum: 65535
             minimum: 0
             type: integer
           min_tip_percentage_required:
+            deprecated: true
             description: |
+              NOTE: This is kept for backwards compatibility, but we recommend using `min_tip_proportion_required` instead.
+
               A lower bound for tip percentage at current mempool state. Anything lower than this will very likely result in a mempool rejection.
               A missing value means there is no tip that can guarantee submission.
             format: int32
             maximum: 65535
             minimum: 0
             type: integer
+          tip_proportion:
+            description: |
+              The string-encoded decimal tip proportion of the submitted (and rejected) transaction.
+
+              This field will always be present on Cuttlefish nodes, but is marked as not-required for Cuttlefish launch,
+              to avoid a dependency on clients to update after the node is updated.
+            type: string
+          min_tip_proportion_required:
+            description: |
+              A lower bound for tip proportion at current mempool state. Anything lower than this will very likely result in a mempool rejection.
+              A missing value means there is no tip that can guarantee submission.
+            type: string
         required:
         - tip_percentage
     TransactionSubmitIntentAlreadyCommitted:
@@ -8363,8 +8914,8 @@ components:
           type: string
         intent_hash:
           description: |
-            The intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
             Either hex or Bech32m-encoded strings are supported.
           type: string
@@ -8483,8 +9034,8 @@ components:
           type: string
         intent_hash:
           description: |
-            The intent hash for a user transaction, also known as the transaction id.
-            This hash identifies the core content "intent" of the transaction. Each intent can only be committed once.
+            The transaction intent hash for a user transaction, also known as the transaction id.
+            This hash identifies the core "intent" of the transaction. Each transaction intent can only be committed once.
             This hash gets signed by any signatories on the transaction, to create the signed intent.
             Either hex or Bech32m-encoded strings are supported.
           type: string
@@ -8613,6 +9164,7 @@ components:
               execution_cost_unit_limit: 629561881
               xrd_archive_storage_price: xrd_archive_storage_price
               tip_percentage: 15087
+              tip_proportion: tip_proportion
             state_updates:
               deleted_substates:
               - system_structure:
@@ -8624,7 +9176,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -8642,7 +9194,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -8666,7 +9218,7 @@ components:
               - system_structure:
                   type: SystemField
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -8684,7 +9236,7 @@ components:
               - system_structure:
                   type: SystemField
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -8709,7 +9261,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -8733,7 +9285,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -8937,6 +9489,8 @@ components:
         signer_public_keys:
         - key_type: EcdsaSecp256k1
         - key_type: EcdsaSecp256k1
+        options:
+          radix_engine_toolkit_receipt: true
         notary_public_key:
           key_type: EcdsaSecp256k1
         tip_percentage: 9606
@@ -8948,23 +9502,28 @@ components:
         at_ledger_state:
           $ref: '#/components/schemas/LedgerStateSelector'
         manifest:
-          description: A text-representation of a transaction manifest
+          description: A text representation of a transaction manifest.
           type: string
         blobs_hex:
-          description: An array of hex-encoded blob data (optional)
+          description: "An array of hex-encoded blob data, if referenced by the manifest."
           items:
             type: string
           type: array
         start_epoch_inclusive:
-          description: "An integer between `0` and `10^10`, marking the epoch at which\
-            \ the transaction starts being valid"
+          description: |
+            An integer between `0` and `10^10`, marking the epoch at which the transaction starts
+            being valid.
+            If not provided, the current epoch will be used (taking into account the
+            `at_ledger_state`, if specified).
           format: int64
           maximum: 10000000000
           minimum: 0
           type: integer
         end_epoch_exclusive:
-          description: "An integer between `0` and `10^10`, marking the epoch at which\
-            \ the transaction is no longer valid"
+          description: |
+            An integer between `0` and `10^10`, marking the epoch at which the transaction is no
+            longer valid.
+            If not provided, a maximum epoch (relative to the `start_epoch_inclusive`) will be used.
           format: int64
           maximum: 10000000000
           minimum: 0
@@ -8972,41 +9531,55 @@ components:
         notary_public_key:
           $ref: '#/components/schemas/PublicKey'
         notary_is_signatory:
-          description: "Whether the notary should count as a signatory (optional,\
-            \ default false)"
+          description: |
+            Whether the notary should be used as a signer (optional).
+            If not provided, this defaults to false.
           type: boolean
         tip_percentage:
-          description: "An integer between `0` and `65535`, giving the validator tip\
-            \ as a percentage amount. A value of `1` corresponds to 1% of the fee."
+          description: |
+            An integer between `0` and `65535`, giving the validator tip as a percentage amount.
+            A value of `1` corresponds to a 1% fee.
+            If not provided, this defaults to 0.
           format: int32
           maximum: 65535
           minimum: 0
           type: integer
         nonce:
           description: |
-            An integer between `0` and `2^32 - 1`, chosen to allow a unique intent to be created (to enable submitting an otherwise identical/duplicate intent).
+            An integer between `0` and `2^32 - 1`, chosen to allow a unique intent to be created
+            (to enable submitting an otherwise identical/duplicate intent).
+            If not provided, this defaults to 0.
           format: int64
           maximum: 4294967295
           minimum: 0
           type: integer
         signer_public_keys:
-          description: A list of public keys to be used as transaction signers
+          description: |
+            A list of public keys to be used as transaction signers.
+            If not provided, this defaults to an empty array.
           items:
             $ref: '#/components/schemas/PublicKey'
           type: array
         message:
           $ref: '#/components/schemas/TransactionMessage'
+        options:
+          $ref: '#/components/schemas/TransactionPreviewResponseOptions'
         flags:
-          $ref: '#/components/schemas/TransactionPreviewRequest_flags'
+          $ref: '#/components/schemas/PreviewFlags'
       required:
-      - end_epoch_exclusive
-      - flags
       - manifest
       - network
-      - nonce
-      - signer_public_keys
-      - start_epoch_inclusive
-      - tip_percentage
+    TransactionPreviewResponseOptions:
+      description: A set of flags to configure the response of the transaction preview.
+      example:
+        radix_engine_toolkit_receipt: true
+      properties:
+        radix_engine_toolkit_receipt:
+          description: |
+            This flag controls whether the preview response will include a Radix Engine Toolkit serializable
+            receipt or not. If not provided, this defaults to `false` and no toolkit receipt is provided in
+            the response.
+          type: boolean
     TransactionPreviewResponse:
       example:
         instruction_resource_changes:
@@ -9054,6 +9627,7 @@ components:
               entity_address: entity_address
               is_global: true
           index: 343953088
+        radix_engine_toolkit_receipt: "{}"
         receipt:
           output:
           - programmatic_json: ""
@@ -9112,6 +9686,7 @@ components:
             execution_cost_unit_limit: 629561881
             xrd_archive_storage_price: xrd_archive_storage_price
             tip_percentage: 15087
+            tip_proportion: tip_proportion
           state_updates:
             deleted_substates:
             - system_structure:
@@ -9123,7 +9698,7 @@ components:
                   is_locked: true
                 substate_hex: substate_hex
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -9141,7 +9716,7 @@ components:
                   is_locked: true
                 substate_hex: substate_hex
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -9165,7 +9740,7 @@ components:
             - system_structure:
                 type: SystemField
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -9183,7 +9758,7 @@ components:
             - system_structure:
                 type: SystemField
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -9208,7 +9783,7 @@ components:
                   is_locked: true
                 substate_hex: substate_hex
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -9232,7 +9807,7 @@ components:
                   is_locked: true
                 substate_hex: substate_hex
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -9325,10 +9900,27 @@ components:
         at_ledger_state:
           $ref: '#/components/schemas/LedgerStateSummary'
         encoded_receipt:
-          description: The hex-sbor-encoded receipt
+          deprecated: true
+          description: "The hex-sbor-encoded receipt.\n\nThis field is deprecated\
+            \ and will be removed from the API with the release of the next \nprotocol\
+            \ update, cuttlefish. This field was provided primarily for use with the\
+            \ Radix \nEngine Toolkit and its execution summary functionality. If you\
+            \ still wish to use this \nfunctionality update your Radix Engine Toolkit\
+            \ and use the receipt provided in the \n`radix_engine_toolkit_receipt`\
+            \ field of this response.\n"
           type: string
         receipt:
           $ref: '#/components/schemas/TransactionReceipt'
+        radix_engine_toolkit_receipt:
+          description: "An optional field which is only provided if the `radix_engine_toolkit_receipt`\n\
+            flag is set to true when requesting a transaction preview from the API.\n\
+            \nThis receipt is primarily intended for use with the toolkit and may\
+            \ contain information \nthat is already available in the receipt provided\
+            \ in the `receipt` field of this \nresponse.\n\nA typical client of this\
+            \ API is not expected to use this receipt. The primary clients \nthis\
+            \ receipt is intended for is the Radix wallet or any client that needs\
+            \ to perform \nexecution summaries on their transactions.\n"
+          type: object
         instruction_resource_changes:
           items:
             $ref: '#/components/schemas/InstructionResourceChanges'
@@ -9343,6 +9935,499 @@ components:
       - instruction_resource_changes
       - logs
       - receipt
+    PreviewFlags:
+      example:
+        use_free_credit: true
+        assume_all_signature_proofs: true
+        skip_epoch_check: true
+        disable_auth_checks: true
+      properties:
+        use_free_credit:
+          description: |
+            If enabled, a large simulated pool of XRD is marked as locked.
+
+            This mode can be used to estimate fees. To get a reliable estimate, we recommend that your
+            transaction is as close as possible to the real transaction. For example:
+            - You should still use a lock fee command, but you can set it to lock a fee of 0.
+            - You should include the public keys that will sign the transaction, so the cost of
+              signature verification and payload size can be accounted for.
+          type: boolean
+        assume_all_signature_proofs:
+          description: |
+            If enabled, each manifest processor's auth zone will be given a simulated proof of
+            every signature, which can be used to pass signature access rules.
+
+            This can be used to preview transactions even if the required signatures are not
+            known ahead of time.
+
+            See the documentation on
+            [advanced access rules](https://docs.radixdlt.com/docs/advanced-accessrules#signature-requirements)
+            for more information.
+          type: boolean
+        skip_epoch_check:
+          description: |
+            If enabled, the various runtime epoch-related verifications are skipped:
+            - The `start_epoch_inclusive` and `end_epoch_exclusive` parameters, if specified, are ignored.
+            - The duplicate intent checks (which rely on the expiry epoch) are also ignored.
+
+            However, if the start and end epoch are provided, they must still be statically valid.
+            We recommend using a value of `start_epoch_inclusive = 1` and `end_epoch_exclusive = 2` in this
+            case.
+          type: boolean
+        disable_auth_checks:
+          description: |
+            If enabled, all authorization checks are skipped during execution.
+
+            This could be used to e.g.:
+            * Preview protocol update style transactions.
+            * Mint resources for previewing trades with resources you don't own.
+              If doing this, be warned: only resources which were potentially mintable/burnable
+              at creation time will be mintable/burnable, due to feature flags on the resource.
+
+            Warning: this mode of operation is quite a departure from normal operation:
+            * Calculated fees will likely be lower than a standard execution.
+            * This mode can subtly break invariants some dApp code might rely on, or result in unexpected
+              behaviour, so the execution result might not be valid for your needs. For example,
+              if this flag was used to mint pool units to preview a redemption (or some dApp interaction which
+              behind the scenes redeemed them), they'd redeem for less than they're currently worth,
+              because the blueprint code relies on the total supply of the pool units to calculate their
+              redemption worth, and you've just inflated the total supply through the mint operation.
+          type: boolean
+    TransactionPreviewV2Request:
+      example:
+        preview_transaction:
+          type: Compiled
+        flags:
+          use_free_credit: true
+          assume_all_signature_proofs: true
+          skip_epoch_check: true
+          disable_auth_checks: true
+        options:
+          radix_engine_toolkit_receipt: true
+          core_api_receipt: true
+          logs: true
+        at_ledger_state:
+          type: ByStateVersion
+        network: "{{network}}"
+      properties:
+        network:
+          description: The logical name of the network
+          example: "{{network}}"
+          type: string
+        at_ledger_state:
+          $ref: '#/components/schemas/LedgerStateSelector'
+        preview_transaction:
+          $ref: '#/components/schemas/PreviewTransaction'
+        flags:
+          $ref: '#/components/schemas/PreviewFlags'
+        options:
+          $ref: '#/components/schemas/TransactionPreviewV2ResponseOptions'
+      required:
+      - network
+      - preview_transaction
+    TransactionPreviewV2ResponseOptions:
+      description: A set of flags to configure the response of the transaction preview.
+      example:
+        radix_engine_toolkit_receipt: true
+        core_api_receipt: true
+        logs: true
+      properties:
+        core_api_receipt:
+          description: |
+            This flag controls whether the preview response will include a Core API receipt or not.
+            If not provided, this defaults to `false` and no core api receipt is provided in
+            the response.
+          type: boolean
+        radix_engine_toolkit_receipt:
+          description: |
+            This flag controls whether the preview response will include a Radix Engine Toolkit serializable
+            receipt or not. If not provided, this defaults to `false` and no toolkit receipt is provided in
+            the response.
+          type: boolean
+        logs:
+          description: |
+            This flag controls whether the preview response will include execution logs.
+            If not provided, this defaults to `false` and no logs will be provided in the response.
+          type: boolean
+    PreviewTransactionType:
+      enum:
+      - Compiled
+      type: string
+    PreviewTransaction:
+      discriminator:
+        mapping:
+          Compiled: '#/components/schemas/CompiledPreviewTransaction'
+        propertyName: type
+      example:
+        type: Compiled
+      properties:
+        type:
+          $ref: '#/components/schemas/PreviewTransactionType'
+      required:
+      - type
+    CompiledPreviewTransaction:
+      allOf:
+      - $ref: '#/components/schemas/PreviewTransaction'
+      - properties:
+          preview_transaction_hex:
+            description: |
+              A hex-encoded, compiled `RawPreviewTransaction`.
+
+              As of Cuttlefish, only `PreviewTransactionV2` is supported.
+
+              A `PreviewTransactionV2` can be created with a v2 transaction builder:
+              * If using Rust, it can be created with a `TransactionV2Builder` using `build_preview_transaction()`
+                and then converted to hex with `preview_transaction.to_raw().unwrap().to_hex()`
+              * If using the toolkit, you can create this using the v2 transaction builder.
+
+              Some subtleties:
+              * Partial transactions can't be previewed. Instead, they must be wrapped inside a
+                transaction wrapper, so that the engine knows how to yield to them appropriately.
+              * Currently the builder assumes that the signed partial transactions have real signatures.
+                This isn't strictly required, and we may create a builder in future which allows providing
+                public keys when building partial transactions for use in preview.
+              * If you don't have signatures to hand, you can simply not sign the partial transactions,
+                and then use the `assume_all_signature_proofs` preview flag, although be advised that
+                this may result in the fee estimate being slightly lower during preview.
+              * We may create more ergonomic builders for PreviewTransactions which allow use of
+                public keys to denote the signers of subintents. Let us know if this is important
+                for your use case.
+            type: string
+        required:
+        - preview_transaction_hex
+    TransactionPreviewV2Response:
+      example:
+        radix_engine_toolkit_receipt: "{}"
+        receipt:
+          output:
+          - programmatic_json: ""
+            hex: hex
+          - programmatic_json: ""
+            hex: hex
+          error_message: error_message
+          fee_summary:
+            xrd_total_storage_cost: xrd_total_storage_cost
+            xrd_total_execution_cost: xrd_total_execution_cost
+            execution_cost_units_consumed: 343953088
+            xrd_total_finalization_cost: xrd_total_finalization_cost
+            finalization_cost_units_consumed: 2588772717
+            xrd_total_royalty_cost: xrd_total_royalty_cost
+            xrd_total_tipping_cost: xrd_total_tipping_cost
+          next_epoch:
+            significant_protocol_update_readiness:
+            - signalled_stake: signalled_stake
+              readiness_signal_name: readiness_signal_name
+            - signalled_stake: signalled_stake
+              readiness_signal_name: readiness_signal_name
+            validators:
+            - stake: stake
+              address: address
+              key:
+                key_hex: key_hex
+                key_type: EcdsaSecp256k1
+            - stake: stake
+              address: address
+              key:
+                key_hex: key_hex
+                key_type: EcdsaSecp256k1
+            epoch: 2027123023
+          fee_destination:
+            to_burn: to_burn
+            to_validator_set: to_validator_set
+            to_proposer: to_proposer
+            to_royalty_recipients:
+            - royalty_recipient:
+                entity_type: GlobalPackage
+                entity_address: entity_address
+                is_global: true
+              xrd_amount: xrd_amount
+            - royalty_recipient:
+                entity_type: GlobalPackage
+                entity_address: entity_address
+                is_global: true
+              xrd_amount: xrd_amount
+          costing_parameters:
+            finalization_cost_unit_price: finalization_cost_unit_price
+            execution_cost_unit_loan: 2560717018
+            finalization_cost_unit_limit: 2421234836
+            execution_cost_unit_price: execution_cost_unit_price
+            xrd_storage_price: xrd_storage_price
+            xrd_usd_price: xrd_usd_price
+            execution_cost_unit_limit: 629561881
+            xrd_archive_storage_price: xrd_archive_storage_price
+            tip_percentage: 15087
+            tip_proportion: tip_proportion
+          state_updates:
+            deleted_substates:
+            - system_structure:
+                type: SystemField
+              previous_value:
+                substate_data_hash: substate_data_hash
+                substate_data:
+                  substate_type: null
+                  is_locked: true
+                substate_hex: substate_hex
+              substate_id:
+                substate_type: BootLoaderModuleFieldSystemBoot
+                substate_key:
+                  key_type: Field
+                  db_sort_key_hex: db_sort_key_hex
+                entity_type: null
+                partition_kind: null
+                partition_number: 237
+                entity_address: entity_address
+                entity_module: null
+            - system_structure:
+                type: SystemField
+              previous_value:
+                substate_data_hash: substate_data_hash
+                substate_data:
+                  substate_type: null
+                  is_locked: true
+                substate_hex: substate_hex
+              substate_id:
+                substate_type: BootLoaderModuleFieldSystemBoot
+                substate_key:
+                  key_type: Field
+                  db_sort_key_hex: db_sort_key_hex
+                entity_type: null
+                partition_kind: null
+                partition_number: 237
+                entity_address: entity_address
+                entity_module: null
+            deleted_partitions:
+            - entity_type: null
+              partition_kind: Field
+              partition_number: 180
+              entity_address: entity_address
+              entity_module: TypeInfo
+            - entity_type: null
+              partition_kind: Field
+              partition_number: 180
+              entity_address: entity_address
+              entity_module: TypeInfo
+            created_substates:
+            - system_structure:
+                type: SystemField
+              substate_id:
+                substate_type: BootLoaderModuleFieldSystemBoot
+                substate_key:
+                  key_type: Field
+                  db_sort_key_hex: db_sort_key_hex
+                entity_type: null
+                partition_kind: null
+                partition_number: 237
+                entity_address: entity_address
+                entity_module: null
+              value:
+                substate_data_hash: substate_data_hash
+                substate_data:
+                  substate_type: null
+                  is_locked: true
+                substate_hex: substate_hex
+            - system_structure:
+                type: SystemField
+              substate_id:
+                substate_type: BootLoaderModuleFieldSystemBoot
+                substate_key:
+                  key_type: Field
+                  db_sort_key_hex: db_sort_key_hex
+                entity_type: null
+                partition_kind: null
+                partition_number: 237
+                entity_address: entity_address
+                entity_module: null
+              value:
+                substate_data_hash: substate_data_hash
+                substate_data:
+                  substate_type: null
+                  is_locked: true
+                substate_hex: substate_hex
+            updated_substates:
+            - system_structure:
+                type: SystemField
+              previous_value:
+                substate_data_hash: substate_data_hash
+                substate_data:
+                  substate_type: null
+                  is_locked: true
+                substate_hex: substate_hex
+              substate_id:
+                substate_type: BootLoaderModuleFieldSystemBoot
+                substate_key:
+                  key_type: Field
+                  db_sort_key_hex: db_sort_key_hex
+                entity_type: null
+                partition_kind: null
+                partition_number: 237
+                entity_address: entity_address
+                entity_module: null
+              new_value:
+                substate_data_hash: substate_data_hash
+                substate_data:
+                  substate_type: null
+                  is_locked: true
+                substate_hex: substate_hex
+            - system_structure:
+                type: SystemField
+              previous_value:
+                substate_data_hash: substate_data_hash
+                substate_data:
+                  substate_type: null
+                  is_locked: true
+                substate_hex: substate_hex
+              substate_id:
+                substate_type: BootLoaderModuleFieldSystemBoot
+                substate_key:
+                  key_type: Field
+                  db_sort_key_hex: db_sort_key_hex
+                entity_type: null
+                partition_kind: null
+                partition_number: 237
+                entity_address: entity_address
+                entity_module: null
+              new_value:
+                substate_data_hash: substate_data_hash
+                substate_data:
+                  substate_type: null
+                  is_locked: true
+                substate_hex: substate_hex
+            new_global_entities:
+            - entity_type: GlobalPackage
+              entity_address: entity_address
+              is_global: true
+            - entity_type: GlobalPackage
+              entity_address: entity_address
+              is_global: true
+          fee_source:
+            from_vaults:
+            - xrd_amount: xrd_amount
+              vault_entity:
+                entity_type: GlobalPackage
+                entity_address: entity_address
+                is_global: true
+            - xrd_amount: xrd_amount
+              vault_entity:
+                entity_type: GlobalPackage
+                entity_address: entity_address
+                is_global: true
+          events:
+          - data:
+              programmatic_json: ""
+              hex: hex
+            type:
+              name: name
+              type_reference:
+                full_type_id:
+                  schema_hash: schema_hash
+                  entity_address: entity_address
+                  local_type_id:
+                    as_sbor:
+                      programmatic_json: ""
+                      hex: hex
+                    kind: WellKnown
+                    id: 1553093137
+              emitter:
+                type: Function
+          - data:
+              programmatic_json: ""
+              hex: hex
+            type:
+              name: name
+              type_reference:
+                full_type_id:
+                  schema_hash: schema_hash
+                  entity_address: entity_address
+                  local_type_id:
+                    as_sbor:
+                      programmatic_json: ""
+                      hex: hex
+                    kind: WellKnown
+                    id: 1553093137
+              emitter:
+                type: Function
+          status: Succeeded
+        at_ledger_state:
+          state_version: 8008281904611
+          header_summary:
+            epoch_round:
+              round: 1465812980
+              epoch: 6027456183
+            proposer_timestamp:
+              date_time: date_time
+              unix_timestamp_ms: 60274561830704
+            ledger_hashes:
+              state_tree_hash: state_tree_hash
+              transaction_tree_hash: transaction_tree_hash
+              receipt_tree_hash: receipt_tree_hash
+        logs:
+        - level: level
+          message: message
+        - level: level
+          message: message
+      properties:
+        at_ledger_state:
+          $ref: '#/components/schemas/LedgerStateSummary'
+        receipt:
+          $ref: '#/components/schemas/TransactionReceipt'
+        radix_engine_toolkit_receipt:
+          description: "An optional field which is only provided if the `radix_engine_toolkit_receipt`\n\
+            flag is set to true in the `options` property of the request.\n\nThis\
+            \ receipt is primarily intended for use with the toolkit and may contain\
+            \ information \nthat is already available in the receipt provided in the\
+            \ `receipt` field of this \nresponse.\n\nA typical client of this API\
+            \ is not expected to use this receipt. The primary clients \nthis receipt\
+            \ is intended for is the Radix wallet or any client that needs to perform\
+            \ \nexecution summaries on their transactions.\n"
+          type: object
+        logs:
+          description: |
+            An optional field which is only provided if the `logs` flag is set to true in the
+            `options` property of the request.
+
+            If present, it gives the emitted logs from the transaction execution.
+          items:
+            $ref: '#/components/schemas/TransactionPreviewResponse_logs_inner'
+          type: array
+      required:
+      - at_ledger_state
+    TransactionPreviewV2ErrorResponse:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponse'
+      - properties:
+          details:
+            $ref: '#/components/schemas/TransactionPreviewV2ErrorDetails'
+      example:
+        trace_id: trace_id
+        code: 0
+        error_type: Basic
+        details:
+          type: Invalid
+        message: message
+    TransactionPreviewV2ErrorDetailsType:
+      enum:
+      - Invalid
+      type: string
+    TransactionPreviewV2ErrorDetails:
+      discriminator:
+        mapping:
+          Invalid: '#/components/schemas/InvalidTransactionPreviewV2ErrorDetails'
+        propertyName: type
+      example:
+        type: Invalid
+      properties:
+        type:
+          $ref: '#/components/schemas/TransactionPreviewV2ErrorDetailsType'
+      required:
+      - type
+    InvalidTransactionPreviewV2ErrorDetails:
+      allOf:
+      - $ref: '#/components/schemas/TransactionPreviewV2ErrorDetails'
+      - properties:
+          validation_error:
+            type: string
+        required:
+        - validation_error
     StreamProofsRequest:
       description: |
         A request to retrieve a sublist of proofs.
@@ -9814,6 +10899,7 @@ components:
               execution_cost_unit_limit: 629561881
               xrd_archive_storage_price: xrd_archive_storage_price
               tip_percentage: 15087
+              tip_proportion: tip_proportion
             state_updates:
               deleted_substates:
               - system_structure:
@@ -9825,7 +10911,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -9843,7 +10929,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -9867,7 +10953,7 @@ components:
               - system_structure:
                   type: SystemField
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -9885,7 +10971,7 @@ components:
               - system_structure:
                   type: SystemField
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -9910,7 +10996,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -9934,7 +11020,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -10122,6 +11208,7 @@ components:
               execution_cost_unit_limit: 629561881
               xrd_archive_storage_price: xrd_archive_storage_price
               tip_percentage: 15087
+              tip_proportion: tip_proportion
             state_updates:
               deleted_substates:
               - system_structure:
@@ -10133,7 +11220,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -10151,7 +11238,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -10175,7 +11262,7 @@ components:
               - system_structure:
                   type: SystemField
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -10193,7 +11280,7 @@ components:
               - system_structure:
                   type: SystemField
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -10218,7 +11305,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -10242,7 +11329,7 @@ components:
                     is_locked: true
                   substate_hex: substate_hex
                 substate_id:
-                  substate_type: BootLoaderModuleFieldVmBoot
+                  substate_type: BootLoaderModuleFieldSystemBoot
                   substate_key:
                     key_type: Field
                     db_sort_key_hex: db_sort_key_hex
@@ -10506,6 +11593,7 @@ components:
             execution_cost_unit_limit: 629561881
             xrd_archive_storage_price: xrd_archive_storage_price
             tip_percentage: 15087
+            tip_proportion: tip_proportion
           state_updates:
             deleted_substates:
             - system_structure:
@@ -10517,7 +11605,7 @@ components:
                   is_locked: true
                 substate_hex: substate_hex
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -10535,7 +11623,7 @@ components:
                   is_locked: true
                 substate_hex: substate_hex
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -10559,7 +11647,7 @@ components:
             - system_structure:
                 type: SystemField
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -10577,7 +11665,7 @@ components:
             - system_structure:
                 type: SystemField
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -10602,7 +11690,7 @@ components:
                   is_locked: true
                 substate_hex: substate_hex
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -10626,7 +11714,7 @@ components:
                   is_locked: true
                 substate_hex: substate_hex
               substate_id:
-                substate_type: BootLoaderModuleFieldVmBoot
+                substate_type: BootLoaderModuleFieldSystemBoot
                 substate_key:
                   key_type: Field
                   db_sort_key_hex: db_sort_key_hex
@@ -10810,15 +11898,52 @@ components:
     GenesisLedgerProofOrigin:
       allOf:
       - $ref: '#/components/schemas/LedgerProofOrigin'
-      - properties:
+      - description: |
+          Represents a proof from the execution of the babylon genesis protocol update, which starts
+          the babylon-node ledger.
+
+          Behind-the-scenes, this is now the same as a `ProtocolUpdateLedgerProofOrigin`,
+          but is kept separate for backwards-compatibility.
+
+          NOTE: Some of these values may be placeholder values on nodes which haven't resynced since
+          Cuttlefish. In particular, the following values might be invalid on such nodes:
+
+          * `batch_group_idx` (placeholder of 0)
+          * `batch_group_name` (placeholder of "")
+          * `batch_idx` (placeholder of 0)
+          * `batch_name` (placeholder of "")
+          * `is_end_of_update` (placeholder of false)
+        properties:
+          protocol_version_name:
+            type: string
           genesis_opaque_hash:
             type: string
+          batch_group_idx:
+            format: int64
+            type: integer
+          batch_group_name:
+            type: string
+          batch_idx:
+            format: int64
+            type: integer
+          batch_name:
+            type: string
+          is_end_of_update:
+            type: boolean
         required:
+        - batch_group_idx
+        - batch_group_name
+        - batch_idx
+        - batch_name
         - genesis_opaque_hash
+        - is_end_of_update
+        - protocol_version_name
     ConsensusLedgerProofOrigin:
       allOf:
       - $ref: '#/components/schemas/LedgerProofOrigin'
-      - properties:
+      - description: |
+          Represents a proof from the execution of a consensus round.
+        properties:
           opaque_hash:
             $ref: '#/components/schemas/OpaqueHash'
           timestamped_signatures:
@@ -10831,14 +11956,46 @@ components:
     ProtocolUpdateLedgerProofOrigin:
       allOf:
       - $ref: '#/components/schemas/LedgerProofOrigin'
-      - properties:
+      - description: |
+          Represents a proof from the execution of a non-genesis protocol update.
+          The execution of a protocol update is organised into batch groups, and
+          then these batch groups are organised into batches, with each batch committed
+          atomically.
+
+          NOTE: Some of these values may be placeholder values for protocol updates pre-Cuttlefish
+          on nodes which haven't resynced since Cuttlefish. In particular, the following values might be
+          invalid on such nodes:
+
+          * `config_hash` (placeholder of all zeros)
+          * `batch_group_idx` (placeholder of 0)
+          * `batch_group_name` (placeholder of "")
+          * `batch_idx` (placeholder of 0)
+          * `batch_name` (placeholder of "")
+          * `is_end_of_update` (placeholder of false)
+        properties:
           protocol_version_name:
+            type: string
+          config_hash:
+            type: string
+          batch_group_idx:
+            format: int64
+            type: integer
+          batch_group_name:
             type: string
           batch_idx:
             format: int64
             type: integer
+          batch_name:
+            type: string
+          is_end_of_update:
+            type: boolean
         required:
+        - batch_group_idx
+        - batch_group_name
         - batch_idx
+        - batch_name
+        - config_hash
+        - is_end_of_update
         - protocol_version_name
     LedgerProof:
       example:
@@ -10992,6 +12149,7 @@ components:
       enum:
       - Genesis
       - User
+      - UserV2
       - RoundUpdate
       - Flash
       type: string
@@ -11000,6 +12158,7 @@ components:
         mapping:
           Genesis: '#/components/schemas/GenesisLedgerTransaction'
           User: '#/components/schemas/UserLedgerTransaction'
+          UserV2: '#/components/schemas/UserLedgerTransactionV2'
           RoundUpdate: '#/components/schemas/RoundUpdateLedgerTransaction'
           Flash: '#/components/schemas/FlashLedgerTransaction'
         propertyName: type
@@ -11034,6 +12193,14 @@ components:
       - properties:
           notarized_transaction:
             $ref: '#/components/schemas/NotarizedTransaction'
+        required:
+        - notarized_transaction
+    UserLedgerTransactionV2:
+      allOf:
+      - $ref: '#/components/schemas/LedgerTransaction'
+      - properties:
+          notarized_transaction:
+            $ref: '#/components/schemas/NotarizedTransactionV2'
         required:
         - notarized_transaction
     RoundUpdateLedgerTransaction:
@@ -11959,7 +13126,18 @@ components:
       - api_version
       - core_version
     NetworkConfigurationResponse_well_known_addresses:
-      description: Key addresses for this network.
+      description: |
+        Key addresses for this network, as per https://docs.radixdlt.com/docs/well-known-addresses.
+
+        Note that at Cuttlefish, some of these names have been updated elsewhere in the stack,
+        but for backwards compatibility, we must use the old names here.
+
+        Notably:
+        - `secp256k1_signature_virtual_badge` is now `secp256k1_signature_resource` elsewhere
+        - `ed25519_signature_virtual_badge` is now `ed25519_signature_resource` elsewhere
+        - `package_of_direct_caller_virtual_badge` is now `package_of_direct_caller_resource` elsewhere
+        - `global_caller_virtual_badge` is now `global_caller_resource` elsewhere
+        - `system_transaction_badge` is now `system_transaction_resource` elsewhere
       example:
         secp256k1_signature_virtual_badge: secp256k1_signature_virtual_badge
         account_owner_badge: account_owner_badge
@@ -11983,10 +13161,12 @@ components:
         faucet_package: faucet_package
         xrd: xrd
         validator_owner_badge: validator_owner_badge
+        transaction_tracker_package: transaction_tracker_package
         royalty_module_package: royalty_module_package
         pool_package: pool_package
         identity_package: identity_package
         package_of_direct_caller_virtual_badge: package_of_direct_caller_virtual_badge
+        test_utils_package: test_utils_package
         genesis_helper: genesis_helper
         identity_owner_badge: identity_owner_badge
       properties:
@@ -11996,11 +13176,11 @@ components:
           type: string
         ed25519_signature_virtual_badge:
           type: string
+        system_transaction_badge:
+          type: string
         package_of_direct_caller_virtual_badge:
           type: string
         global_caller_virtual_badge:
-          type: string
-        system_transaction_badge:
           type: string
         package_owner_badge:
           type: string
@@ -12036,7 +13216,11 @@ components:
           type: string
         pool_package:
           type: string
+        transaction_tracker_package:
+          type: string
         locker_package:
+          type: string
+        test_utils_package:
           type: string
         consensus_manager:
           type: string
@@ -12107,7 +13291,7 @@ components:
         If the transaction is known to not be valid, this gives a reason.
         Different levels of validation are performed, dependent on the validation mode.
         Note that, even if validation mode is Static or Full, the transaction may
-        still be rejected or fail due to issues at runtime (eg if the loan cannot be repaid).
+        still be rejected or fail due to issues at runtime (e.g. if the loan cannot be repaid).
       properties:
         reason:
           description: |
@@ -12121,43 +13305,6 @@ components:
       required:
       - is_permanent
       - reason
-    TransactionPreviewRequest_flags:
-      example:
-        use_free_credit: true
-        assume_all_signature_proofs: true
-        skip_epoch_check: true
-        disable_auth_checks: true
-      properties:
-        use_free_credit:
-          type: boolean
-        assume_all_signature_proofs:
-          type: boolean
-        skip_epoch_check:
-          type: boolean
-        disable_auth_checks:
-          description: |
-            Can be used to skip performing auth checks during runtime.
-
-            This could be used to e.g.:
-            * Preview protocol update style transactions
-            * Mint resources for previewing trades with resources you don't own. If doing this, be warned:
-              * Only resources which were potentially mintable/burnable at creation time
-              will be mintable/burnable, due to feature flags on the resource.
-              * Please see the below warning about unexpected results if using this approach.
-
-            Please be warned - this mode of operation is quite a departure from normal operation:
-            * Calculated fees will likely be lower than a standard execution
-            * This mode can subtly break invariants some dApp code might rely on, or result in unexpected
-            behaviour, so the resulting execution result might not be valid for your needs. For example,
-            if I used this flag to mint pool units to preview a redemption (or some dApp interaction which
-            behind the scenes redeemed them), they'd redeem for less than they're currently worth,
-            because the blueprint code relies on the total supply of the pool units to calculate their
-            redemption worth, and you've just inflated the total supply through the mint operation.
-          type: boolean
-      required:
-      - assume_all_signature_proofs
-      - skip_epoch_check
-      - use_free_credit
     TransactionPreviewResponse_logs_inner:
       example:
         level: level
