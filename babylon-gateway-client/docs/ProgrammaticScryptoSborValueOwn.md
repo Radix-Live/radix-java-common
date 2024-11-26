@@ -7,7 +7,7 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**value** | **String** |  |  |
+|**value** | **String** | Bech32m-encoded human readable version of the address. |  |
 
 
 

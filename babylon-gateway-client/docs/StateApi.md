@@ -1,6 +1,6 @@
 # StateApi
 
-All URIs are relative to *https://mainnet.radixdlt.com*
+All URIs are relative to *https://gateway.radix.live*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -48,7 +48,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateAccountAuthorizedDepositorsPageRequest stateAccountAuthorizedDepositorsPageRequest = new StateAccountAuthorizedDepositorsPageRequest(); // StateAccountAuthorizedDepositorsPageRequest | 
@@ -91,7 +91,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Account resource preferences page |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## accountLockerVaultsPage
@@ -115,7 +115,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateAccountLockerPageVaultsRequest stateAccountLockerPageVaultsRequest = new StateAccountLockerPageVaultsRequest(); // StateAccountLockerPageVaultsRequest | 
@@ -158,7 +158,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Account Locker vaults (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## accountLockersTouchedAt
@@ -182,7 +182,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateAccountLockersTouchedAtRequest stateAccountLockersTouchedAtRequest = new StateAccountLockersTouchedAtRequest(); // StateAccountLockersTouchedAtRequest | 
@@ -225,7 +225,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Account locker account pair last touch state version |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## accountResourcePreferencesPage
@@ -249,7 +249,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateAccountResourcePreferencesPageRequest stateAccountResourcePreferencesPageRequest = new StateAccountResourcePreferencesPageRequest(); // StateAccountResourcePreferencesPageRequest | 
@@ -292,7 +292,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Account resource preferences page |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## entityFungibleResourceVaultPage
@@ -316,7 +316,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityFungibleResourceVaultsPageRequest stateEntityFungibleResourceVaultsPageRequest = new StateEntityFungibleResourceVaultsPageRequest(); // StateEntityFungibleResourceVaultsPageRequest | 
@@ -359,7 +359,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Fungibles (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## entityFungiblesPage
@@ -383,7 +383,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityFungiblesPageRequest stateEntityFungiblesPageRequest = new StateEntityFungiblesPageRequest(); // StateEntityFungiblesPageRequest | 
@@ -426,7 +426,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Fungibles (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## entityMetadataPage
@@ -450,7 +450,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityMetadataPageRequest stateEntityMetadataPageRequest = new StateEntityMetadataPageRequest(); // StateEntityMetadataPageRequest | 
@@ -493,7 +493,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Metadata (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## entityNonFungibleIdsPage
@@ -517,7 +517,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityNonFungibleIdsPageRequest stateEntityNonFungibleIdsPageRequest = new StateEntityNonFungibleIdsPageRequest(); // StateEntityNonFungibleIdsPageRequest | 
@@ -560,7 +560,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Non-Fungible IDs (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## entityNonFungibleResourceVaultPage
@@ -584,7 +584,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityNonFungibleResourceVaultsPageRequest stateEntityNonFungibleResourceVaultsPageRequest = new StateEntityNonFungibleResourceVaultsPageRequest(); // StateEntityNonFungibleResourceVaultsPageRequest | 
@@ -627,7 +627,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Fungibles (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## entityNonFungiblesPage
@@ -651,7 +651,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityNonFungiblesPageRequest stateEntityNonFungiblesPageRequest = new StateEntityNonFungiblesPageRequest(); // StateEntityNonFungiblesPageRequest | 
@@ -694,7 +694,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Non-Fungibles (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## entitySchemaPage
@@ -718,7 +718,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntitySchemaPageRequest stateEntitySchemaPageRequest = new StateEntitySchemaPageRequest(); // StateEntitySchemaPageRequest | 
@@ -761,7 +761,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Schemas (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## keyValueStoreData
@@ -785,7 +785,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateKeyValueStoreDataRequest stateKeyValueStoreDataRequest = new StateKeyValueStoreDataRequest(); // StateKeyValueStoreDataRequest | 
@@ -828,7 +828,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Non-Fungible ID Data |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## keyValueStoreKeys
@@ -852,7 +852,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateKeyValueStoreKeysRequest stateKeyValueStoreKeysRequest = new StateKeyValueStoreKeysRequest(); // StateKeyValueStoreKeysRequest | 
@@ -895,7 +895,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | KeyValueStore keys collection |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## nonFungibleData
@@ -919,7 +919,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateNonFungibleDataRequest stateNonFungibleDataRequest = new StateNonFungibleDataRequest(); // StateNonFungibleDataRequest | 
@@ -962,7 +962,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Non-Fungible ID Data |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## nonFungibleIds
@@ -986,7 +986,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateNonFungibleIdsRequest stateNonFungibleIdsRequest = new StateNonFungibleIdsRequest(); // StateNonFungibleIdsRequest | 
@@ -1029,7 +1029,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Non-Fungible IDs (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## nonFungibleLocation
@@ -1053,7 +1053,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateNonFungibleLocationRequest stateNonFungibleLocationRequest = new StateNonFungibleLocationRequest(); // StateNonFungibleLocationRequest | 
@@ -1096,7 +1096,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Non-Fungible ID Location |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## packageBlueprintPage
@@ -1120,7 +1120,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StatePackageBlueprintPageRequest statePackageBlueprintPageRequest = new StatePackageBlueprintPageRequest(); // StatePackageBlueprintPageRequest | 
@@ -1163,7 +1163,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Package Blueprints (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## packageCodePage
@@ -1187,7 +1187,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StatePackageCodePageRequest statePackageCodePageRequest = new StatePackageCodePageRequest(); // StatePackageCodePageRequest | 
@@ -1230,7 +1230,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Package Blueprints (paginated) |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## stateEntityDetails
@@ -1254,7 +1254,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateEntityDetailsRequest stateEntityDetailsRequest = new StateEntityDetailsRequest(); // StateEntityDetailsRequest | 
@@ -1297,7 +1297,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Entity Details |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## stateValidatorsList
@@ -1319,7 +1319,7 @@ import live.radix.gateway.client.StateApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StateApi apiInstance = new StateApi(defaultClient);
         StateValidatorsListRequest stateValidatorsListRequest = new StateValidatorsListRequest(); // StateValidatorsListRequest | 
@@ -1362,5 +1362,5 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Validators List |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 

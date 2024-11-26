@@ -14,6 +14,9 @@
 |**roleAssignments** | [**ComponentEntityRoleAssignments**](ComponentEntityRoleAssignments.md) |  |  [optional] |
 |**royaltyVaultBalance** | **String** | String-encoded decimal representing the amount of a related fungible resource. |  [optional] |
 |**royaltyConfig** | [**ComponentRoyaltyConfig**](ComponentRoyaltyConfig.md) |  |  [optional] |
+|**twoWayLinkedDappAddress** | **String** | Bech32m-encoded human readable version of the address. |  [optional] |
+|**twoWayLinkedDappDetails** | [**TwoWayLinkedDappOnLedgerDetails**](TwoWayLinkedDappOnLedgerDetails.md) |  |  [optional] |
+|**nativeResourceDetails** | [**NativeResourceDetails**](NativeResourceDetails.md) |  |  [optional] |
 
 
 

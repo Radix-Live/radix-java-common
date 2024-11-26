@@ -1,6 +1,6 @@
 # StatisticsApi
 
-All URIs are relative to *https://mainnet.radixdlt.com*
+All URIs are relative to *https://gateway.radix.live*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -29,7 +29,7 @@ import live.radix.gateway.client.StatisticsApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StatisticsApi apiInstance = new StatisticsApi(defaultClient);
         ValidatorsUptimeRequest validatorsUptimeRequest = new ValidatorsUptimeRequest(); // ValidatorsUptimeRequest | 
@@ -72,5 +72,5 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Validators Uptime |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 

@@ -2,9 +2,9 @@
 
 Radix Gateway API - Babylon
 
-- API version: v1.6.3
+- API version: v1.9.0-L
 
-- Build date: 2024-08-15T00:18:13.130575900+03:00[Europe/Kiev]
+- Build date: 2024-11-26T13:09:04.159608300+02:00[Europe/Kiev]
 
 - Generator version: 7.7.0
 
@@ -77,7 +77,7 @@ Add this dependency to your project's POM:
 <dependency>
   <groupId>live.radix</groupId>
   <artifactId>babylon-gateway-client</artifactId>
-  <version>v1.6.3</version>
+  <version>v1.9.0-L</version>
   <scope>compile</scope>
 </dependency>
 ```
@@ -87,7 +87,7 @@ Add this dependency to your project's POM:
 Add this dependency to your project's build file:
 
 ```groovy
-compile "live.radix:babylon-gateway-client:v1.6.3"
+compile "live.radix:babylon-gateway-client:v1.9.0-L"
 ```
 
 ### Others
@@ -100,7 +100,7 @@ mvn clean package
 
 Then manually install the following JARs:
 
-- `target/babylon-gateway-client-v1.6.3.jar`
+- `target/babylon-gateway-client-v1.9.0-L.jar`
 - `target/lib/*.jar`
 
 ## Getting Started
@@ -112,21 +112,21 @@ Please follow the [installation](#installation) instruction and execute the foll
 import live.radix.gateway.*;
 import live.radix.gateway.auth.*;
 import live.radix.gateway.model.*;
-import live.radix.gateway.client.StateApi;
+import live.radix.gateway.client.ExtensionsApi;
 
-public class StateApiExample {
+public class ExtensionsApiExample {
 
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
         
-        StateApi apiInstance = new StateApi(defaultClient);
-        StateAccountAuthorizedDepositorsPageRequest stateAccountAuthorizedDepositorsPageRequest = new StateAccountAuthorizedDepositorsPageRequest(); // StateAccountAuthorizedDepositorsPageRequest | 
+        ExtensionsApi apiInstance = new ExtensionsApi(defaultClient);
+        ResourceHoldersRequest resourceHoldersRequest = new ResourceHoldersRequest(); // ResourceHoldersRequest | 
         try {
-            StateAccountAuthorizedDepositorsPageResponse result = apiInstance.accountAuthorizedDepositorsPage(stateAccountAuthorizedDepositorsPageRequest);
+            ResourceHoldersResponse result = apiInstance.resourceHoldersPage(resourceHoldersRequest);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling StateApi#accountAuthorizedDepositorsPage");
+            System.err.println("Exception when calling ExtensionsApi#resourceHoldersPage");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -139,10 +139,11 @@ public class StateApiExample {
 
 ## Documentation for API Endpoints
 
-All URIs are relative to *https://mainnet.radixdlt.com*
+All URIs are relative to *https://gateway.radix.live*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*ExtensionsApi* | [**resourceHoldersPage**](docs/ExtensionsApi.md#resourceHoldersPage) | **POST** /extensions/resource-holders/page | Get Resource Holders Page
 *StateApi* | [**accountAuthorizedDepositorsPage**](docs/StateApi.md#accountAuthorizedDepositorsPage) | **POST** /state/account/page/authorized-depositors | Get Account authorized depositors
 *StateApi* | [**accountLockerVaultsPage**](docs/StateApi.md#accountLockerVaultsPage) | **POST** /state/account-locker/page/vaults | Get Account Locker Vaults Page
 *StateApi* | [**accountLockersTouchedAt**](docs/StateApi.md#accountLockersTouchedAt) | **POST** /state/account-lockers/touched-at | Get Most Recent Touch of Account Lockers
@@ -171,7 +172,9 @@ Class | Method | HTTP request | Description
 *TransactionApi* | [**transactionCommittedDetails**](docs/TransactionApi.md#transactionCommittedDetails) | **POST** /transaction/committed-details | Get Committed Transaction Details
 *TransactionApi* | [**transactionConstruction**](docs/TransactionApi.md#transactionConstruction) | **POST** /transaction/construction | Get Construction Metadata
 *TransactionApi* | [**transactionPreview**](docs/TransactionApi.md#transactionPreview) | **POST** /transaction/preview | Preview Transaction
+*TransactionApi* | [**transactionPreviewV2**](docs/TransactionApi.md#transactionPreviewV2) | **POST** /transaction/preview-v2 | Preview Transaction V2
 *TransactionApi* | [**transactionStatus**](docs/TransactionApi.md#transactionStatus) | **POST** /transaction/status | Get Transaction Status
+*TransactionApi* | [**transactionSubintentStatus**](docs/TransactionApi.md#transactionSubintentStatus) | **POST** /transaction/subintent-status | Get Subintent Status
 *TransactionApi* | [**transactionSubmit**](docs/TransactionApi.md#transactionSubmit) | **POST** /transaction/submit | Submit Transaction
 
 
@@ -204,6 +207,7 @@ Class | Method | HTTP request | Description
  - [BlueprintMethodRoyalty](docs/BlueprintMethodRoyalty.md)
  - [BlueprintRoyaltyConfig](docs/BlueprintRoyaltyConfig.md)
  - [CommittedTransactionInfo](docs/CommittedTransactionInfo.md)
+ - [CompiledPreviewTransaction](docs/CompiledPreviewTransaction.md)
  - [ComponentEntityRoleAssignmentEntry](docs/ComponentEntityRoleAssignmentEntry.md)
  - [ComponentEntityRoleAssignmentEntryAssignment](docs/ComponentEntityRoleAssignmentEntryAssignment.md)
  - [ComponentEntityRoleAssignments](docs/ComponentEntityRoleAssignments.md)
@@ -272,6 +276,25 @@ Class | Method | HTTP request | Description
  - [MetadataUrlArrayValue](docs/MetadataUrlArrayValue.md)
  - [MetadataUrlValue](docs/MetadataUrlValue.md)
  - [MetadataValueType](docs/MetadataValueType.md)
+ - [NativeResourceAccessControllerRecoveryBadgeValue](docs/NativeResourceAccessControllerRecoveryBadgeValue.md)
+ - [NativeResourceAccountOwnerBadgeValue](docs/NativeResourceAccountOwnerBadgeValue.md)
+ - [NativeResourceDetails](docs/NativeResourceDetails.md)
+ - [NativeResourceEd25519SignatureResourceValue](docs/NativeResourceEd25519SignatureResourceValue.md)
+ - [NativeResourceGlobalCallerResourceValue](docs/NativeResourceGlobalCallerResourceValue.md)
+ - [NativeResourceIdentityOwnerBadgeValue](docs/NativeResourceIdentityOwnerBadgeValue.md)
+ - [NativeResourceKind](docs/NativeResourceKind.md)
+ - [NativeResourceMultiResourcePoolUnitValue](docs/NativeResourceMultiResourcePoolUnitValue.md)
+ - [NativeResourceOneResourcePoolUnitValue](docs/NativeResourceOneResourcePoolUnitValue.md)
+ - [NativeResourcePackageOfDirectCallerResourceValue](docs/NativeResourcePackageOfDirectCallerResourceValue.md)
+ - [NativeResourcePackageOwnerBadgeValue](docs/NativeResourcePackageOwnerBadgeValue.md)
+ - [NativeResourceRedemptionValueItem](docs/NativeResourceRedemptionValueItem.md)
+ - [NativeResourceSecp256k1SignatureResourceValue](docs/NativeResourceSecp256k1SignatureResourceValue.md)
+ - [NativeResourceSystemExecutionResourceValue](docs/NativeResourceSystemExecutionResourceValue.md)
+ - [NativeResourceTwoResourcePoolUnitValue](docs/NativeResourceTwoResourcePoolUnitValue.md)
+ - [NativeResourceValidatorClaimNftValue](docs/NativeResourceValidatorClaimNftValue.md)
+ - [NativeResourceValidatorLiquidStakeUnitValue](docs/NativeResourceValidatorLiquidStakeUnitValue.md)
+ - [NativeResourceValidatorOwnerBadgeValue](docs/NativeResourceValidatorOwnerBadgeValue.md)
+ - [NativeResourceXrdValue](docs/NativeResourceXrdValue.md)
  - [NetworkConfigurationResponse](docs/NetworkConfigurationResponse.md)
  - [NetworkConfigurationResponseWellKnownAddresses](docs/NetworkConfigurationResponseWellKnownAddresses.md)
  - [NonFungibleIdType](docs/NonFungibleIdType.md)
@@ -290,6 +313,9 @@ Class | Method | HTTP request | Description
  - [PackageCodeCollection](docs/PackageCodeCollection.md)
  - [PackageCodeCollectionItem](docs/PackageCodeCollectionItem.md)
  - [PackageVmType](docs/PackageVmType.md)
+ - [PreviewFlags](docs/PreviewFlags.md)
+ - [PreviewTransaction](docs/PreviewTransaction.md)
+ - [PreviewTransactionType](docs/PreviewTransactionType.md)
  - [ProgrammaticScryptoSborValue](docs/ProgrammaticScryptoSborValue.md)
  - [ProgrammaticScryptoSborValueArray](docs/ProgrammaticScryptoSborValueArray.md)
  - [ProgrammaticScryptoSborValueBool](docs/ProgrammaticScryptoSborValueBool.md)
@@ -324,6 +350,13 @@ Class | Method | HTTP request | Description
  - [PublicKeyHashType](docs/PublicKeyHashType.md)
  - [PublicKeyType](docs/PublicKeyType.md)
  - [ResourceAggregationLevel](docs/ResourceAggregationLevel.md)
+ - [ResourceHoldersCollection](docs/ResourceHoldersCollection.md)
+ - [ResourceHoldersCollectionFungibleResourceItem](docs/ResourceHoldersCollectionFungibleResourceItem.md)
+ - [ResourceHoldersCollectionItem](docs/ResourceHoldersCollectionItem.md)
+ - [ResourceHoldersCollectionNonFungibleResourceItem](docs/ResourceHoldersCollectionNonFungibleResourceItem.md)
+ - [ResourceHoldersRequest](docs/ResourceHoldersRequest.md)
+ - [ResourceHoldersResourceType](docs/ResourceHoldersResourceType.md)
+ - [ResourceHoldersResponse](docs/ResourceHoldersResponse.md)
  - [ResultSetCursorMixin](docs/ResultSetCursorMixin.md)
  - [RoleAssignmentResolution](docs/RoleAssignmentResolution.md)
  - [RoleKey](docs/RoleKey.md)
@@ -394,6 +427,7 @@ Class | Method | HTTP request | Description
  - [StreamTransactionsRequestAllOfManifestClassFilter](docs/StreamTransactionsRequestAllOfManifestClassFilter.md)
  - [StreamTransactionsRequestEventFilterItem](docs/StreamTransactionsRequestEventFilterItem.md)
  - [StreamTransactionsResponse](docs/StreamTransactionsResponse.md)
+ - [SubintentStatus](docs/SubintentStatus.md)
  - [TransactionAccountDepositPreValidationAuthorizedDepositorBadge](docs/TransactionAccountDepositPreValidationAuthorizedDepositorBadge.md)
  - [TransactionBalanceChanges](docs/TransactionBalanceChanges.md)
  - [TransactionCommittedDetailsRequest](docs/TransactionCommittedDetailsRequest.md)
@@ -408,17 +442,28 @@ Class | Method | HTTP request | Description
  - [TransactionNotFoundError](docs/TransactionNotFoundError.md)
  - [TransactionPayloadGatewayHandlingStatus](docs/TransactionPayloadGatewayHandlingStatus.md)
  - [TransactionPayloadStatus](docs/TransactionPayloadStatus.md)
+ - [TransactionPreviewOptIns](docs/TransactionPreviewOptIns.md)
  - [TransactionPreviewRequest](docs/TransactionPreviewRequest.md)
- - [TransactionPreviewRequestFlags](docs/TransactionPreviewRequestFlags.md)
  - [TransactionPreviewResponse](docs/TransactionPreviewResponse.md)
  - [TransactionPreviewResponseLogsInner](docs/TransactionPreviewResponseLogsInner.md)
+ - [TransactionPreviewV2OptIns](docs/TransactionPreviewV2OptIns.md)
+ - [TransactionPreviewV2Request](docs/TransactionPreviewV2Request.md)
+ - [TransactionPreviewV2Response](docs/TransactionPreviewV2Response.md)
  - [TransactionReceipt](docs/TransactionReceipt.md)
  - [TransactionStatus](docs/TransactionStatus.md)
  - [TransactionStatusRequest](docs/TransactionStatusRequest.md)
  - [TransactionStatusResponse](docs/TransactionStatusResponse.md)
  - [TransactionStatusResponseKnownPayloadItem](docs/TransactionStatusResponseKnownPayloadItem.md)
+ - [TransactionSubintentDetails](docs/TransactionSubintentDetails.md)
+ - [TransactionSubintentStatusRequest](docs/TransactionSubintentStatusRequest.md)
+ - [TransactionSubintentStatusResponse](docs/TransactionSubintentStatusResponse.md)
  - [TransactionSubmitRequest](docs/TransactionSubmitRequest.md)
  - [TransactionSubmitResponse](docs/TransactionSubmitResponse.md)
+ - [TwoWayLinkedDappOnLedgerDetails](docs/TwoWayLinkedDappOnLedgerDetails.md)
+ - [TwoWayLinkedDappsCollection](docs/TwoWayLinkedDappsCollection.md)
+ - [TwoWayLinkedDappsCollectionItem](docs/TwoWayLinkedDappsCollectionItem.md)
+ - [TwoWayLinkedEntitiesCollection](docs/TwoWayLinkedEntitiesCollection.md)
+ - [TwoWayLinkedEntitiesCollectionItem](docs/TwoWayLinkedEntitiesCollectionItem.md)
  - [ValidationErrorsAtPath](docs/ValidationErrorsAtPath.md)
  - [ValidatorCollection](docs/ValidatorCollection.md)
  - [ValidatorCollectionItem](docs/ValidatorCollectionItem.md)

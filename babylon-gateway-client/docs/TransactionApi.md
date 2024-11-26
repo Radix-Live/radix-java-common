@@ -1,6 +1,6 @@
 # TransactionApi
 
-All URIs are relative to *https://mainnet.radixdlt.com*
+All URIs are relative to *https://gateway.radix.live*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -8,7 +8,9 @@ All URIs are relative to *https://mainnet.radixdlt.com*
 | [**transactionCommittedDetails**](TransactionApi.md#transactionCommittedDetails) | **POST** /transaction/committed-details | Get Committed Transaction Details |
 | [**transactionConstruction**](TransactionApi.md#transactionConstruction) | **POST** /transaction/construction | Get Construction Metadata |
 | [**transactionPreview**](TransactionApi.md#transactionPreview) | **POST** /transaction/preview | Preview Transaction |
+| [**transactionPreviewV2**](TransactionApi.md#transactionPreviewV2) | **POST** /transaction/preview-v2 | Preview Transaction V2 |
 | [**transactionStatus**](TransactionApi.md#transactionStatus) | **POST** /transaction/status | Get Transaction Status |
+| [**transactionSubintentStatus**](TransactionApi.md#transactionSubintentStatus) | **POST** /transaction/subintent-status | Get Subintent Status |
 | [**transactionSubmit**](TransactionApi.md#transactionSubmit) | **POST** /transaction/submit | Submit Transaction |
 
 
@@ -34,7 +36,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         AccountDepositPreValidationRequest accountDepositPreValidationRequest = new AccountDepositPreValidationRequest(); // AccountDepositPreValidationRequest | 
@@ -77,7 +79,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Pre-validation response, including all deciding factors that were used to generate that response. |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## transactionCommittedDetails
@@ -101,7 +103,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         TransactionCommittedDetailsRequest transactionCommittedDetailsRequest = new TransactionCommittedDetailsRequest(); // TransactionCommittedDetailsRequest | 
@@ -144,7 +146,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Transaction Status |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## transactionConstruction
@@ -168,7 +170,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         try {
@@ -215,7 +217,7 @@ No authorization required
 
 Preview Transaction
 
-Previews transaction against the network. This endpoint is effectively a proxy towards the Core API &#x60;/v0/transaction/preview&#x60; endpoint. See the Core API documentation for more details. 
+Preview a transaction against the latest network state, and returns the preview receipt. If the node has enabled it, you may be able to also preview against recent network state.  For V2 transactions (and beyond) the &#x60;/preview-v2&#x60; endpoint should be used instead.  This endpoint is effectively a proxy towards the Core API &#x60;/transaction/preview&#x60; endpoint. See the Core API documentation for more details. 
 
 ### Example
 
@@ -230,7 +232,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         TransactionPreviewRequest transactionPreviewRequest = new TransactionPreviewRequest(); // TransactionPreviewRequest | 
@@ -273,7 +275,74 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Successful Preview |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
+
+
+## transactionPreviewV2
+
+> TransactionPreviewV2Response transactionPreviewV2(transactionPreviewV2Request)
+
+Preview Transaction V2
+
+Previews a transaction against the latest network state, and returns the preview receipt. If the node has enabled it, you may be able to also preview against recent network state.  This endpoint supports V2 transactions (and beyond). If you still need to preview V1 transactions, you should use the &#x60;/preview&#x60; endpoint instead.  This endpoint is effectively a proxy towards the Core API &#x60;/transaction/preview-v2&#x60; endpoint. See the Core API documentation for more details. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.TransactionApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://gateway.radix.live");
+
+        TransactionApi apiInstance = new TransactionApi(defaultClient);
+        TransactionPreviewV2Request transactionPreviewV2Request = new TransactionPreviewV2Request(); // TransactionPreviewV2Request | 
+        try {
+            TransactionPreviewV2Response result = apiInstance.transactionPreviewV2(transactionPreviewV2Request);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling TransactionApi#transactionPreviewV2");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **transactionPreviewV2Request** | [**TransactionPreviewV2Request**](TransactionPreviewV2Request.md)|  | |
+
+### Return type
+
+[**TransactionPreviewV2Response**](TransactionPreviewV2Response.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Preview |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## transactionStatus
@@ -297,7 +366,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         TransactionStatusRequest transactionStatusRequest = new TransactionStatusRequest(); // TransactionStatusRequest | 
@@ -340,7 +409,74 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Transaction Status |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
+
+
+## transactionSubintentStatus
+
+> TransactionSubintentStatusResponse transactionSubintentStatus(transactionSubintentStatusRequest)
+
+Get Subintent Status
+
+Returns if the given subintent has been finalized. 
+
+### Example
+
+```java
+// Import classes:
+import live.radix.gateway.ApiClient;
+import live.radix.gateway.ApiException;
+import live.radix.gateway.Configuration;
+import live.radix.gateway.models.*;
+import live.radix.gateway.client.TransactionApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("https://gateway.radix.live");
+
+        TransactionApi apiInstance = new TransactionApi(defaultClient);
+        TransactionSubintentStatusRequest transactionSubintentStatusRequest = new TransactionSubintentStatusRequest(); // TransactionSubintentStatusRequest | 
+        try {
+            TransactionSubintentStatusResponse result = apiInstance.transactionSubintentStatus(transactionSubintentStatusRequest);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling TransactionApi#transactionSubintentStatus");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **transactionSubintentStatusRequest** | [**TransactionSubintentStatusRequest**](TransactionSubintentStatusRequest.md)|  | |
+
+### Return type
+
+[**TransactionSubintentStatusResponse**](TransactionSubintentStatusResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Transaction Status |  -  |
+| **4XX** | Client-originated request error |  -  |
 
 
 ## transactionSubmit
@@ -364,7 +500,7 @@ import live.radix.gateway.client.TransactionApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         TransactionApi apiInstance = new TransactionApi(defaultClient);
         TransactionSubmitRequest transactionSubmitRequest = new TransactionSubmitRequest(); // TransactionSubmitRequest | 
@@ -407,5 +543,5 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Successful Submission |  -  |
-| **4XX** |  |  -  |
+| **4XX** | Client-originated request error |  -  |
 

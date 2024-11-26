@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
   description: |
     This API is exposed by the Babylon Radix Gateway to enable clients to efficiently query current and historic
@@ -38,13 +38,13 @@ info:
     name: "The Radix License, Version 1.0"
     url: https://www.radixfoundation.org/licenses/license-v1
   title: Radix Gateway API - Babylon
-  version: v1.6.3
+  version: v1.9.0-L
   x-logo:
     url: https://cdn.document360.io/50e78792-5410-4ac9-aa43-4612b4d33953/Images/Documentation/radix-logo-banner.png
     href: https://docs.radixdlt.com
 servers:
-- url: https://mainnet.radixdlt.com
-- url: https://stokenet.radixdlt.com
+- url: https://gateway.radix.live
+- url: https://stokenet-gateway.radix.live
 tags:
 - description: |
     The Gateway API is split into 5 sub APIs:
@@ -53,6 +53,7 @@ tags:
     - **Stream** (`/transaction/*`) - For reading committed transactions.
     - **State** (`/state/*`) - For reading the current or past ledger state of the network.
     - **Statistics** (`/statistics/*`) - For calculating particular statistics against the current or past ledger state of the network.
+    - **Extensions** (`/Extensions/*`) - For endpoints that do not fit into other categories, for example, they may not support historic state.
   name: SubAPIs
   x-displayName: Sub-APIs
   x-traitTag: true
@@ -593,25 +594,27 @@ tags:
 
     The currently supported filters are:
 
-    * `kind_filter` - one of `User`, `EpochChange`, `All`. You can use that filter to query for certain kinds of transactions. Defaults to `User`.
+    * `kind_filter` - One of `User`, `EpochChange`, `All`. You can use that filter to query for certain kinds of transactions. Defaults to `User`.
 
-    * `manifest_accounts_withdrawn_from_filter` - allows specifying an array of account addresses. If specified, the response will contain only transactions with a manifest containing withdrawals from the given accounts.
+    * `manifest_accounts_withdrawn_from_filter` - Allows specifying an array of account addresses. If specified, the response will contain only transactions with a manifest containing withdrawals from the given accounts.
 
-    * `manifest_accounts_deposited_into_filter` - similar to withdrawn, but will return only transactions with a manifest containing deposits to the given accounts.
+    * `manifest_accounts_deposited_into_filter` - Similar to withdrawn, but will return only transactions with a manifest containing deposits to the given accounts.
 
-    * `manifest_resources_filter` - allows specifying array of resource addresses. If specified, the response will contain only transactions containing the given resources in the manifest (regardless of their usage).
+    * `manifest_resources_filter` - Allows specifying array of resource addresses. If specified, the response will contain only transactions containing the given resources in the manifest (regardless of their usage).
 
-    * `manifest_badges_presented_filter` - allows specifying array of badge resource addresses. If specified, the response will contain only transactions where the given badges were presented.
+    * `manifest_badges_presented_filter` - Allows specifying array of badge resource addresses. If specified, the response will contain only transactions where the given badges were presented.
 
-    * `accounts_with_manifest_owner_method_calls` - allows specifying an array of account addresses. If specified, the response will contain only transactions that, for all specified accounts, contain manifest method calls to that account which require the owner role. See the [account docs](https://docs.radixdlt.com/docs/account) for more information.
+    * `accounts_with_manifest_owner_method_calls` - Allows specifying an array of account addresses. If specified, the response will contain only transactions that, for all specified accounts, contain manifest method calls to that account which require the owner role. See the [account docs](https://docs.radixdlt.com/docs/account) for more information.
 
-    * `accounts_without_manifest_owner_method_calls` - allows specifying an array of account addresses. If specified, the response will contain only transactions that, for all specified accounts, do NOT contain manifest method calls to that account which require owner role. See the [account docs](https://docs.radixdlt.com/docs/account) for more information.
+    * `accounts_without_manifest_owner_method_calls` - Allows specifying an array of account addresses. If specified, the response will contain only transactions that, for all specified accounts, do NOT contain manifest method calls to that account which require owner role. See the [account docs](https://docs.radixdlt.com/docs/account) for more information.
 
-    * `manifest_class_filter` - allows filtering to transactions which match the given manifest classification. If specified, the response will contain only transactions which have a class that matches the filter. If `match_only_most_specific` set to true, only transactions where the queried class is most specific will be returned. See the [docs on manifest classification](https://docs.radixdlt.com/docs/conforming-transaction-manifest-types) for more information.
+    * `manifest_class_filter` - Allows filtering to transactions which match the given manifest classification. If specified, the response will contain only transactions which have a class that matches the filter. If `match_only_most_specific` set to true, only transactions where the queried class is most specific will be returned. See the [docs on manifest classification](https://docs.radixdlt.com/docs/conforming-transaction-manifest-types) for more information.
 
-    * `affected_global_entities_filter` - allows specifying an array of global addresses. If specified, the response will contain transactions that affected all of the given global entities. A global entity is marked as "affected" by a transaction if any of its state (or its descendents' state) was modified as a result of the transaction.
+    * `affected_global_entities_filter` - Allows specifying an array of global addresses. If specified, the response will contain transactions that affected all of the given global entities. A global entity is marked as "affected" by a transaction if any of its state (or its descendents' state) was modified as a result of the transaction. For performance reasons consensus manager and transaction tracker are excluded from that filter.
 
-    * `events_filter` - filters the transaction stream to transactions which emitted at least one event matching each filter (each filter can be satisfied by a different event). Currently *only* deposit and withdrawal events emitted by an internal vault entity are tracked. For the purpose of filtering, the emitter address is replaced by the global ancestor of the emitter, for example, the top-level account / component which contains the vault which emitted the event.
+    * `event_global_emitters_filter` - Allows specifying an array of global addresses. If specified, the response will contain transactions in which all entities emitted events. If an event was published by an internal entity, it is going to be indexed as it is a global ancestor. For performance reasons events published by consensus manager and native XRD resource are excluded from that filter.
+
+    * `events_filter` - Filters the transaction stream to transactions which emitted at least one event matching each filter (each filter can be satisfied by a different event). Currently *only* deposit and withdrawal events emitted by an internal vault entity are tracked. For the purpose of filtering, the emitter address is replaced by the global ancestor of the emitter, for example, the top-level account / component which contains the vault which emitted the event.
 
     Each filter is a complex object where you can specify:
     - `event` (required) - the event tag. Currently only the following tags are supported:
@@ -1179,6 +1182,10 @@ tags:
     state.
   name: Statistics
   x-displayName: Statistics Endpoints
+- description: "Endpoints that do not fit into other categories, for example, those\
+    \ which provide custom aggregation or indexing, or don't support historic state."
+  name: Extensions
+  x-displayName: Extensions Endpoints
 paths:
   /status/gateway-status:
     post:
@@ -1235,8 +1242,12 @@ paths:
   /transaction/preview:
     post:
       description: |
-        Previews transaction against the network.
-        This endpoint is effectively a proxy towards the Core API `/v0/transaction/preview` endpoint. See the Core API documentation for more details.
+        Preview a transaction against the latest network state, and returns the preview receipt.
+        If the node has enabled it, you may be able to also preview against recent network state.
+
+        For V2 transactions (and beyond) the `/preview-v2` endpoint should be used instead.
+
+        This endpoint is effectively a proxy towards the Core API `/transaction/preview` endpoint. See the Core API documentation for more details.
       operationId: TransactionPreview
       requestBody:
         content:
@@ -1252,8 +1263,48 @@ paths:
                 $ref: '#/components/schemas/TransactionPreviewResponse'
           description: Successful Preview
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Preview Transaction
+      tags:
+      - Transaction
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /transaction/preview-v2:
+    post:
+      description: |
+        Previews a transaction against the latest network state, and returns the preview receipt.
+        If the node has enabled it, you may be able to also preview against recent network state.
+
+        This endpoint supports V2 transactions (and beyond). If you still need to preview V1
+        transactions, you should use the `/preview` endpoint instead.
+
+        This endpoint is effectively a proxy towards the Core API `/transaction/preview-v2` endpoint. See the Core API documentation for more details.
+      operationId: TransactionPreviewV2
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionPreviewV2Request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionPreviewV2Response'
+          description: Successful Preview
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Preview Transaction V2
       tags:
       - Transaction
       x-content-type: application/json
@@ -1278,7 +1329,11 @@ paths:
                 $ref: '#/components/schemas/TransactionSubmitResponse'
           description: Successful Submission
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Submit Transaction
       tags:
       - Transaction
@@ -1305,7 +1360,11 @@ paths:
                 $ref: '#/components/schemas/TransactionCommittedDetailsResponse'
           description: Transaction Status
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Committed Transaction Details
       tags:
       - Transaction
@@ -1331,8 +1390,42 @@ paths:
                 $ref: '#/components/schemas/TransactionStatusResponse'
           description: Transaction Status
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Transaction Status
+      tags:
+      - Transaction
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /transaction/subintent-status:
+    post:
+      description: |
+        Returns if the given subintent has been finalized.
+      operationId: TransactionSubintentStatus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionSubintentStatusRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionSubintentStatusResponse'
+          description: Transaction Status
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Subintent Status
       tags:
       - Transaction
       x-content-type: application/json
@@ -1358,7 +1451,11 @@ paths:
           description: "Pre-validation response, including all deciding factors that\
             \ were used to generate that response."
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: PreValidate deposit of resources to an account
       tags:
       - Transaction
@@ -1385,7 +1482,11 @@ paths:
                 $ref: '#/components/schemas/StreamTransactionsResponse'
           description: Transactions (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Transactions Stream
       tags:
       - Stream
@@ -1411,7 +1512,11 @@ paths:
                 $ref: '#/components/schemas/StateEntityDetailsResponse'
           description: Entity Details
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Entity Details
       tags:
       - State
@@ -1438,7 +1543,11 @@ paths:
                 $ref: '#/components/schemas/StateEntityMetadataPageResponse'
           description: Entity Metadata (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Entity Metadata Page
       tags:
       - State
@@ -1465,7 +1574,11 @@ paths:
                 $ref: '#/components/schemas/StateEntitySchemaPageResponse'
           description: Entity Schemas (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Entity Schema Page
       tags:
       - State
@@ -1493,7 +1606,11 @@ paths:
                 $ref: '#/components/schemas/StateEntityFungiblesPageResponse'
           description: Entity Fungibles (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get page of Global Entity Fungible Resource Balances
       tags:
       - State
@@ -1520,7 +1637,11 @@ paths:
                 $ref: '#/components/schemas/StateEntityFungibleResourceVaultsPageResponse'
           description: Entity Fungibles (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get page of Global Entity Fungible Resource Vaults
       tags:
       - State
@@ -1548,7 +1669,11 @@ paths:
                 $ref: '#/components/schemas/StateEntityNonFungiblesPageResponse'
           description: Entity Non-Fungibles (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get page of Global Entity Non-Fungible Resource Balances
       tags:
       - State
@@ -1575,7 +1700,11 @@ paths:
                 $ref: '#/components/schemas/StateEntityNonFungibleResourceVaultsPageResponse'
           description: Entity Fungibles (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get page of Global Entity Non-Fungible Resource Vaults
       tags:
       - State
@@ -1602,7 +1731,11 @@ paths:
                 $ref: '#/components/schemas/StateEntityNonFungibleIdsPageResponse'
           description: Entity Non-Fungible IDs (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get page of Non-Fungibles in Vault
       tags:
       - State
@@ -1629,7 +1762,11 @@ paths:
                 $ref: '#/components/schemas/StateNonFungibleIdsResponse'
           description: Non-Fungible IDs (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get page of Non-Fungible Ids in Resource Collection
       tags:
       - State
@@ -1655,7 +1792,11 @@ paths:
                 $ref: '#/components/schemas/StateNonFungibleDataResponse'
           description: Non-Fungible ID Data
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Non-Fungible Data
       tags:
       - State
@@ -1681,7 +1822,11 @@ paths:
                 $ref: '#/components/schemas/StateNonFungibleLocationResponse'
           description: Non-Fungible ID Location
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Non-Fungible Location
       tags:
       - State
@@ -1706,7 +1851,11 @@ paths:
                 $ref: '#/components/schemas/StateKeyValueStoreKeysResponse'
           description: KeyValueStore keys collection
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get KeyValueStore Keys
       tags:
       - State
@@ -1733,7 +1882,11 @@ paths:
                 $ref: '#/components/schemas/StateKeyValueStoreDataResponse'
           description: Non-Fungible ID Data
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get KeyValueStore Data
       tags:
       - State
@@ -1757,7 +1910,11 @@ paths:
                 $ref: '#/components/schemas/StateValidatorsListResponse'
           description: Validators List
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Validators List
       tags:
       - State
@@ -1783,7 +1940,11 @@ paths:
                 $ref: '#/components/schemas/StateAccountResourcePreferencesPageResponse'
           description: Account resource preferences page
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Account resource preferences
       tags:
       - State
@@ -1809,7 +1970,11 @@ paths:
                 $ref: '#/components/schemas/StateAccountAuthorizedDepositorsPageResponse'
           description: Account resource preferences page
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Account authorized depositors
       tags:
       - State
@@ -1836,7 +2001,11 @@ paths:
                 $ref: '#/components/schemas/StatePackageBlueprintPageResponse'
           description: Package Blueprints (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Package Blueprints Page
       tags:
       - State
@@ -1863,7 +2032,11 @@ paths:
                 $ref: '#/components/schemas/StatePackageCodePageResponse'
           description: Package Blueprints (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Package Codes Page
       tags:
       - State
@@ -1890,7 +2063,11 @@ paths:
                 $ref: '#/components/schemas/StateAccountLockerPageVaultsResponse'
           description: Account Locker vaults (paginated)
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Account Locker Vaults Page
       tags:
       - State
@@ -1917,7 +2094,11 @@ paths:
                 $ref: '#/components/schemas/StateAccountLockersTouchedAtResponse'
           description: Account locker account pair last touch state version
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Most Recent Touch of Account Lockers
       tags:
       - State
@@ -1943,10 +2124,48 @@ paths:
                 $ref: '#/components/schemas/ValidatorsUptimeResponse'
           description: Validators Uptime
         "4XX":
-          $ref: '#/components/responses/ErrorResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
       summary: Get Validators Uptime
       tags:
       - Statistics
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /extensions/resource-holders/page:
+    post:
+      description: |
+        A paginated endpoint to discover which global entities hold the most of a given resource.
+        More specifically, it returns a page of global entities which hold the given resource, ordered descending by the total fungible balance / total count of non-fungibles stored in vaults in the state tree of that entity (excluding unclaimed royalty balances).
+        This endpoint operates only at the **current state version**, it is not possible to browse historical data.
+        Because of that, it is not possible to offer stable pagination as data constantly changes. Balances might change between pages being read, which might result in gaps or some entries being returned twice.
+        Under default Gateway configuration, up to 100 entries are returned per response. This can be increased up to 1000 entries per page with the `limit_per_page` parameter.
+      operationId: ResourceHoldersPage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceHoldersRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceHoldersResponse'
+          description: Resource holders
+        "4XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Client-originated request error
+      summary: Get Resource Holders Page
+      tags:
+      - Extensions
       x-content-type: application/json
       x-accepts:
       - application/json
@@ -1961,7 +2180,6 @@ components:
   schemas:
     NetworkId:
       description: The logical id of the network
-      example: <network-id>
       format: int32
       maximum: 255
       minimum: 0
@@ -2016,6 +2234,7 @@ components:
           $ref: '#/components/schemas/PublicKeyType'
       required:
       - key_type
+      type: object
     PublicKeyEcdsaSecp256k1:
       allOf:
       - $ref: '#/components/schemas/PublicKey'
@@ -2028,6 +2247,7 @@ components:
             type: string
         required:
         - key_hex
+        type: object
     PublicKeyEddsaEd25519:
       allOf:
       - $ref: '#/components/schemas/PublicKey'
@@ -2039,6 +2259,7 @@ components:
             type: string
         required:
         - key_hex
+        type: object
     PublicKeyHashType:
       enum:
       - EcdsaSecp256k1
@@ -2055,6 +2276,7 @@ components:
           $ref: '#/components/schemas/PublicKeyHashType'
       required:
       - key_hash_type
+      type: object
     PublicKeyHashEcdsaSecp256k1:
       allOf:
       - $ref: '#/components/schemas/PublicKeyHash'
@@ -2063,6 +2285,7 @@ components:
             $ref: '#/components/schemas/HashHexString'
         required:
         - hash_hex
+        type: object
     PublicKeyHashEddsaEd25519:
       allOf:
       - $ref: '#/components/schemas/PublicKeyHash'
@@ -2071,12 +2294,14 @@ components:
             $ref: '#/components/schemas/HashHexString'
         required:
         - hash_hex
+        type: object
     AtLedgerStateMixin:
       description: "defines upper boundary (inclusive) for queried data. i.e `{ \"\
         at_state_version\" = {\"epoch\" = 10} }`, will return data till 10 epoch."
       properties:
         at_ledger_state:
           $ref: '#/components/schemas/LedgerStateSelector'
+      type: object
     FromLedgerStateMixin:
       description: "defines lower boundary (inclusive) for queried data. i.e `{ \"\
         from_state_version\" = {\"epoch\" = 10} }`, will return data from epoch 10\
@@ -2084,6 +2309,7 @@ components:
       properties:
         from_ledger_state:
           $ref: '#/components/schemas/LedgerStateSelector'
+      type: object
     LedgerStateSelector:
       description: |
         Optional. This allows for a request to be made against a historic state.
@@ -2094,6 +2320,7 @@ components:
         round: 1465812980
         epoch: 6027456183
         timestamp: 2000-01-23T04:56:07.000+00:00
+      nullable: true
       properties:
         state_version:
           description: "If provided, the latest ledger state lower than or equal to\
@@ -2101,42 +2328,43 @@ components:
           format: int64
           maximum: 100000000000000
           minimum: 1
-          type: integer
           nullable: true
+          type: integer
         timestamp:
           description: "If provided, the latest ledger state lower than or equal to\
             \ the given round timestamp is returned."
           format: date-time
-          type: string
           nullable: true
+          type: string
         epoch:
           description: "If provided, the ledger state lower than or equal to the given\
             \ epoch at round 0 is returned."
           format: int64
           maximum: 10000000000
           minimum: 0
-          type: integer
           nullable: true
+          type: integer
         round:
           description: "If provided must be accompanied with `epoch`, the ledger state\
             \ lower than or equal to the given epoch and round is returned."
           format: int64
           maximum: 10000000000
           minimum: 0
-          type: integer
           nullable: true
-      nullable: true
+          type: integer
+      type: object
     CursorLimitMixin:
       properties:
         cursor:
           description: "This cursor allows forward pagination, by providing the cursor\
             \ from the previous request."
-          type: string
           nullable: true
+          type: string
         limit_per_page:
           description: The page size requested.
-          type: integer
           nullable: true
+          type: integer
+      type: object
     ManifestClass:
       description: |
         High-level manifest class type:
@@ -2185,25 +2413,28 @@ components:
       - address
       - balance
       - last_changed_at_state_version
+      type: object
     LedgerStateMixin:
       properties:
         ledger_state:
           $ref: '#/components/schemas/LedgerState'
       required:
       - ledger_state
+      type: object
     ResultSetCursorMixin:
       properties:
         total_count:
           description: "Total number of items in underlying collection, fragment of\
             \ which is available in `items` collection."
           format: int64
-          type: integer
           nullable: true
+          type: integer
         next_cursor:
           description: "If specified, contains a cursor to query next page of the\
             \ `items` collection."
-          type: string
           nullable: true
+          type: string
+      type: object
     LedgerState:
       description: |
         The ledger state against which the response was generated.
@@ -2246,6 +2477,7 @@ components:
       - proposer_round_timestamp
       - round
       - state_version
+      type: object
     ResourceAggregationLevel:
       enum:
       - Global
@@ -2267,6 +2499,7 @@ components:
       required:
       - programmatic_json
       - raw_hex
+      type: object
     AccountLockerAddress:
       properties:
         locker_address:
@@ -2278,6 +2511,7 @@ components:
       required:
       - account_address
       - locker_address
+      type: object
     EntityMetadataCollection:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -2288,6 +2522,7 @@ components:
             type: array
         required:
         - items
+        type: object
       description: Entity metadata collection.
       example:
         next_cursor: next_cursor
@@ -2349,6 +2584,7 @@ components:
       - key
       - last_updated_at_state_version
       - value
+      type: object
     EntityMetadataItemValue:
       allOf:
       - $ref: '#/components/schemas/ScryptoSborValue'
@@ -2357,6 +2593,7 @@ components:
             $ref: '#/components/schemas/MetadataTypedValue'
         required:
         - typed
+        type: object
       example:
         typed:
           type: String
@@ -2365,6 +2602,54 @@ components:
           type_name: type_name
           kind: Bool
           field_name: field_name
+    TwoWayLinkedDappsCollection:
+      description: A collection of two-way linked (resolved & verified) dApps linked
+        to the entity defining this collection.
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TwoWayLinkedDappsCollectionItem'
+          type: array
+      required:
+      - items
+      type: object
+    TwoWayLinkedDappsCollectionItem:
+      properties:
+        dapp_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+      required:
+      - dapp_address
+      type: object
+    TwoWayLinkedEntitiesCollection:
+      description: A collection of two-way linked (resolved & verified) entities linked
+        to the entity defining this collection.
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TwoWayLinkedEntitiesCollectionItem'
+          type: array
+      required:
+      - items
+      type: object
+    TwoWayLinkedEntitiesCollectionItem:
+      properties:
+        entity_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+      required:
+      - entity_address
+      type: object
+    TwoWayLinkedDappOnLedgerDetails:
+      properties:
+        dapps:
+          $ref: '#/components/schemas/TwoWayLinkedDappsCollection'
+        entities:
+          $ref: '#/components/schemas/TwoWayLinkedEntitiesCollection'
+        primary_locker:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+      type: object
     AccountLockerVaultCollection:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -2375,6 +2660,7 @@ components:
             type: array
         required:
         - items
+        type: object
       description: Account Locker Account Resources Collection
     AccountLockerVaultCollectionItemType:
       enum:
@@ -2413,6 +2699,7 @@ components:
       - resource_address
       - type
       - vault_address
+      type: object
     AccountLockerVaultCollectionItemFungible:
       allOf:
       - $ref: '#/components/schemas/AccountLockerVaultCollectionItem'
@@ -2421,6 +2708,7 @@ components:
             $ref: '#/components/schemas/BigDecimal'
         required:
         - amount
+        type: object
     AccountLockerVaultCollectionItemNonFungible:
       allOf:
       - $ref: '#/components/schemas/AccountLockerVaultCollectionItem'
@@ -2430,6 +2718,7 @@ components:
             type: integer
         required:
         - total_count
+        type: object
     EntitySchemaCollection:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -2440,6 +2729,7 @@ components:
             type: array
         required:
         - items
+        type: object
     EntitySchemaCollectionItem:
       example:
         schema_hash_hex: schema_hash_hex
@@ -2454,6 +2744,7 @@ components:
       required:
       - schema_hash_hex
       - schema_hex
+      type: object
     PackageBlueprintCollection:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -2464,6 +2755,7 @@ components:
             type: array
         required:
         - items
+        type: object
       description: Package blueprint collection.
     PackageBlueprintCollectionItem:
       example:
@@ -2505,17 +2797,18 @@ components:
             This type is defined in the Core API as `AuthConfig`. See the Core API documentation for more details.
           type: object
         auth_template_is_locked:
-          type: boolean
           nullable: true
+          type: boolean
         royalty_config:
           $ref: '#/components/schemas/BlueprintRoyaltyConfig'
         royalty_config_is_locked:
-          type: boolean
           nullable: true
+          type: boolean
       required:
       - definition
       - name
       - version
+      type: object
     PackageCodeCollection:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -2526,6 +2819,7 @@ components:
             type: array
         required:
         - items
+        type: object
       description: Package code collection.
     PackageCodeCollectionItem:
       example:
@@ -2545,6 +2839,7 @@ components:
       - code_hash_hex
       - code_hex
       - vm_type
+      type: object
     ComponentEntityRoleAssignments:
       properties:
         owner:
@@ -2558,6 +2853,7 @@ components:
       required:
       - entries
       - owner
+      type: object
     ComponentEntityRoleAssignmentEntry:
       properties:
         role_key:
@@ -2571,6 +2867,7 @@ components:
       required:
       - assignment
       - role_key
+      type: object
     RoleAssignmentResolution:
       enum:
       - Explicit
@@ -2585,6 +2882,7 @@ components:
       required:
       - module
       - name
+      type: object
     FungibleResourcesCollection:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -2595,6 +2893,7 @@ components:
             type: array
         required:
         - items
+        type: object
       description: Fungible resources collection.
       example:
         next_cursor: next_cursor
@@ -2702,6 +3001,7 @@ components:
       required:
       - aggregation_level
       - resource_address
+      type: object
     FungibleResourcesCollectionItemGloballyAggregated:
       allOf:
       - $ref: '#/components/schemas/FungibleResourcesCollectionItem'
@@ -2713,6 +3013,7 @@ components:
         required:
         - amount
         - last_updated_at_state_version
+        type: object
     FungibleResourcesCollectionItemVaultAggregated:
       allOf:
       - $ref: '#/components/schemas/FungibleResourcesCollectionItem'
@@ -2721,6 +3022,7 @@ components:
             $ref: '#/components/schemas/FungibleResourcesCollectionItemVaultAggregatedVault'
         required:
         - vaults
+        type: object
     FungibleResourcesCollectionItemVaultAggregatedVault:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -2731,6 +3033,7 @@ components:
             type: array
         required:
         - items
+        type: object
     FungibleResourcesCollectionItemVaultAggregatedVaultItem:
       example:
         amount: amount
@@ -2755,6 +3058,7 @@ components:
       - amount
       - last_updated_at_state_version
       - vault_address
+      type: object
     NonFungibleResourcesCollection:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -2765,6 +3069,7 @@ components:
             type: array
         required:
         - items
+        type: object
       description: Non-fungible resources collection.
       example:
         next_cursor: next_cursor
@@ -2872,6 +3177,7 @@ components:
       required:
       - aggregation_level
       - resource_address
+      type: object
     NonFungibleResourcesCollectionItemGloballyAggregated:
       allOf:
       - $ref: '#/components/schemas/NonFungibleResourcesCollectionItem'
@@ -2885,6 +3191,7 @@ components:
         required:
         - amount
         - last_updated_at_state_version
+        type: object
     NonFungibleResourcesCollectionItemVaultAggregated:
       allOf:
       - $ref: '#/components/schemas/NonFungibleResourcesCollectionItem'
@@ -2893,6 +3200,7 @@ components:
             $ref: '#/components/schemas/NonFungibleResourcesCollectionItemVaultAggregatedVault'
         required:
         - vaults
+        type: object
     NonFungibleResourcesCollectionItemVaultAggregatedVault:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -2903,6 +3211,7 @@ components:
             type: array
         required:
         - items
+        type: object
     NonFungibleResourcesCollectionItemVaultAggregatedVaultItem:
       allOf:
       - $ref: '#/components/schemas/OptionalNonFungibleIdsCollection'
@@ -2918,6 +3227,7 @@ components:
         - last_updated_at_state_version
         - total_count
         - vault_address
+        type: object
       example:
         next_cursor: next_cursor
         total_count: 1
@@ -2934,6 +3244,7 @@ components:
             items:
               $ref: '#/components/schemas/NonFungibleId'
             type: array
+        type: object
       description: Non-fungible resource IDs collection.
     AccountResourcePreferencesCollection:
       allOf:
@@ -2945,6 +3256,7 @@ components:
             type: array
         required:
         - items
+        type: object
       description: Account resource preferences collection
     AccountResourcePreferenceRule:
       enum:
@@ -2973,6 +3285,7 @@ components:
       - last_updated_at_state_version
       - resource_address
       - resource_preference_rule
+      type: object
     AccountAuthorizedDepositorsCollection:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -2983,6 +3296,7 @@ components:
             type: array
         required:
         - items
+        type: object
       description: Account resource preferences collection
     AccountAuthorizedDepositorBadgeType:
       enum:
@@ -3015,8 +3329,8 @@ components:
           description: Whether the input badge belongs to the account's set of authorized
             depositors. This field will only be present if any badge was passed in
             the request.
-          type: boolean
           nullable: true
+          type: boolean
         default_deposit_rule:
           $ref: '#/components/schemas/AccountDefaultDepositRule'
         resource_specific_details:
@@ -3028,6 +3342,7 @@ components:
           type: array
       required:
       - default_deposit_rule
+      type: object
     AccountDepositPreValidationDecidingFactorsResourceSpecificDetailsItem:
       example:
         resource_preference_rule: Allowed
@@ -3048,6 +3363,7 @@ components:
       - is_xrd
       - resource_address
       - vault_exists
+      type: object
     AccountDepositPreValidationResourceSpecificBehaviourItem:
       example:
         allows_try_deposit: true
@@ -3061,6 +3377,7 @@ components:
       required:
       - allows_try_deposit
       - resource_address
+      type: object
     TransactionAccountDepositPreValidationAuthorizedDepositorBadge:
       discriminator:
         mapping:
@@ -3079,6 +3396,7 @@ components:
       required:
       - badge_type
       - resource_address
+      type: object
     AccountDepositPreValidationResourceBadge:
       allOf:
       - $ref: '#/components/schemas/TransactionAccountDepositPreValidationAuthorizedDepositorBadge'
@@ -3091,6 +3409,7 @@ components:
             $ref: '#/components/schemas/NonFungibleId'
         required:
         - non_fungible_id
+        type: object
     AccountAuthorizedDepositorsResponseItem:
       discriminator:
         mapping:
@@ -3104,6 +3423,7 @@ components:
           $ref: '#/components/schemas/AccountAuthorizedDepositorBadgeType'
       required:
       - badge_type
+      type: object
     AccountAuthorizedDepositorsResourceBadge:
       allOf:
       - $ref: '#/components/schemas/AccountAuthorizedDepositorsResponseItem'
@@ -3115,6 +3435,7 @@ components:
         required:
         - last_updated_at_state_version
         - resource_address
+        type: object
     AccountAuthorizedDepositorsNonFungibleBadge:
       allOf:
       - $ref: '#/components/schemas/AccountAuthorizedDepositorsResponseItem'
@@ -3129,6 +3450,7 @@ components:
         - last_updated_at_state_version
         - non_fungible_id
         - resource_address
+        type: object
     NonFungibleIdsCollection:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -3139,6 +3461,7 @@ components:
             type: array
         required:
         - items
+        type: object
       description: Non-fungible resource IDs collection.
       example:
         next_cursor: next_cursor
@@ -3189,12 +3512,28 @@ components:
             - null
             entity_address: entity_address
             resource_address: resource_address
+        child_subintent_hashes:
+        - null
+        - null
         epoch: 6
         manifest_classes:
         - General
         - General
         message: "{}"
         fee_paid: fee_paid
+        subintent_details:
+        - subintent_hash: subintent_hash
+          manifest_instructions: manifest_instructions
+          child_subintent_hashes:
+          - null
+          - null
+          message: "{}"
+        - subintent_hash: subintent_hash
+          manifest_instructions: manifest_instructions
+          child_subintent_hashes:
+          - null
+          - null
+          message: "{}"
         intent_hash: intent_hash
         round_timestamp: round_timestamp
         round: 1
@@ -3254,11 +3593,11 @@ components:
           type: array
         confirmed_at:
           format: date-time
-          type: string
           nullable: true
+          type: string
         error_message:
-          type: string
           nullable: true
+          type: string
         raw_hex:
           description: Hex-encoded binary blob.
           type: string
@@ -3267,17 +3606,16 @@ components:
         manifest_instructions:
           description: |
             A text-representation of a transaction manifest.
-            This field will be present only for user transactions and when explicitly opted-in using `manifest_instructions` flag.
+            This field will be present only for user transactions and when explicitly opted-in using the `manifest_instructions` flag.
           type: string
-          nullable: true
         manifest_classes:
           description: |
             A collection of zero or more manifest classes ordered from the most specific class to the least specific one.
             This field will be present only for user transactions.
+            For user transactions with subintents only the root transaction intent is currently used to determine the manifest classes.
           items:
             $ref: '#/components/schemas/ManifestClass'
           type: array
-          nullable: true
         message:
           description: |
             The optional transaction message.
@@ -3285,12 +3623,27 @@ components:
           type: object
         balance_changes:
           $ref: '#/components/schemas/TransactionBalanceChanges'
+        subintent_details:
+          description: |
+            Subintent details.
+            Please note that it is returned regardless of whether the transaction was committed successfully or failed, and it can be returned in multiple transactions.
+          items:
+            $ref: '#/components/schemas/TransactionSubintentDetails'
+          type: array
+        child_subintent_hashes:
+          description: |
+            The child subintent hashes of the root transaction intent.
+            Please note that it is returned regardless of whether the transaction was committed successfully or failed, and it can be returned in multiple transactions.
+          items:
+            $ref: '#/components/schemas/HashBech32mString'
+          type: array
       required:
       - epoch
       - round
       - round_timestamp
       - state_version
       - transaction_status
+      type: object
     TransactionStatus:
       description: |
         A top-level intent status, left in for backwards compatibility.
@@ -3301,6 +3654,14 @@ components:
       - CommittedFailure
       - Pending
       - Rejected
+      type: string
+    SubintentStatus:
+      description: |
+        The finalization status of this subintent. Each subintent can only be *successfully* committed once,
+        but unlike a transaction intent, could be committed as a failure zero or more times first.
+      enum:
+      - Unknown
+      - CommittedSuccess
       type: string
     TransactionIntentStatus:
       description: |
@@ -3396,8 +3757,9 @@ components:
           type: array
         error_message:
           description: Error message (only present if status is `Failed` or `Rejected`)
-          type: string
           nullable: true
+          type: string
+      type: object
     EventsItem:
       example:
         data:
@@ -3419,6 +3781,7 @@ components:
       - data
       - emitter
       - name
+      type: object
     NonFungibleIdType:
       enum:
       - String
@@ -3449,6 +3812,7 @@ components:
           type: array
       required:
       - items
+      type: object
     ValidatorUptimeCollectionItem:
       example:
         epochs_active_in: 1
@@ -3462,13 +3826,13 @@ components:
         proposals_made:
           description: number of proposals made.
           format: int64
-          type: integer
           nullable: true
+          type: integer
         proposals_missed:
           description: number of proposals missed.
           format: int64
-          type: integer
           nullable: true
+          type: integer
         epochs_active_in:
           description: number of epochs validator was active in.
           format: int64
@@ -3476,6 +3840,66 @@ components:
       required:
       - address
       - epochs_active_in
+      type: object
+    ResourceHoldersCollection:
+      allOf:
+      - $ref: '#/components/schemas/ResultSetCursorMixin'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/ResourceHoldersCollectionItem'
+            type: array
+        required:
+        - items
+        type: object
+    ResourceHoldersResourceType:
+      enum:
+      - FungibleResource
+      - NonFungibleResource
+      type: string
+    ResourceHoldersCollectionItem:
+      discriminator:
+        mapping:
+          FungibleResource: '#/components/schemas/ResourceHoldersCollectionFungibleResourceItem'
+          NonFungibleResource: '#/components/schemas/ResourceHoldersCollectionNonFungibleResourceItem'
+        propertyName: type
+      example:
+        holder_address: holder_address
+        type: FungibleResource
+        last_updated_at_state_version: 6
+      properties:
+        type:
+          $ref: '#/components/schemas/ResourceHoldersResourceType'
+        holder_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        last_updated_at_state_version:
+          format: int64
+          type: integer
+      required:
+      - holder_address
+      - last_updated_at_state_version
+      - type
+      type: object
+    ResourceHoldersCollectionFungibleResourceItem:
+      allOf:
+      - $ref: '#/components/schemas/ResourceHoldersCollectionItem'
+      - properties:
+          amount:
+            $ref: '#/components/schemas/BigDecimal'
+        required:
+        - amount
+        type: object
+    ResourceHoldersCollectionNonFungibleResourceItem:
+      allOf:
+      - $ref: '#/components/schemas/ResourceHoldersCollectionItem'
+      - properties:
+          non_fungible_ids_count:
+            format: int64
+            type: integer
+        required:
+        - non_fungible_ids_count
+        type: object
     ValidatorCollection:
       allOf:
       - $ref: '#/components/schemas/ResultSetCursorMixin'
@@ -3486,6 +3910,7 @@ components:
             type: array
         required:
         - items
+        type: object
       example:
         next_cursor: next_cursor
         total_count: 0
@@ -3673,8 +4098,8 @@ components:
           description: |
             Validator inner state representation.
             This type is defined in the Core API as `ValidatorFieldStateValue`. See the Core API documentation for more details.
-          type: object
           nullable: true
+          type: object
         active_in_epoch:
           $ref: '#/components/schemas/ValidatorCollectionItemActiveInEpoch'
         metadata:
@@ -3690,6 +4115,7 @@ components:
       - pending_xrd_withdraw_vault
       - stake_vault
       - state
+      type: object
     ValidatorCollectionItemActiveInEpoch:
       example:
         stake: stake
@@ -3710,6 +4136,7 @@ components:
       - key
       - stake
       - stake_percentage
+      type: object
     NetworkConfigurationResponse:
       example:
         well_known_addresses:
@@ -3736,18 +4163,19 @@ components:
           faucet_package: faucet_package
           xrd: xrd
           validator_owner_badge: validator_owner_badge
+          transaction_tracker_package: transaction_tracker_package
           royalty_module_package: royalty_module_package
           pool_package: pool_package
           identity_package: identity_package
           package_of_direct_caller_virtual_badge: package_of_direct_caller_virtual_badge
+          test_utils_package: test_utils_package
           genesis_helper: genesis_helper
           identity_owner_badge: identity_owner_badge
-        network_id: <network-id>
+        network_id: 20
         network_name: <network-name>
       properties:
         network_id:
           description: The logical id of the network
-          example: <network-id>
           format: int32
           maximum: 255
           minimum: 0
@@ -3762,6 +4190,7 @@ components:
       - network_id
       - network_name
       - well_known_addresses
+      type: object
     GatewayStatusResponse:
       allOf:
       - $ref: '#/components/schemas/LedgerStateMixin'
@@ -3770,6 +4199,7 @@ components:
             $ref: '#/components/schemas/GatewayInfoResponseReleaseInfo'
         required:
         - release_info
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -3790,6 +4220,7 @@ components:
           type: integer
       required:
       - state_version
+      type: object
     GatewayInfoResponseReleaseInfo:
       example:
         open_api_schema_version: open_api_schema_version
@@ -3810,6 +4241,7 @@ components:
       - image_tag
       - open_api_schema_version
       - release_version
+      type: object
     TransactionConstructionResponse:
       allOf:
       - type: object
@@ -3823,6 +4255,8 @@ components:
           network: <network-name>
     TransactionPreviewRequest:
       example:
+        opt_ins:
+          radix_engine_toolkit_receipt: false
         blobs_hex:
         - blobs_hex
         - blobs_hex
@@ -3833,33 +4267,39 @@ components:
         - key_type: EcdsaSecp256k1
         - key_type: EcdsaSecp256k1
         flags:
-          use_free_credit: true
-          assume_all_signature_proofs: true
-          skip_epoch_check: true
+          use_free_credit: false
+          assume_all_signature_proofs: false
+          skip_epoch_check: false
+          disable_auth_checks: false
         notary_public_key:
           key_type: EcdsaSecp256k1
+        message: "{}"
         nonce: 0
         notary_is_signatory: true
         tip_percentage: 9606
       properties:
+        opt_ins:
+          $ref: '#/components/schemas/TransactionPreviewOptIns'
         manifest:
           description: A text-representation of a transaction manifest
           type: string
         blobs_hex:
-          description: An array of hex-encoded blob data (optional)
+          description: "An array of hex-encoded blob data, if referenced by the manifest."
           items:
             type: string
           type: array
         start_epoch_inclusive:
-          description: "An integer between `0` and `10^10`, marking the epoch at which\
-            \ the transaction starts being valid"
+          description: |
+            An integer between `0` and `10^10`, marking the epoch at which the transaction startsbeing valid.
+            If omitted, the current epoch will be used.
           format: int64
           maximum: 10000000000
           minimum: 0
           type: integer
         end_epoch_exclusive:
-          description: "An integer between `0` and `10^10`, marking the epoch at which\
-            \ the transaction is no longer valid"
+          description: |
+            An integer between `0` and `10^10`, marking the epoch at which the transaction is no
+            longer valid. If omitted, a maximum epoch (relative to the `start_epoch_inclusive`) will be used.
           format: int64
           maximum: 10000000000
           minimum: 0
@@ -3867,42 +4307,126 @@ components:
         notary_public_key:
           $ref: '#/components/schemas/PublicKey'
         notary_is_signatory:
-          description: "Whether the notary should count as a signatory (optional,\
-            \ default false)"
+          description: |
+            Whether the notary should be used as a signer (optional).
+            If not provided, this defaults to false.
           type: boolean
         tip_percentage:
-          description: "An integer between `0` and `65535`, giving the validator tip\
-            \ as a percentage amount. A value of `1` corresponds to 1% of the fee."
+          description: |
+            An integer between `0` and `65535`, giving the validator tip as a percentage amount.
+            A value of `1` corresponds to a 1% fee.
+            If not provided, this defaults to 0.
           format: int32
           maximum: 65535
           minimum: 0
           type: integer
         nonce:
-          description: "A decimal-string-encoded integer between `0` and `2^32 - 1`,\
-            \ used to ensure the transaction intent is unique."
+          description: |
+            An integer between `0` and `2^32 - 1`, chosen to allow a unique intent to be created
+            (to enable submitting an otherwise identical/duplicate intent).
+            If not provided, this defaults to 0.
           format: int64
           minimum: 0
           type: integer
         signer_public_keys:
-          description: A list of public keys to be used as transaction signers
+          description: |
+            A list of public keys to be used as transaction signers.
+            If not provided, this defaults to an empty array.
           items:
             $ref: '#/components/schemas/PublicKey'
           type: array
+        message:
+          description: |
+            An optional transaction message. Only affects the costing.
+            This type is defined in the Core API as `TransactionMessage`. See the Core API documentation for more details.
+          type: object
         flags:
-          $ref: '#/components/schemas/TransactionPreviewRequest_flags'
+          $ref: '#/components/schemas/PreviewFlags'
       required:
-      - end_epoch_exclusive
-      - flags
       - manifest
-      - nonce
-      - signer_public_keys
-      - start_epoch_inclusive
-      - tip_percentage
+      type: object
+    PreviewFlags:
+      example:
+        use_free_credit: false
+        assume_all_signature_proofs: false
+        skip_epoch_check: false
+        disable_auth_checks: false
+      properties:
+        use_free_credit:
+          default: false
+          description: |
+            If enabled, a large simulated pool of XRD is marked as locked.
+
+            This mode can be used to estimate fees. To get a reliable estimate, we recommend that your
+            transaction is as close as possible to the real transaction. For example:
+            - You should still use a lock fee command, but you can set it to lock a fee of 0.
+            - You should include the public keys that will sign the transaction, so the cost of
+              signature verification and payload size can be accounted for.
+          type: boolean
+        assume_all_signature_proofs:
+          default: false
+          description: |
+            If enabled, each manifest processor's auth zone will be given a simulated proof of
+            every signature, which can be used to pass signature access rules.
+
+            This can be used to preview transactions even if the required signatures are not
+            known ahead of time.
+
+            See the documentation on
+            [advanced access rules](https://docs.radixdlt.com/docs/advanced-accessrules#signature-requirements)
+            for more information.
+          type: boolean
+        skip_epoch_check:
+          default: false
+          description: |
+            If enabled, the various runtime epoch-related verifications are skipped:
+            - The `start_epoch_inclusive` and `end_epoch_exclusive` parameters, if specified, are ignored.
+            - The duplicate intent checks (which rely on the expiry epoch) are also ignored.
+
+            However, if the start and end epoch are provided, they must still be statically valid.
+            We recommend using a value of `start_epoch_inclusive = 1` and `end_epoch_exclusive = 2` in this
+            case.
+          type: boolean
+        disable_auth_checks:
+          default: false
+          description: |
+            If enabled, all authorization checks are skipped during execution.
+
+            This could be used to e.g.:
+            * Preview protocol update style transactions.
+            * Mint resources for previewing trades with resources you don't own.
+              If doing this, be warned: only resources which were potentially mintable/burnable
+              at creation time will be mintable/burnable, due to feature flags on the resource.
+
+            Warning: this mode of operation is quite a departure from normal operation:
+            * Calculated fees will likely be lower than a standard execution.
+            * This mode can subtly break invariants some dApp code might rely on, or result in unexpected
+              behaviour, so the execution result might not be valid for your needs. For example,
+              if this flag was used to mint pool units to preview a redemption (or some dApp interaction which
+              behind the scenes redeemed them), they'd redeem for less than they're currently worth,
+              because the blueprint code relies on the total supply of the pool units to calculate their
+              redemption worth, and you've just inflated the total supply through the mint operation.
+          type: boolean
+      type: object
+    TransactionPreviewOptIns:
+      description: A set of flags to configure the response of the transaction preview.
+      example:
+        radix_engine_toolkit_receipt: false
+      properties:
+        radix_engine_toolkit_receipt:
+          default: false
+          description: |
+            This flag controls whether the preview response will include a Radix Engine Toolkit serializable
+            receipt or not. If not provided, this defaults to `false` and no toolkit receipt is provided in
+            the response.
+          type: boolean
+      type: object
     TransactionPreviewResponse:
       example:
         resource_changes:
         - "{}"
         - "{}"
+        radix_engine_toolkit_receipt: "{}"
         receipt: "{}"
         encoded_receipt: encoded_receipt
         logs:
@@ -3914,6 +4438,18 @@ components:
         encoded_receipt:
           description: Hex-encoded binary blob.
           type: string
+        radix_engine_toolkit_receipt:
+          description: |
+            An optional field which is only provided if the `radix_engine_toolkit_receipt`
+            flag is set to true when requesting a transaction preview from the API.
+
+            This receipt is primarily intended for use with the toolkit and may contain information
+            that is already available in the receipt provided in the `receipt` field of this response.
+
+            A typical client of this API is not expected to use this receipt. The primary clients
+            this receipt is intended for is the Radix wallet or any client that needs to perform
+            execution summaries on their transactions.
+          type: object
         receipt:
           description: |
             This type is defined in the Core API as `TransactionReceipt`. See the Core API documentation for more details.
@@ -3933,6 +4469,150 @@ components:
       - logs
       - receipt
       - resource_changes
+      type: object
+    TransactionPreviewV2Request:
+      example:
+        preview_transaction:
+          type: Compiled
+          preview_transaction_hex: <sample-preview-transaction-hex>
+        flags:
+          use_free_credit: true
+          assume_all_signature_proofs: true
+          skip_epoch_check: true
+          disable_auth_checks: true
+        opt_ins:
+          core_api_receipt: true
+          radix_engine_toolkit_receipt: true
+          logs: true
+      properties:
+        preview_transaction:
+          $ref: '#/components/schemas/PreviewTransaction'
+        flags:
+          $ref: '#/components/schemas/PreviewFlags'
+        opt_ins:
+          $ref: '#/components/schemas/TransactionPreviewV2OptIns'
+      required:
+      - preview_transaction
+      type: object
+    TransactionPreviewV2OptIns:
+      description: A set of flags to configure the response of the transaction preview
+        v2 endpoint.
+      properties:
+        core_api_receipt:
+          default: false
+          description: |
+            This flag controls whether the preview response will include a Core API receipt or not.
+            If not provided, this defaults to `false` and no core api receipt is provided in
+            the response.
+          type: boolean
+        radix_engine_toolkit_receipt:
+          default: false
+          description: |
+            This flag controls whether the preview response will include a Radix Engine Toolkit serializable
+            receipt or not. If not provided, this defaults to `false` and no toolkit receipt is provided in
+            the response.
+          type: boolean
+        logs:
+          default: false
+          description: |
+            This flag controls whether the preview response will include execution logs.
+            If not provided, this defaults to `false` and no logs will be provided in the response.
+          type: boolean
+      type: object
+    PreviewTransactionType:
+      enum:
+      - Compiled
+      type: string
+    PreviewTransaction:
+      discriminator:
+        mapping:
+          Compiled: '#/components/schemas/CompiledPreviewTransaction'
+        propertyName: type
+      properties:
+        type:
+          $ref: '#/components/schemas/PreviewTransactionType'
+      required:
+      - type
+      type: object
+    CompiledPreviewTransaction:
+      allOf:
+      - $ref: '#/components/schemas/PreviewTransaction'
+      - properties:
+          preview_transaction_hex:
+            description: |
+              A hex-encoded, compiled `RawPreviewTransaction`.
+
+              As of Cuttlefish, only `PreviewTransactionV2` is supported.
+
+              A `PreviewTransactionV2` can be created with a v2 transaction builder:
+              * If using Rust, it can be created with a `TransactionV2Builder` using `build_preview_transaction()`
+                and then converted to hex with `preview_transaction.to_raw().unwrap().to_hex()`
+              * If using the toolkit, you can create this using the v2 transaction builder.
+
+              Some subtleties:
+              * Partial transactions can't be previewed. Instead, they must be wrapped inside a
+                transaction wrapper, so that the engine knows how to yield to them appropriately.
+              * Currently the builder assumes that the signed partial transactions have real signatures.
+                This isn't strictly required, and we may create a builder in future which allows providing
+                public keys when building partial transactions for use in preview.
+              * If you don't have signatures to hand, you can simply not sign the partial transactions,
+                and then use the `assume_all_signature_proofs` preview flag, although be advised that
+                this may result in the fee estimate being slightly lower during preview.
+              * We may create more ergonomic builders for PreviewTransactions which allow use of
+                public keys to denote the signers of subintents. Let us know if this is important
+                for your use case.
+            type: string
+        required:
+        - preview_transaction_hex
+        type: object
+    TransactionPreviewV2Response:
+      example:
+        radix_engine_toolkit_receipt: "{}"
+        at_ledger_state_version: 0
+        receipt: "{}"
+        logs:
+        - level: level
+          message: message
+        - level: level
+          message: message
+      properties:
+        at_ledger_state_version:
+          description: A summarized state of the ledger on top of which the preview
+            was performed.
+          format: int64
+          type: integer
+        receipt:
+          description: |
+            This is provided unless the `core_api_receipt` flag is set to false in the `opt_ins `
+            property of the request.
+
+            This type is defined in the Core API as `TransactionReceipt`. See the Core API documentation for more details.
+          type: object
+        radix_engine_toolkit_receipt:
+          description: |
+            An optional field which is only provided if the `radix_engine_toolkit_receipt`
+            flag is set to true in the `opt_ins` property of the request.
+
+            This receipt is primarily intended for use with the toolkit and may contain information
+            that is already available in the receipt provided in the `receipt` field of this
+            response.
+
+            A typical client of this API is not expected to use this receipt. The primary clients
+            this receipt is intended for is the Radix wallet or any client that needs to perform
+            execution summaries on their transactions.
+          type: object
+        logs:
+          description: |
+            An optional field which is only provided if the `logs` flag is set to true in the
+            `opt_ins` property of the request.
+
+            If present, it gives the emitted logs from the transaction execution.
+          items:
+            $ref: '#/components/schemas/TransactionPreviewResponse_logs_inner'
+          type: array
+      required:
+      - at_ledger_state_version
+      type: object
     TransactionSubmitRequest:
       example:
         notarized_transaction_hex: notarized_transaction_hex
@@ -3942,6 +4622,7 @@ components:
           type: string
       required:
       - notarized_transaction_hex
+      type: object
     TransactionSubmitResponse:
       example:
         duplicate: true
@@ -3952,6 +4633,7 @@ components:
           type: boolean
       required:
       - duplicate
+      type: object
     AccountDepositPreValidationRequest:
       allOf:
       - example:
@@ -3970,6 +4652,7 @@ components:
         required:
         - account_address
         - resource_addresses
+        type: object
       example:
         badge:
           badge_type: ResourceBadge
@@ -3997,6 +4680,8 @@ components:
         required:
         - allows_try_deposit_batch
         - deciding_factors
+        - resource_specific
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -4022,6 +4707,49 @@ components:
         - allows_try_deposit: true
           resource_address: resource_address
         allows_try_deposit_batch: true
+    TransactionSubintentStatusRequest:
+      example:
+        subintent_hash: <transaction-subintent-hash>
+      properties:
+        subintent_hash:
+          description: Bech32m-encoded hash.
+          type: string
+      required:
+      - subintent_hash
+      type: object
+    TransactionSubintentStatusResponse:
+      allOf:
+      - $ref: '#/components/schemas/LedgerStateMixin'
+      - properties:
+          subintent_status:
+            $ref: '#/components/schemas/SubintentStatus'
+          subintent_status_description:
+            description: |
+              An additional description to clarify the `subintent_status`.
+            type: string
+          finalized_at_state_version:
+            description: |
+              The state version when the subintent was finalized (committed as a success). This field is only present if the status is `CommittedSuccess`.
+            format: int64
+            nullable: true
+            type: integer
+          finalized_at_transaction_intent_hash:
+            $ref: '#/components/schemas/HashBech32mString'
+        required:
+        - subintent_status
+        - subintent_status_description
+        type: object
+      example:
+        subintent_status_description: subintent_status_description
+        finalized_at_transaction_intent_hash: null
+        ledger_state:
+          state_version: 0
+          round: 1
+          proposer_round_timestamp: proposer_round_timestamp
+          epoch: 6
+          network: <network-name>
+        subintent_status: Unknown
+        finalized_at_state_version: 0
     TransactionStatusRequest:
       allOf:
       - properties:
@@ -4029,6 +4757,7 @@ components:
             $ref: '#/components/schemas/HashBech32mString'
         required:
         - intent_hash
+        type: object
       example:
         intent_hash: <transaction-intent-hash>
     TransactionStatusResponse:
@@ -4051,8 +4780,8 @@ components:
             description: |
               If the intent was committed, this gives the state version when this intent was committed.
             format: int64
-            type: integer
             nullable: true
+            type: integer
           permanently_rejects_at_epoch:
             description: The epoch number at which the transaction is guaranteed to
               get permanently rejected by the Network due to exceeded epoch range
@@ -4060,21 +4789,22 @@ components:
             format: int64
             maximum: 10000000000
             minimum: 0
-            type: integer
             nullable: true
+            type: integer
           error_message:
             description: |
               The most relevant error message received, due to a rejection or commit as failure.
               Please note that presence of an error message doesn't imply that the intent
               will definitely reject or fail. This could represent a temporary error (such as out
               of fees), or an error with a payload which doesn't end up being committed.
-            type: string
             nullable: true
+            type: string
         required:
         - intent_status
         - intent_status_description
         - known_payloads
         - status
+        type: object
       example:
         error_message: error_message
         committed_state_version: 0
@@ -4138,8 +4868,8 @@ components:
             will definitely reject or fail. This could represent an error during a temporary
             rejection (such as out of fees) which then gets resolved (e.g. by depositing money
             to pay the fee), allowing the transaction to be committed.
-          type: string
           nullable: true
+          type: string
         latest_error_message:
           description: |
             The latest error message received for a rejection or failure during transaction execution,
@@ -4150,25 +4880,26 @@ components:
             will definitely reject or fail. This could represent an error during a temporary
             rejection (such as out of fees) which then gets resolved (e.g. by depositing money
             to pay the fee), allowing the transaction to be committed.
-          type: string
           nullable: true
+          type: string
         handling_status:
           $ref: '#/components/schemas/TransactionPayloadGatewayHandlingStatus'
         handling_status_reason:
           description: |
             Additional reason for why the Gateway has its current handling status.
-          type: string
           nullable: true
+          type: string
         submission_error:
           description: |
             The most recent error message received when submitting this transaction to the network.
             Please note that the presence of an error message doesn't imply that this transaction
             payload will definitely reject or fail. This could be a transient error.
-          type: string
           nullable: true
+          type: string
       required:
       - payload_hash
       - status
+      type: object
     TransactionCommittedDetailsRequest:
       allOf:
       - $ref: '#/components/schemas/AtLedgerStateMixin'
@@ -4179,6 +4910,7 @@ components:
             $ref: '#/components/schemas/TransactionDetailsOptIns'
         required:
         - intent_hash
+        type: object
       example:
         intent_hash: <transaction-intent-hash>
     TransactionDetailsOptIns:
@@ -4236,6 +4968,7 @@ components:
 
             **Warning!** This opt-in might be missing for recently committed transactions, in that case a `null` value will be returned. Retry the request until non-null value is returned.
           type: boolean
+      type: object
     TransactionCommittedDetailsResponse:
       allOf:
       - $ref: '#/components/schemas/LedgerStateMixin'
@@ -4244,6 +4977,7 @@ components:
             $ref: '#/components/schemas/CommittedTransactionInfo'
         required:
         - transaction
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -4293,12 +5027,28 @@ components:
               - null
               entity_address: entity_address
               resource_address: resource_address
+          child_subintent_hashes:
+          - null
+          - null
           epoch: 6
           manifest_classes:
           - General
           - General
           message: "{}"
           fee_paid: fee_paid
+          subintent_details:
+          - subintent_hash: subintent_hash
+            manifest_instructions: manifest_instructions
+            child_subintent_hashes:
+            - null
+            - null
+            message: "{}"
+          - subintent_hash: subintent_hash
+            manifest_instructions: manifest_instructions
+            child_subintent_hashes:
+            - null
+            - null
+            message: "{}"
           intent_hash: intent_hash
           round_timestamp: round_timestamp
           round: 1
@@ -4328,6 +5078,36 @@ components:
             status: null
           payload_hash: payload_hash
           confirmed_at: 2000-01-23T04:56:07.000+00:00
+    TransactionSubintentDetails:
+      example:
+        subintent_hash: subintent_hash
+        manifest_instructions: manifest_instructions
+        child_subintent_hashes:
+        - null
+        - null
+        message: "{}"
+      properties:
+        subintent_hash:
+          description: Bech32m-encoded hash.
+          type: string
+        manifest_instructions:
+          description: |
+            A text-representation of a subintent manifest.
+            This field will be present only for user transactions and when explicitly opted-in using the `manifest_instructions` flag.
+          type: string
+        message:
+          description: |
+            The optional subintent message.
+            This type is defined in the Core API as `TransactionMessage`. See the Core API documentation for more details.
+          type: object
+        child_subintent_hashes:
+          description: The subintent hash of each child of the subintent.
+          items:
+            $ref: '#/components/schemas/HashBech32mString'
+          type: array
+      required:
+      - subintent_hash
+      type: object
     TransactionBalanceChanges:
       example:
         fungible_balance_changes:
@@ -4363,6 +5143,7 @@ components:
           - null
           entity_address: entity_address
           resource_address: resource_address
+      nullable: true
       properties:
         fungible_fee_balance_changes:
           description: |
@@ -4386,7 +5167,7 @@ components:
       - fungible_balance_changes
       - fungible_fee_balance_changes
       - non_fungible_balance_changes
-      nullable: true
+      type: object
     TransactionFungibleFeeBalanceChangeType:
       description: |
         Indicates fee-related balance changes, for example:
@@ -4426,6 +5207,7 @@ components:
       - entity_address
       - resource_address
       - type
+      type: object
     TransactionFungibleBalanceChanges:
       example:
         entity_address: entity_address
@@ -4446,6 +5228,7 @@ components:
       - balance_change
       - entity_address
       - resource_address
+      type: object
     TransactionNonFungibleBalanceChanges:
       example:
         removed:
@@ -4476,6 +5259,7 @@ components:
       - entity_address
       - removed
       - resource_address
+      type: object
     StreamTransactionsRequest:
       allOf:
       - $ref: '#/components/schemas/AtLedgerStateMixin'
@@ -4490,39 +5274,92 @@ components:
             - All
             type: string
           manifest_accounts_withdrawn_from_filter:
+            description: "Allows specifying an array of account addresses. If specified,\
+              \ the response will contain only transactions with a manifest containing\
+              \ withdrawals from the given accounts."
             items:
               $ref: '#/components/schemas/Address'
             type: array
           manifest_accounts_deposited_into_filter:
+            description: "Similar to `manifest_accounts_withdrawn_from_filter`, but\
+              \ will return only transactions with a manifest containing deposits\
+              \ to the given accounts."
             items:
               $ref: '#/components/schemas/Address'
             type: array
           manifest_badges_presented_filter:
+            description: "Allows specifying array of badge resource addresses. If\
+              \ specified, the response will contain only transactions where the given\
+              \ badges were presented."
             items:
               $ref: '#/components/schemas/Address'
             type: array
           manifest_resources_filter:
+            description: "Allows specifying array of resource addresses. If specified,\
+              \ the response will contain only transactions containing the given resources\
+              \ in the manifest (regardless of their usage)."
             items:
               $ref: '#/components/schemas/Address'
             type: array
           affected_global_entities_filter:
+            description: "Allows specifying an array of global addresses. If specified,\
+              \ the response will contain transactions that affected all of the given\
+              \ global entities. A global entity is marked as \"affected\" by a transaction\
+              \ if any of its state (or its descendents' state) was modified as a\
+              \ result of the transaction. For performance reasons consensus manager\
+              \ and transaction tracker are excluded from that filter."
             items:
               $ref: '#/components/schemas/Address'
             type: array
+          affected_global_entities_filter_type:
+            default: And
+            description: Whether the filter should require all addresses (AND) or
+              any of them (OR) to be present in the transaction. Default - "And".
+            enum:
+            - And
+            - Or
+            type: string
           events_filter:
+            description: "Filters the transaction stream to transactions which emitted\
+              \ at least one event matching each filter (each filter can be satisfied\
+              \ by a different event). Currently *only* deposit and withdrawal events\
+              \ emitted by an internal vault entity are tracked. For the purpose of\
+              \ filtering, the emitter address is replaced by the global ancestor\
+              \ of the emitter, for example, the top-level account / component which\
+              \ contains the vault which emitted the event."
             items:
               $ref: '#/components/schemas/StreamTransactionsRequestEventFilterItem'
             type: array
           accounts_with_manifest_owner_method_calls:
+            description: "Allows specifying an array of account addresses. If specified,\
+              \ the response will contain only transactions that, for all specified\
+              \ accounts, contain manifest method calls to that account which require\
+              \ the owner role. See the [account docs](https://docs.radixdlt.com/docs/account)\
+              \ for more information."
             items:
               $ref: '#/components/schemas/Address'
             type: array
           accounts_without_manifest_owner_method_calls:
+            description: "Allows specifying an array of account addresses. If specified,\
+              \ the response will contain only transactions that, for all specified\
+              \ accounts, do NOT contain manifest method calls to that account which\
+              \ require owner role. See the [account docs](https://docs.radixdlt.com/docs/account)\
+              \ for more information."
             items:
               $ref: '#/components/schemas/Address'
             type: array
           manifest_class_filter:
             $ref: '#/components/schemas/StreamTransactionsRequest_allOf_manifest_class_filter'
+          event_global_emitters_filter:
+            description: "Allows specifying an array of global addresses. If specified,\
+              \ the response will contain transactions in which all entities emitted\
+              \ events. If an event was published by an internal entity, it is going\
+              \ to be indexed as it is a global ancestor. For performance reasons\
+              \ events published by consensus manager and native XRD resource are\
+              \ excluded from that filter."
+            items:
+              $ref: '#/components/schemas/Address'
+            type: array
           order:
             description: Configures the order of returned result set. Defaults to
               `desc`.
@@ -4532,6 +5369,7 @@ components:
             type: string
           opt_ins:
             $ref: '#/components/schemas/TransactionDetailsOptIns'
+        type: object
       example:
         limit_per_page: 5
     StreamTransactionsRequestEventFilterItem:
@@ -4549,11 +5387,16 @@ components:
           type: string
       required:
       - event
+      type: object
     StreamTransactionsResponse:
       allOf:
       - $ref: '#/components/schemas/LedgerStateMixin'
-      - $ref: '#/components/schemas/ResultSetCursorMixin'
       - properties:
+          next_cursor:
+            description: "If specified, contains a cursor to query next page of the\
+              \ `items` collection."
+            nullable: true
+            type: string
           items:
             description: The page of user transactions.
             items:
@@ -4561,6 +5404,7 @@ components:
             type: array
         required:
         - items
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -4569,7 +5413,6 @@ components:
           epoch: 6
           network: <network-name>
         next_cursor: next_cursor
-        total_count: 0
         items:
         - error_message: error_message
           transaction_status: Unknown
@@ -4612,12 +5455,28 @@ components:
               - null
               entity_address: entity_address
               resource_address: resource_address
+          child_subintent_hashes:
+          - null
+          - null
           epoch: 6
           manifest_classes:
           - General
           - General
           message: "{}"
           fee_paid: fee_paid
+          subintent_details:
+          - subintent_hash: subintent_hash
+            manifest_instructions: manifest_instructions
+            child_subintent_hashes:
+            - null
+            - null
+            message: "{}"
+          - subintent_hash: subintent_hash
+            manifest_instructions: manifest_instructions
+            child_subintent_hashes:
+            - null
+            - null
+            message: "{}"
           intent_hash: intent_hash
           round_timestamp: round_timestamp
           round: 1
@@ -4688,12 +5547,28 @@ components:
               - null
               entity_address: entity_address
               resource_address: resource_address
+          child_subintent_hashes:
+          - null
+          - null
           epoch: 6
           manifest_classes:
           - General
           - General
           message: "{}"
           fee_paid: fee_paid
+          subintent_details:
+          - subintent_hash: subintent_hash
+            manifest_instructions: manifest_instructions
+            child_subintent_hashes:
+            - null
+            - null
+            message: "{}"
+          - subintent_hash: subintent_hash
+            manifest_instructions: manifest_instructions
+            child_subintent_hashes:
+            - null
+            - null
+            message: "{}"
           intent_hash: intent_hash
           round_timestamp: round_timestamp
           round: 1
@@ -4730,7 +5605,7 @@ components:
           opt_ins:
             $ref: '#/components/schemas/StateEntityDetailsOptIns'
           addresses:
-            description: limited to max 100 items.
+            description: limited to max 20 items.
             items:
               $ref: '#/components/schemas/Address'
             type: array
@@ -4738,6 +5613,7 @@ components:
             $ref: '#/components/schemas/ResourceAggregationLevel'
         required:
         - addresses
+        type: object
       example:
         addresses:
         - <entity-address>
@@ -4748,6 +5624,8 @@ components:
           component_royalty_vault_balance: true
           package_royalty_vault_balance: true
           non_fungible_include_nfids: true
+          dapp_two_way_links: true
+          native_resource_details: true
           explicit_metadata:
           - name
           - description
@@ -4787,6 +5665,18 @@ components:
           items:
             type: string
           type: array
+        dapp_two_way_links:
+          default: false
+          description: "if set to `true`, on-ledger dApp two-way links (resolved &\
+            \ verified) are returned. See https://docs.radixdlt.com/docs/metadata-for-verification\
+            \ for more details."
+          type: boolean
+        native_resource_details:
+          default: false
+          description: "if set to `true`, additional details for the Network native\
+            \ resources are returned."
+          type: boolean
+      type: object
     StateEntityDetailsResponse:
       allOf:
       - $ref: '#/components/schemas/LedgerStateMixin'
@@ -4797,6 +5687,7 @@ components:
             type: array
         required:
         - items
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -5363,6 +6254,7 @@ components:
       required:
       - address
       - metadata
+      type: object
     StateEntityDetailsResponseItemAncestorIdentities:
       example:
         parent_address: parent_address
@@ -5378,6 +6270,7 @@ components:
         global_address:
           description: Bech32m-encoded human readable version of the address.
           type: string
+      type: object
     StateEntityDetailsResponseItemDetailsType:
       enum:
       - FungibleResource
@@ -5404,6 +6297,7 @@ components:
           $ref: '#/components/schemas/StateEntityDetailsResponseItemDetailsType'
       required:
       - type
+      type: object
     StateEntityDetailsResponseFungibleResourceDetails:
       allOf:
       - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
@@ -5419,12 +6313,17 @@ components:
             $ref: '#/components/schemas/BigDecimal'
           total_burned:
             $ref: '#/components/schemas/BigDecimal'
+          two_way_linked_dapps:
+            $ref: '#/components/schemas/TwoWayLinkedDappsCollection'
+          native_resource_details:
+            $ref: '#/components/schemas/NativeResourceDetails'
         required:
         - divisibility
         - role_assignments
         - total_burned
         - total_minted
         - total_supply
+        type: object
     StateEntityDetailsResponseNonFungibleResourceDetails:
       allOf:
       - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
@@ -5439,12 +6338,22 @@ components:
             $ref: '#/components/schemas/BigDecimal'
           total_burned:
             $ref: '#/components/schemas/BigDecimal'
+          non_fungible_data_mutable_fields:
+            items:
+              type: string
+            type: array
+          two_way_linked_dapps:
+            $ref: '#/components/schemas/TwoWayLinkedDappsCollection'
+          native_resource_details:
+            $ref: '#/components/schemas/NativeResourceDetails'
         required:
+        - non_fungible_data_mutable_fields
         - non_fungible_id_type
         - role_assignments
         - total_burned
         - total_minted
         - total_supply
+        type: object
     StateEntityDetailsResponseFungibleVaultDetails:
       allOf:
       - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
@@ -5456,6 +6365,7 @@ components:
         required:
         - balance
         - resource_address
+        type: object
     StateEntityDetailsResponseNonFungibleVaultDetails:
       allOf:
       - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
@@ -5467,6 +6377,7 @@ components:
         required:
         - balance
         - resource_address
+        type: object
     StateEntityDetailsResponsePackageDetails:
       allOf:
       - $ref: '#/components/schemas/StateEntityDetailsResponseItemDetails'
@@ -5487,11 +6398,14 @@ components:
             $ref: '#/components/schemas/EntitySchemaCollection'
           role_assignments:
             $ref: '#/components/schemas/ComponentEntityRoleAssignments'
+          two_way_linked_dapp_address:
+            $ref: '#/components/schemas/Address'
         required:
         - code_hash_hex
         - code_hex
         - codes
         - vm_type
+        type: object
       description: "vm_type, code_hash_hex and code_hex are always going to be empty,\
         \ use `codes` property which will return collection (it's possible after protocol\
         \ update that package might have multiple codes)"
@@ -5513,9 +6427,16 @@ components:
             $ref: '#/components/schemas/BigDecimal'
           royalty_config:
             $ref: '#/components/schemas/ComponentRoyaltyConfig'
+          two_way_linked_dapp_address:
+            $ref: '#/components/schemas/Address'
+          two_way_linked_dapp_details:
+            $ref: '#/components/schemas/TwoWayLinkedDappOnLedgerDetails'
+          native_resource_details:
+            $ref: '#/components/schemas/NativeResourceDetails'
         required:
         - blueprint_name
         - blueprint_version
+        type: object
     StateAccountResourcePreferencesPageRequest:
       allOf:
       - $ref: '#/components/schemas/AtLedgerStateMixin'
@@ -5525,6 +6446,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - account_address
+        type: object
       example:
         account_address: null
     StateAccountResourcePreferencesPageResponse:
@@ -5536,6 +6458,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - account_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -5562,6 +6485,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - account_address
+        type: object
       example:
         account_address: null
     StateAccountAuthorizedDepositorsPageResponse:
@@ -5573,6 +6497,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - account_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -5595,6 +6520,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - package_address
+        type: object
       example:
         package_address: <package-address>
     StatePackageBlueprintPageResponse:
@@ -5606,6 +6532,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - package_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -5666,6 +6593,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - package_address
+        type: object
       example:
         package_address: <package-address>
     StatePackageCodePageResponse:
@@ -5677,6 +6605,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - package_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -5703,6 +6632,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - address
+        type: object
       example:
         address: <entity-address>
     StateEntityMetadataPageResponse:
@@ -5714,6 +6644,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -5756,6 +6687,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - address
+        type: object
       example:
         address: <package-address>
     StateEntitySchemaPageResponse:
@@ -5767,6 +6699,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -5795,6 +6728,7 @@ components:
             $ref: '#/components/schemas/StateEntityFungiblesPageRequestOptIns'
         required:
         - address
+        type: object
       example:
         address: <component-entity-address>
     StateEntityFungiblesPageRequestOptIns:
@@ -5807,6 +6741,7 @@ components:
           items:
             type: string
           type: array
+      type: object
     StateEntityFungiblesPageResponse:
       allOf:
       - $ref: '#/components/schemas/LedgerStateMixin'
@@ -5816,6 +6751,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -5895,6 +6831,7 @@ components:
         required:
         - address
         - resource_address
+        type: object
       example:
         address: <component-entity-address>
         resource_address: <resource-address>
@@ -5910,6 +6847,7 @@ components:
         required:
         - address
         - resource_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -5941,6 +6879,7 @@ components:
             $ref: '#/components/schemas/StateEntityNonFungiblesPageRequestOptIns'
         required:
         - address
+        type: object
       example:
         address: <component-entity-address>
     StateEntityNonFungiblesPageRequestOptIns:
@@ -5959,6 +6898,7 @@ components:
           items:
             type: string
           type: array
+      type: object
     StateEntityNonFungiblesPageResponse:
       allOf:
       - $ref: '#/components/schemas/LedgerStateMixin'
@@ -5968,6 +6908,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6049,6 +6990,7 @@ components:
         required:
         - address
         - resource_address
+        type: object
       example:
         address: <component-entity-address>
         resource_address: <resource-address>
@@ -6061,6 +7003,7 @@ components:
             \ for each non fungible resource, with cursor which can be later used\
             \ at `/state/entity/page/non-fungible-vault/ids` endpoint."
           type: boolean
+      type: object
     StateEntityNonFungibleResourceVaultsPageResponse:
       allOf:
       - $ref: '#/components/schemas/LedgerStateMixin'
@@ -6073,6 +7016,7 @@ components:
         required:
         - address
         - resource_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6114,6 +7058,7 @@ components:
         - address
         - resource_address
         - vault_address
+        type: object
       example:
         address: <component-entity-address>
         resource_address: null
@@ -6130,6 +7075,7 @@ components:
         required:
         - address
         - resource_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6153,6 +7099,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - resource_address
+        type: object
       example:
         resource_address: <non-fungible-entity-address>
     StateNonFungibleIdsResponse:
@@ -6166,6 +7113,7 @@ components:
         required:
         - non_fungible_ids
         - resource_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6194,6 +7142,7 @@ components:
         required:
         - non_fungible_ids
         - resource_address
+        type: object
       example:
         resource_address: <non-fungible-entity-address>
         non_fungible_ids:
@@ -6211,6 +7160,7 @@ components:
         required:
         - non_fungible_ids
         - resource_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6266,6 +7216,7 @@ components:
       - is_burned
       - last_updated_at_state_version
       - non_fungible_id
+      type: object
     StateNonFungibleDataRequest:
       allOf:
       - $ref: '#/components/schemas/AtLedgerStateMixin'
@@ -6280,6 +7231,7 @@ components:
         required:
         - non_fungible_ids
         - resource_address
+        type: object
       example:
         resource_address: <non-fungible-entity-address>
         non_fungible_ids:
@@ -6300,6 +7252,7 @@ components:
         - non_fungible_id_type
         - non_fungible_ids
         - resource_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6358,6 +7311,7 @@ components:
       - is_burned
       - last_updated_at_state_version
       - non_fungible_id
+      type: object
     StateKeyValueStoreKeysRequest:
       allOf:
       - $ref: '#/components/schemas/AtLedgerStateMixin'
@@ -6367,6 +7321,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - key_value_store_address
+        type: object
       example:
         key_value_store_address: <key-value-store-address>
     StateKeyValueStoreKeysResponse:
@@ -6378,6 +7333,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - key_value_store_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6413,6 +7369,7 @@ components:
             type: array
         required:
         - items
+        type: object
       description: Key value store items collection.
     StateKeyValueStoreKeysResponseItem:
       example:
@@ -6436,6 +7393,7 @@ components:
       required:
       - key
       - last_updated_at_state_version
+      type: object
     StateKeyValueStoreDataRequest:
       allOf:
       - $ref: '#/components/schemas/AtLedgerStateMixin'
@@ -6450,6 +7408,7 @@ components:
         required:
         - key_value_store_address
         - keys
+        type: object
       example:
         key_value_store_address: <key-value-store-address>
         keys:
@@ -6460,12 +7419,15 @@ components:
             - kind: U32
               value: "1"
     StateKeyValueStoreDataRequestKeyItem:
+      description: "Provide either `key_hex` or `key_json`. If both are provided,\
+        \ `key_hex` is used and `key_json` is ignored."
       properties:
         key_hex:
           description: Hex-encoded binary blob.
           type: string
         key_json:
           $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
+      type: object
     StateKeyValueStoreDataResponse:
       allOf:
       - $ref: '#/components/schemas/LedgerStateMixin'
@@ -6479,6 +7441,7 @@ components:
         required:
         - entries
         - key_value_store_address
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6551,6 +7514,7 @@ components:
       - key
       - last_updated_at_state_version
       - value
+      type: object
     StateAccountLockerPageVaultsRequest:
       allOf:
       - $ref: '#/components/schemas/AtLedgerStateMixin'
@@ -6594,6 +7558,7 @@ components:
             type: array
         required:
         - account_lockers
+        type: object
       example:
         account_lockers:
         - locker_address: <locker-address>
@@ -6608,6 +7573,7 @@ components:
             type: array
         required:
         - items
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6630,6 +7596,7 @@ components:
             $ref: '#/components/schemas/LastUpdatedAtStateVersion'
         required:
         - last_touched_at_state_version
+        type: object
       example:
         last_touched_at_state_version: null
         locker_address: locker_address
@@ -6641,8 +7608,9 @@ components:
           cursor:
             description: "This cursor allows forward pagination, by providing the\
               \ cursor from the previous request."
-            type: string
             nullable: true
+            type: string
+        type: object
       example:
         at_ledger_state: null
     StateValidatorsListResponse:
@@ -6653,6 +7621,7 @@ components:
             $ref: '#/components/schemas/ValidatorCollection'
         required:
         - validators
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6783,6 +7752,7 @@ components:
             items:
               $ref: '#/components/schemas/Address'
             type: array
+        type: object
       description: |
         For `at_ledger_state` and `from_ledger_state` you can use one of `state_version`, `epoch`, `epoch` and `round`, or `timestamp`, but then ongoing epoch will be selected and used for querying data.
         i.e for request with `{ "from_state_version" = { "state_version" = 100 }, "at_state_version" = { "state_version" = 300} }` gateway api will check in which epoch transactions with state version 100 and 300 were and then use that as inclusive boundary for request.
@@ -6808,6 +7778,7 @@ components:
             $ref: '#/components/schemas/ValidatorUptimeCollection'
         required:
         - validators
+        type: object
       example:
         ledger_state:
           state_version: 0
@@ -6825,7 +7796,36 @@ components:
             address: address
             proposals_missed: 6
             proposals_made: 0
+    ResourceHoldersRequest:
+      allOf:
+      - $ref: '#/components/schemas/CursorLimitMixin'
+      - properties:
+          resource_address:
+            $ref: '#/components/schemas/Address'
+        type: object
+      example:
+        limit_per_page: 100
+        resource_address: <resource-address>
+    ResourceHoldersResponse:
+      allOf:
+      - $ref: '#/components/schemas/ResourceHoldersCollection'
+      example:
+        next_cursor: next_cursor
+        total_count: 0
+        items:
+        - holder_address: holder_address
+          type: FungibleResource
+          last_updated_at_state_version: 6
+        - holder_address: holder_address
+          type: FungibleResource
+          last_updated_at_state_version: 6
     ErrorResponse:
+      example:
+        trace_id: trace_id
+        code: 0
+        details:
+          type: type
+        message: message
       properties:
         message:
           description: A human-readable error message.
@@ -6841,6 +7841,7 @@ components:
           type: string
       required:
       - message
+      type: object
     GatewayError:
       discriminator:
         mapping:
@@ -6853,6 +7854,8 @@ components:
           TransactionNotFoundError: '#/components/schemas/TransactionNotFoundError'
           InternalServerError: '#/components/schemas/InternalServerError'
         propertyName: type
+      example:
+        type: type
       properties:
         type:
           description: The type of error. Each subtype may have its own additional
@@ -6860,6 +7863,7 @@ components:
           type: string
       required:
       - type
+      type: object
     AccountLockerNotFoundError:
       allOf:
       - $ref: '#/components/schemas/GatewayError'
@@ -6872,6 +7876,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - address
+        type: object
     InvalidEntityError:
       allOf:
       - $ref: '#/components/schemas/GatewayError'
@@ -6880,6 +7885,7 @@ components:
             $ref: '#/components/schemas/Address'
         required:
         - address
+        type: object
     NotSyncedUpError:
       allOf:
       - $ref: '#/components/schemas/GatewayError'
@@ -6901,6 +7907,7 @@ components:
         - current_sync_delay_seconds
         - max_allowed_sync_delay_seconds
         - request_type
+        type: object
     InvalidRequestError:
       allOf:
       - $ref: '#/components/schemas/GatewayError'
@@ -6913,6 +7920,7 @@ components:
             type: array
         required:
         - validation_errors
+        type: object
     InvalidTransactionError:
       allOf:
       - $ref: '#/components/schemas/GatewayError'
@@ -6925,6 +7933,7 @@ components:
             $ref: '#/components/schemas/HashBech32mString'
         required:
         - intent_hash
+        type: object
     InternalServerError:
       allOf:
       - $ref: '#/components/schemas/GatewayError'
@@ -6940,6 +7949,7 @@ components:
         required:
         - cause
         - exception
+        type: object
     ValidationErrorsAtPath:
       properties:
         path:
@@ -6951,6 +7961,186 @@ components:
       required:
       - errors
       - path
+      type: object
+    NativeResourceUnitRedemptionValue:
+      items:
+        $ref: '#/components/schemas/NativeResourceRedemptionValueItem'
+      type: array
+    NativeResourceRedemptionValueItem:
+      properties:
+        resource_address:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        amount:
+          description: String-encoded decimal representing the amount of a related
+            fungible resource.
+          type: string
+      required:
+      - resource_address
+      type: object
+    NativeResourceKind:
+      enum:
+      - Xrd
+      - PackageOwnerBadge
+      - AccountOwnerBadge
+      - IdentityOwnerBadge
+      - ValidatorOwnerBadge
+      - Secp256k1SignatureResource
+      - Ed25519SignatureResource
+      - GlobalCallerResource
+      - PackageOfDirectCallerResource
+      - SystemExecutionResource
+      - ValidatorLiquidStakeUnit
+      - ValidatorClaimNft
+      - OneResourcePoolUnit
+      - TwoResourcePoolUnit
+      - MultiResourcePoolUnit
+      - AccessControllerRecoveryBadge
+      type: string
+    NativeResourceDetails:
+      discriminator:
+        mapping:
+          Xrd: '#/components/schemas/NativeResourceXrdValue'
+          PackageOwnerBadge: '#/components/schemas/NativeResourcePackageOwnerBadgeValue'
+          AccountOwnerBadge: '#/components/schemas/NativeResourceAccountOwnerBadgeValue'
+          IdentityOwnerBadge: '#/components/schemas/NativeResourceIdentityOwnerBadgeValue'
+          ValidatorOwnerBadge: '#/components/schemas/NativeResourceValidatorOwnerBadgeValue'
+          Secp256k1SignatureResource: '#/components/schemas/NativeResourceSecp256k1SignatureResourceValue'
+          Ed25519SignatureResource: '#/components/schemas/NativeResourceEd25519SignatureResourceValue'
+          GlobalCallerResource: '#/components/schemas/NativeResourceGlobalCallerResourceValue'
+          PackageOfDirectCallerResource: '#/components/schemas/NativeResourcePackageOfDirectCallerResourceValue'
+          SystemExecutionResource: '#/components/schemas/NativeResourceSystemExecutionResourceValue'
+          ValidatorLiquidStakeUnit: '#/components/schemas/NativeResourceValidatorLiquidStakeUnitValue'
+          ValidatorClaimNft: '#/components/schemas/NativeResourceValidatorClaimNftValue'
+          OneResourcePoolUnit: '#/components/schemas/NativeResourceOneResourcePoolUnitValue'
+          TwoResourcePoolUnit: '#/components/schemas/NativeResourceTwoResourcePoolUnitValue'
+          MultiResourcePoolUnit: '#/components/schemas/NativeResourceMultiResourcePoolUnitValue'
+          AccessControllerRecoveryBadge: '#/components/schemas/NativeResourceAccessControllerRecoveryBadgeValue'
+        propertyName: kind
+      properties:
+        kind:
+          $ref: '#/components/schemas/NativeResourceKind'
+      required:
+      - kind
+      type: object
+    NativeResourceXrdValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - type: object
+    NativeResourcePackageOwnerBadgeValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - type: object
+    NativeResourceAccountOwnerBadgeValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - type: object
+    NativeResourceIdentityOwnerBadgeValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - type: object
+    NativeResourceValidatorOwnerBadgeValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - type: object
+    NativeResourceSecp256k1SignatureResourceValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - type: object
+    NativeResourceEd25519SignatureResourceValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - type: object
+    NativeResourceGlobalCallerResourceValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - type: object
+    NativeResourcePackageOfDirectCallerResourceValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - type: object
+    NativeResourceSystemExecutionResourceValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - type: object
+    NativeResourceValidatorLiquidStakeUnitValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - properties:
+          validator_address:
+            $ref: '#/components/schemas/Address'
+          redemption_resource_count:
+            type: integer
+          unit_redemption_value:
+            $ref: '#/components/schemas/NativeResourceUnitRedemptionValue'
+        required:
+        - redemption_resource_count
+        - unit_redemption_value
+        - validator_address
+        type: object
+    NativeResourceValidatorClaimNftValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - properties:
+          validator_address:
+            $ref: '#/components/schemas/Address'
+        required:
+        - validator_address
+        type: object
+    NativeResourceOneResourcePoolUnitValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - properties:
+          pool_address:
+            $ref: '#/components/schemas/Address'
+          redemption_resource_count:
+            type: integer
+          unit_redemption_value:
+            $ref: '#/components/schemas/NativeResourceUnitRedemptionValue'
+        required:
+        - pool_address
+        - redemption_resource_count
+        - unit_redemption_value
+        type: object
+    NativeResourceTwoResourcePoolUnitValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - properties:
+          pool_address:
+            $ref: '#/components/schemas/Address'
+          redemption_resource_count:
+            type: integer
+          unit_redemption_value:
+            $ref: '#/components/schemas/NativeResourceUnitRedemptionValue'
+        required:
+        - pool_address
+        - redemption_resource_count
+        - unit_redemption_value
+        type: object
+    NativeResourceMultiResourcePoolUnitValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - properties:
+          pool_address:
+            $ref: '#/components/schemas/Address'
+          redemption_resource_count:
+            type: integer
+          unit_redemption_value:
+            $ref: '#/components/schemas/NativeResourceUnitRedemptionValue'
+        required:
+        - pool_address
+        - redemption_resource_count
+        - unit_redemption_value
+        type: object
+    NativeResourceAccessControllerRecoveryBadgeValue:
+      allOf:
+      - $ref: '#/components/schemas/NativeResourceDetails'
+      - properties:
+          access_controller_address:
+            $ref: '#/components/schemas/Address'
+        required:
+        - access_controller_address
+        type: object
     MetadataValueType:
       enum:
       - String
@@ -7029,6 +8219,7 @@ components:
           $ref: '#/components/schemas/MetadataValueType'
       required:
       - type
+      type: object
     MetadataStringValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7037,6 +8228,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataBoolValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7045,6 +8237,7 @@ components:
             type: boolean
         required:
         - value
+        type: object
     MetadataU8Value:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7053,6 +8246,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataU32Value:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7061,6 +8255,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataU64Value:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7069,6 +8264,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataI32Value:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7077,6 +8273,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataI64Value:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7085,6 +8282,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataDecimalValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7093,6 +8291,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataGlobalAddressValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7101,6 +8300,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataPublicKeyValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7109,6 +8309,7 @@ components:
             $ref: '#/components/schemas/PublicKey'
         required:
         - value
+        type: object
     MetadataNonFungibleGlobalIdValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7120,6 +8321,7 @@ components:
         required:
         - non_fungible_id
         - resource_address
+        type: object
     MetadataNonFungibleLocalIdValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7128,6 +8330,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataInstantValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7148,6 +8351,7 @@ components:
         required:
         - unix_timestamp_seconds
         - value
+        type: object
     MetadataUrlValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7156,6 +8360,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataOriginValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7164,6 +8369,7 @@ components:
             type: string
         required:
         - value
+        type: object
     MetadataPublicKeyHashValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7172,6 +8378,7 @@ components:
             $ref: '#/components/schemas/PublicKeyHash'
         required:
         - value
+        type: object
     MetadataStringArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7182,6 +8389,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataBoolArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7192,6 +8400,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataU8ArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7200,6 +8409,7 @@ components:
             type: string
         required:
         - value_hex
+        type: object
     MetadataU32ArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7210,6 +8420,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataU64ArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7220,6 +8431,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataI32ArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7230,6 +8442,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataI64ArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7240,6 +8453,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataDecimalArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7250,6 +8464,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataGlobalAddressArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7260,6 +8475,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataPublicKeyArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7270,6 +8486,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataNonFungibleGlobalIdArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7280,6 +8497,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataNonFungibleLocalIdArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7290,6 +8508,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataInstantArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7307,6 +8526,7 @@ components:
         required:
         - values
         - values_unix_timestamp_seconds
+        type: object
     MetadataUrlArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7317,6 +8537,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataOriginArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7327,6 +8548,7 @@ components:
             type: array
         required:
         - values
+        type: object
     MetadataPublicKeyHashArrayValue:
       allOf:
       - $ref: '#/components/schemas/MetadataTypedValue'
@@ -7337,6 +8559,7 @@ components:
             type: array
         required:
         - values
+        type: object
     ProgrammaticScryptoSborValueKind:
       description: |
         These are the Scrypto SBOR `ValueKind`s, but with `Bytes` added as an alias for `Vec`, to display such values as hex-encoded strings.
@@ -7434,17 +8657,18 @@ components:
             The name of the type of this value.
             This is only output when a schema is present and the type has a name.
             This property is ignored when the value is used as an input to the API.
-          type: string
           nullable: true
+          type: string
         field_name:
           description: |
             The name of the field which hosts this value.
             This property is only included if this value is a child of a `Tuple` or `Enum` with named fields.
             This property is ignored when the value is used as an input to the API.
-          type: string
           nullable: true
+          type: string
       required:
       - kind
+      type: object
     ProgrammaticScryptoSborValueBool:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7453,6 +8677,7 @@ components:
             type: boolean
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueI8:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7461,6 +8686,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueI16:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7469,6 +8695,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueI32:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7477,6 +8704,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueI64:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7485,6 +8713,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueI128:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7493,6 +8722,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueU8:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7501,6 +8731,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueU16:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7509,6 +8740,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueU32:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7517,6 +8749,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueU64:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7525,6 +8758,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueU128:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7533,6 +8767,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueString:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7541,14 +8776,13 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueEnum:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
       - properties:
           variant_id:
-            maximum: 255
-            minimum: 0
-            type: integer
+            type: string
           variant_name:
             type: string
           fields:
@@ -7558,6 +8792,7 @@ components:
         required:
         - fields
         - variant_id
+        type: object
     ProgrammaticScryptoSborValueArray:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7573,6 +8808,7 @@ components:
         required:
         - element_kind
         - elements
+        type: object
     ProgrammaticScryptoSborValueBytes:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7585,8 +8821,8 @@ components:
             $ref: '#/components/schemas/HexString'
         required:
         - element_kind
-        - elements
         - hex
+        type: object
     ProgrammaticScryptoSborValueMap:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7607,6 +8843,7 @@ components:
         - entries
         - key_kind
         - value_kind
+        type: object
     ProgrammaticScryptoSborValueMapEntry:
       properties:
         key:
@@ -7616,6 +8853,7 @@ components:
       required:
       - key
       - value
+      type: object
     ProgrammaticScryptoSborValueTuple:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7626,22 +8864,25 @@ components:
             type: array
         required:
         - fields
+        type: object
     ProgrammaticScryptoSborValueReference:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
       - properties:
           value:
-            type: string
+            $ref: '#/components/schemas/Address'
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueOwn:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
       - properties:
           value:
-            type: string
+            $ref: '#/components/schemas/Address'
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueDecimal:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7650,6 +8891,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValuePreciseDecimal:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7658,6 +8900,7 @@ components:
             type: string
         required:
         - value
+        type: object
     ProgrammaticScryptoSborValueNonFungibleLocalId:
       allOf:
       - $ref: '#/components/schemas/ProgrammaticScryptoSborValue'
@@ -7666,6 +8909,7 @@ components:
             type: string
         required:
         - value
+        type: object
     BlueprintRoyaltyConfig:
       example:
         is_enabled: true
@@ -7689,6 +8933,7 @@ components:
           type: array
       required:
       - is_enabled
+      type: object
     BlueprintMethodRoyalty:
       example:
         royalty_amount:
@@ -7702,6 +8947,7 @@ components:
           $ref: '#/components/schemas/RoyaltyAmount'
       required:
       - method_name
+      type: object
     ComponentRoyaltyConfig:
       properties:
         is_enabled:
@@ -7714,12 +8960,8 @@ components:
           type: array
       required:
       - is_enabled
+      type: object
     ComponentMethodRoyalty:
-      example:
-        royalty_amount:
-          amount: amount
-          unit: XRD
-        method_name: method_name
       properties:
         method_name:
           type: string
@@ -7727,6 +8969,7 @@ components:
           $ref: '#/components/schemas/RoyaltyAmount'
       required:
       - method_name
+      type: object
     RoyaltyAmount:
       example:
         amount: amount
@@ -7744,6 +8987,7 @@ components:
       required:
       - amount
       - unit
+      type: object
     ComponentEntityRoleAssignmentEntry_assignment:
       properties:
         resolution:
@@ -7754,6 +8998,7 @@ components:
           type: object
       required:
       - resolution
+      type: object
     ValidatorCollectionItem_effective_fee_factor_current:
       example:
         fee_factor: fee_factor
@@ -7764,10 +9009,12 @@ components:
           type: string
       required:
       - fee_factor
+      type: object
     ValidatorCollectionItem_effective_fee_factor_pending:
       example:
         fee_factor: fee_factor
         effective_at_epoch: 5962133916
+      nullable: true
       properties:
         fee_factor:
           description: String-encoded decimal representing the amount of a related
@@ -7781,7 +9028,7 @@ components:
       required:
       - effective_at_epoch
       - fee_factor
-      nullable: true
+      type: object
     ValidatorCollectionItem_effective_fee_factor:
       example:
         current:
@@ -7796,6 +9043,7 @@ components:
           $ref: '#/components/schemas/ValidatorCollectionItem_effective_fee_factor_pending'
       required:
       - current
+      type: object
     NetworkConfigurationResponse_well_known_addresses:
       example:
         secp256k1_signature_virtual_badge: secp256k1_signature_virtual_badge
@@ -7821,10 +9069,12 @@ components:
         faucet_package: faucet_package
         xrd: xrd
         validator_owner_badge: validator_owner_badge
+        transaction_tracker_package: transaction_tracker_package
         royalty_module_package: royalty_module_package
         pool_package: pool_package
         identity_package: identity_package
         package_of_direct_caller_virtual_badge: package_of_direct_caller_virtual_badge
+        test_utils_package: test_utils_package
         genesis_helper: genesis_helper
         identity_owner_badge: identity_owner_badge
       properties:
@@ -7915,6 +9165,12 @@ components:
         transaction_tracker:
           description: Bech32m-encoded human readable version of the address.
           type: string
+        transaction_tracker_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
+        test_utils_package:
+          description: Bech32m-encoded human readable version of the address.
+          type: string
       required:
       - access_controller_package
       - access_rules_package
@@ -7945,22 +9201,7 @@ components:
       - transaction_tracker
       - validator_owner_badge
       - xrd
-    TransactionPreviewRequest_flags:
-      example:
-        use_free_credit: true
-        assume_all_signature_proofs: true
-        skip_epoch_check: true
-      properties:
-        use_free_credit:
-          type: boolean
-        assume_all_signature_proofs:
-          type: boolean
-        skip_epoch_check:
-          type: boolean
-      required:
-      - assume_all_signature_proofs
-      - skip_epoch_check
-      - use_free_credit
+      type: object
     TransactionPreviewResponse_logs_inner:
       example:
         level: level
@@ -7973,7 +9214,14 @@ components:
       required:
       - level
       - message
+      type: object
     StreamTransactionsRequest_allOf_manifest_class_filter:
+      description: "Allows filtering to transactions which match the given manifest\
+        \ classification. If specified, the response will contain only transactions\
+        \ which have a class that matches the filter. If `match_only_most_specific`\
+        \ set to true, only transactions where the queried class is most specific\
+        \ will be returned. See the [docs on manifest classification](https://docs.radixdlt.com/docs/conforming-transaction-manifest-types)\
+        \ for more information."
       properties:
         class:
           $ref: '#/components/schemas/ManifestClass'
@@ -7982,6 +9230,7 @@ components:
           type: boolean
       required:
       - class
+      type: object
     StateEntityDetailsResponseComponentDetails_allOf_state:
       description: |
         A representation of a component's inner state. If this entity is a `GenericComponent`, this field will be in a programmatic JSON
@@ -8000,6 +9249,7 @@ components:
       required:
       - non_fungible_id
       - resource_address
+      type: object
 x-tagGroups:
 - name: Overview
   tags:
@@ -8014,4 +9264,5 @@ x-tagGroups:
   - Stream
   - State
   - Statistics
+  - Extensions
 

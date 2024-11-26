@@ -1,6 +1,6 @@
 # StatusApi
 
-All URIs are relative to *https://mainnet.radixdlt.com*
+All URIs are relative to *https://gateway.radix.live*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -30,7 +30,7 @@ import live.radix.gateway.client.StatusApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StatusApi apiInstance = new StatusApi(defaultClient);
         try {
@@ -92,7 +92,7 @@ import live.radix.gateway.client.StatusApi;
 public class Example {
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath("https://mainnet.radixdlt.com");
+        defaultClient.setBasePath("https://gateway.radix.live");
 
         StatusApi apiInstance = new StatusApi(defaultClient);
         try {

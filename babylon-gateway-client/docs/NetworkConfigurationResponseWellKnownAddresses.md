@@ -36,6 +36,8 @@
 |**poolPackage** | **String** | Bech32m-encoded human readable version of the address. |  |
 |**lockerPackage** | **String** | Bech32m-encoded human readable version of the address. |  |
 |**transactionTracker** | **String** | Bech32m-encoded human readable version of the address. |  |
+|**transactionTrackerPackage** | **String** | Bech32m-encoded human readable version of the address. |  [optional] |
+|**testUtilsPackage** | **String** | Bech32m-encoded human readable version of the address. |  [optional] |
 
 
 
