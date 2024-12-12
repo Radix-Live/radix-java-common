@@ -38,7 +38,7 @@ info:
     name: "The Radix License, Version 1.0"
     url: https://www.radixfoundation.org/licenses/license-v1
   title: Radix Gateway API - Babylon
-  version: v1.9.0-L
+  version: v1.9.2-L
   x-logo:
     url: https://cdn.document360.io/50e78792-5410-4ac9-aa43-4612b4d33953/Images/Documentation/radix-logo-banner.png
     href: https://docs.radixdlt.com
@@ -2320,7 +2320,6 @@ components:
         round: 1465812980
         epoch: 6027456183
         timestamp: 2000-01-23T04:56:07.000+00:00
-      nullable: true
       properties:
         state_version:
           description: "If provided, the latest ledger state lower than or equal to\
@@ -2358,7 +2357,6 @@ components:
         cursor:
           description: "This cursor allows forward pagination, by providing the cursor\
             \ from the previous request."
-          nullable: true
           type: string
         limit_per_page:
           description: The page size requested.
@@ -2432,7 +2430,6 @@ components:
         next_cursor:
           description: "If specified, contains a cursor to query next page of the\
             \ `items` collection."
-          nullable: true
           type: string
       type: object
     LedgerState:
@@ -2859,7 +2856,7 @@ components:
         role_key:
           $ref: '#/components/schemas/RoleKey'
         assignment:
-          $ref: '#/components/schemas/ComponentEntityRoleAssignmentEntry_assignment'
+          $ref: '#/components/schemas/ComponentEntityRoleAssignmentEntryAssignment'
         updater_roles:
           items:
             $ref: '#/components/schemas/RoleKey'
@@ -2868,6 +2865,36 @@ components:
       - assignment
       - role_key
       type: object
+    ComponentEntityRoleAssignmentEntryAssignment:
+      description: |
+        Resolving the rule for this role:
+
+        If the resolution is Explicit, the rule can be read off the `explicit_rule` property on this object.
+        If the resolution is Owner, the rule can be read off `role_assignments.owner.rule `off the role assignments object two levels up.
+      discriminator:
+        mapping:
+          Explicit: '#/components/schemas/ComponentEntityRoleAssignmentEntryExplicitAssignment'
+          Owner: '#/components/schemas/ComponentEntityRoleAssignmentEntryOwnerAssignment'
+        propertyName: resolution
+      properties:
+        resolution:
+          $ref: '#/components/schemas/RoleAssignmentResolution'
+      required:
+      - resolution
+      type: object
+    ComponentEntityRoleAssignmentEntryOwnerAssignment:
+      allOf:
+      - $ref: '#/components/schemas/ComponentEntityRoleAssignmentEntryAssignment'
+      - type: object
+    ComponentEntityRoleAssignmentEntryExplicitAssignment:
+      allOf:
+      - $ref: '#/components/schemas/ComponentEntityRoleAssignmentEntryAssignment'
+      - properties:
+          explicit_rule:
+            $ref: '#/components/schemas/ComponentEntityRoleAssignmentEntryExplicitAssignment_allOf_explicit_rule'
+        required:
+        - explicit_rule
+        type: object
     RoleAssignmentResolution:
       enum:
       - Explicit
@@ -3596,7 +3623,6 @@ components:
           nullable: true
           type: string
         error_message:
-          nullable: true
           type: string
         raw_hex:
           description: Hex-encoded binary blob.
@@ -3757,7 +3783,6 @@ components:
           type: array
         error_message:
           description: Error message (only present if status is `Failed` or `Rejected`)
-          nullable: true
           type: string
       type: object
     EventsItem:
@@ -4098,7 +4123,6 @@ components:
           description: |
             Validator inner state representation.
             This type is defined in the Core API as `ValidatorFieldStateValue`. See the Core API documentation for more details.
-          nullable: true
           type: object
         active_in_epoch:
           $ref: '#/components/schemas/ValidatorCollectionItemActiveInEpoch'
@@ -4797,7 +4821,6 @@ components:
               Please note that presence of an error message doesn't imply that the intent
               will definitely reject or fail. This could represent a temporary error (such as out
               of fees), or an error with a payload which doesn't end up being committed.
-            nullable: true
             type: string
         required:
         - intent_status
@@ -4868,7 +4891,6 @@ components:
             will definitely reject or fail. This could represent an error during a temporary
             rejection (such as out of fees) which then gets resolved (e.g. by depositing money
             to pay the fee), allowing the transaction to be committed.
-          nullable: true
           type: string
         latest_error_message:
           description: |
@@ -4880,21 +4902,18 @@ components:
             will definitely reject or fail. This could represent an error during a temporary
             rejection (such as out of fees) which then gets resolved (e.g. by depositing money
             to pay the fee), allowing the transaction to be committed.
-          nullable: true
           type: string
         handling_status:
           $ref: '#/components/schemas/TransactionPayloadGatewayHandlingStatus'
         handling_status_reason:
           description: |
             Additional reason for why the Gateway has its current handling status.
-          nullable: true
           type: string
         submission_error:
           description: |
             The most recent error message received when submitting this transaction to the network.
             Please note that the presence of an error message doesn't imply that this transaction
             payload will definitely reject or fail. This could be a transient error.
-          nullable: true
           type: string
       required:
       - payload_hash
@@ -5143,7 +5162,6 @@ components:
           - null
           entity_address: entity_address
           resource_address: resource_address
-      nullable: true
       properties:
         fungible_fee_balance_changes:
           description: |
@@ -5395,7 +5413,6 @@ components:
           next_cursor:
             description: "If specified, contains a cursor to query next page of the\
               \ `items` collection."
-            nullable: true
             type: string
           items:
             description: The page of user transactions.
@@ -7608,7 +7625,6 @@ components:
           cursor:
             description: "This cursor allows forward pagination, by providing the\
               \ cursor from the previous request."
-            nullable: true
             type: string
         type: object
       example:
@@ -7972,8 +7988,13 @@ components:
           description: Bech32m-encoded human readable version of the address.
           type: string
         amount:
-          description: String-encoded decimal representing the amount of a related
-            fungible resource.
+          description: |
+            description: String-encoded decimal representing the amount of a related fungible resource.
+
+            This gives the amount of the given resource which will be received for redeeming 1 unit resource (e.g. pool units or validator stake units).
+
+            If there is zero supply of the unit resource, then the unit redemption value has no meaning and this field will not be returned.
+            If clients are using this value as a multiplier for calculations, they can substitute any-non zero value such as "1" for the multiplier in this case.
           type: string
       required:
       - resource_address
@@ -8657,14 +8678,12 @@ components:
             The name of the type of this value.
             This is only output when a schema is present and the type has a name.
             This property is ignored when the value is used as an input to the API.
-          nullable: true
           type: string
         field_name:
           description: |
             The name of the field which hosts this value.
             This property is only included if this value is a child of a `Tuple` or `Enum` with named fields.
             This property is ignored when the value is used as an input to the API.
-          nullable: true
           type: string
       required:
       - kind
@@ -8988,16 +9007,9 @@ components:
       - amount
       - unit
       type: object
-    ComponentEntityRoleAssignmentEntry_assignment:
-      properties:
-        resolution:
-          $ref: '#/components/schemas/RoleAssignmentResolution'
-        explicit_rule:
-          description: |
-            This type is defined in the Core API as `AccessRule`. See the Core API documentation for more details.
-          type: object
-      required:
-      - resolution
+    ComponentEntityRoleAssignmentEntryExplicitAssignment_allOf_explicit_rule:
+      description: |
+        This type is defined in the Core API as `AccessRule`. See the Core API documentation for more details.
       type: object
     ValidatorCollectionItem_effective_fee_factor_current:
       example:
@@ -9014,7 +9026,6 @@ components:
       example:
         fee_factor: fee_factor
         effective_at_epoch: 5962133916
-      nullable: true
       properties:
         fee_factor:
           description: String-encoded decimal representing the amount of a related

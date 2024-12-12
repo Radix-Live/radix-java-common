@@ -2,9 +2,9 @@
 
 Radix Gateway API - Babylon
 
-- API version: v1.9.0-L
+- API version: v1.9.2-L
 
-- Build date: 2024-11-26T13:09:04.159608300+02:00[Europe/Kiev]
+- Build date: 2024-12-12T19:38:04.213407200+02:00[Europe/Kiev]
 
 - Generator version: 7.7.0
 
@@ -77,7 +77,7 @@ Add this dependency to your project's POM:
 <dependency>
   <groupId>live.radix</groupId>
   <artifactId>babylon-gateway-client</artifactId>
-  <version>v1.9.0-L</version>
+  <version>v1.9.2-L</version>
   <scope>compile</scope>
 </dependency>
 ```
@@ -87,7 +87,7 @@ Add this dependency to your project's POM:
 Add this dependency to your project's build file:
 
 ```groovy
-compile "live.radix:babylon-gateway-client:v1.9.0-L"
+compile "live.radix:babylon-gateway-client:v1.9.2-L"
 ```
 
 ### Others
@@ -100,7 +100,7 @@ mvn clean package
 
 Then manually install the following JARs:
 
-- `target/babylon-gateway-client-v1.9.0-L.jar`
+- `target/babylon-gateway-client-v1.9.2-L.jar`
 - `target/lib/*.jar`
 
 ## Getting Started
@@ -210,6 +210,8 @@ Class | Method | HTTP request | Description
  - [CompiledPreviewTransaction](docs/CompiledPreviewTransaction.md)
  - [ComponentEntityRoleAssignmentEntry](docs/ComponentEntityRoleAssignmentEntry.md)
  - [ComponentEntityRoleAssignmentEntryAssignment](docs/ComponentEntityRoleAssignmentEntryAssignment.md)
+ - [ComponentEntityRoleAssignmentEntryExplicitAssignment](docs/ComponentEntityRoleAssignmentEntryExplicitAssignment.md)
+ - [ComponentEntityRoleAssignmentEntryOwnerAssignment](docs/ComponentEntityRoleAssignmentEntryOwnerAssignment.md)
  - [ComponentEntityRoleAssignments](docs/ComponentEntityRoleAssignments.md)
  - [ComponentMethodRoyalty](docs/ComponentMethodRoyalty.md)
  - [ComponentRoyaltyConfig](docs/ComponentRoyaltyConfig.md)
