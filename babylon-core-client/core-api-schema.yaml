@@ -97,6 +97,7 @@ info:
 
 servers:
   - url: 'https://core.radix.live/core'
+  - url: 'https://stokenet-core.radix.live/core'
   - url: 'localhost:3333/core'
 # See https://redocly.com/docs/api-reference-docs/specification-extensions/x-tag-groups/ for details
 x-tagGroups:
