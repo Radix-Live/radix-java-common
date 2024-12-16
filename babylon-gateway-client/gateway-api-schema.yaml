@@ -44,7 +44,9 @@ info:
     will be flagged in the release notes so clients doing custom DB integrations can prepare.
 servers:
   - url: https://gateway.radix.live
+  - url: https://mainnet.radixdlt.com
   - url: https://stokenet-gateway.radix.live
+  - url: https://stokenet.radixdlt.com
 x-tagGroups:
   - name: Overview
     tags:
